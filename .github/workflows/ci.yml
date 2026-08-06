@@ -1,0 +1,576 @@
+#
+# Copyright (c) 2025. Tevo Global Limited
+#
+# This software and all accompanying documentation is the sole property of
+# Tevo Global Limited and is protected by copyright law and international treaties.
+#
+# Unauthorized copying, distribution, or reproduction of this software, or any
+# portion of it, is strictly prohibited. The software is licensed to you solely for
+# your personal use and may not be used for commercial purposes without
+# a separate license agreement.
+#
+# You may not modify, reverse engineer, decompile, or disassemble this software.
+# You are not permitted to remove or alter any copyright notices or proprietary
+# legends from the software.
+#
+# All rights not expressly granted herein are reserved by Tevo Global Limited.
+# Contact information: hello@tevo.app
+#
+
+name: CI Pipeline
+
+on:
+  push:
+    tags:
+      - '*'
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+  workflow_dispatch:
+    inputs:
+      custom_version_name:
+        description: 'Custom version name'
+        required: false
+        default: 'Manual-Build'
+        type: string
+      custom_version_code:
+        description: 'Custom version code (optional, will use run_number if not provided)'
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run_tests:
+    name: Run Tests
+    runs-on: [ self-hosted, linux ]
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Set Up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set Up Android SDK Tools
+        uses: android-actions/setup-android@v3
+
+      - name: Save google-services.json
+        id: decode_google_services_tests
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        if: env.GOOGLE_SERVICES_JSON != ''
+        run: echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
+
+      - name: Run All Tests
+        run: |
+          chmod +x ./gradlew
+          ./gradlew test
+
+  build_app_artifact:
+    name: Build App Artifact
+    runs-on: ${{ ((github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag') && 'ubuntu-latest' || fromJSON('["self-hosted", "linux"]') }}
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+    steps:
+      - name: Discord Notification - Start Build
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.DISCORD_WEBHOOK != ''
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            🔨 **Building [Release ${{ github.ref_name }}](<${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}>)**
+            **Repository:** [${{ github.repository }}](<${{ github.server_url }}/${{ github.repository }}>)
+            **Author:** [${{ github.actor }}](<https://github.com/orgs/${{ github.repository_owner }}/people/${{ github.actor }}>)
+            **Commit:** [${{ github.sha }}](<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}>)
+            **[Github Job](<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>)**
+            
+            🚧 Build is starting... This may take a few minutes.
+
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Validate RC Tag Source Branch
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && contains(github.ref_name, '-')
+        run: |
+          # For RC tags (containing hyphens), validate they come from release/X.Y.Z branches or main
+          TAG_COMMIT_SHA="${{ github.sha }}"
+          echo "🏷️ Validating RC tag '${{ github.ref_name }}' from commit: $TAG_COMMIT_SHA"
+          
+          # Check if tag is from main branch first
+          echo "🔍 Checking if commit exists on main branch..."
+          MAIN_COMMITS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/commits?sha=main&per_page=100")
+          
+          COMMIT_ON_MAIN=$(echo "$MAIN_COMMITS" | jq -r --arg sha "$TAG_COMMIT_SHA" '.[] | select(.sha == $sha) | .sha')
+          
+          if [[ -n "$COMMIT_ON_MAIN" ]]; then
+            echo "✅ RC tag '${{ github.ref_name }}' created from main branch commit"
+            echo "BRANCH_VALIDATION=passed" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          # Check if tag is from any release/X.Y.Z branch
+          echo "🔍 Checking release branches..."
+          RELEASE_BRANCHES=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/branches" | \
+            jq -r '.[] | select(.name | startswith("release/")) | .name')
+          
+          VALID_BRANCH_FOUND=""
+          for branch in $RELEASE_BRANCHES; do
+            echo "🔍 Checking branch: $branch"
+            BRANCH_COMMITS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${{ github.repository }}/commits?sha=$branch&per_page=100")
+          
+            COMMIT_ON_BRANCH=$(echo "$BRANCH_COMMITS" | jq -r --arg sha "$TAG_COMMIT_SHA" '.[] | select(.sha == $sha) | .sha')
+          
+            if [[ -n "$COMMIT_ON_BRANCH" ]]; then
+              echo "✅ RC tag '${{ github.ref_name }}' created from release branch: $branch"
+              VALID_BRANCH_FOUND="$branch"
+              break
+            fi
+          done
+          
+          if [[ -z "$VALID_BRANCH_FOUND" ]]; then
+            echo "❌ RC tag '${{ github.ref_name }}' must be created from main branch or release/X.Y.Z branch"
+            echo "❌ Current commit '$TAG_COMMIT_SHA' not found on any authorized branch"
+            echo "❌ SKIPPING CI EXECUTION - Tag created from unauthorized branch"
+            echo "BRANCH_VALIDATION=failed" >> $GITHUB_ENV
+            exit 1
+          fi
+          
+          echo "✅ RC tag validation passed for branch: $VALID_BRANCH_FOUND"
+          echo "BRANCH_VALIDATION=passed" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate Production Tag Source Branch
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && !contains(github.ref_name, '-')
+        run: |
+          # For production tags (no hyphens), validate they come from release/X.Y.Z branches or main
+          TAG_COMMIT_SHA="${{ github.sha }}"
+          echo "🏷️ Validating production tag '${{ github.ref_name }}' from commit: $TAG_COMMIT_SHA"
+          
+          # Check if tag is from main branch first
+          echo "🔍 Checking if commit exists on main branch..."
+          MAIN_COMMITS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/commits?sha=main&per_page=100")
+          
+          COMMIT_ON_MAIN=$(echo "$MAIN_COMMITS" | jq -r --arg sha "$TAG_COMMIT_SHA" '.[] | select(.sha == $sha) | .sha')
+          
+          if [[ -n "$COMMIT_ON_MAIN" ]]; then
+            echo "✅ Production tag '${{ github.ref_name }}' created from main branch commit"
+            echo "BRANCH_VALIDATION=passed" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          # Check if tag is from any release/X.Y.Z branch
+          echo "🔍 Checking release branches..."
+          RELEASE_BRANCHES=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/branches" | \
+            jq -r '.[] | select(.name | startswith("release/")) | .name')
+          
+          VALID_BRANCH_FOUND=""
+          for branch in $RELEASE_BRANCHES; do
+            echo "🔍 Checking branch: $branch"
+            BRANCH_COMMITS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${{ github.repository }}/commits?sha=$branch&per_page=100")
+          
+            COMMIT_ON_BRANCH=$(echo "$BRANCH_COMMITS" | jq -r --arg sha "$TAG_COMMIT_SHA" '.[] | select(.sha == $sha) | .sha')
+          
+            if [[ -n "$COMMIT_ON_BRANCH" ]]; then
+              echo "✅ Production tag '${{ github.ref_name }}' created from release branch: $branch"
+              VALID_BRANCH_FOUND="$branch"
+              break
+            fi
+          done
+          
+          if [[ -z "$VALID_BRANCH_FOUND" ]]; then
+            echo "❌ Production tag '${{ github.ref_name }}' must be created from main branch or release/X.Y.Z branch"
+            echo "❌ Current commit '$TAG_COMMIT_SHA' not found on any authorized branch"
+            echo "❌ SKIPPING CI EXECUTION - Tag created from unauthorized branch"
+            echo "BRANCH_VALIDATION=failed" >> $GITHUB_ENV
+            exit 1
+          fi
+          
+          echo "✅ Production tag validation passed for branch: $VALID_BRANCH_FOUND"
+          echo "BRANCH_VALIDATION=passed" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip Build for Invalid Tag Source
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.BRANCH_VALIDATION == 'failed'
+        run: |
+          echo "⏭️  SKIPPING BUILD - Tag '${{ github.ref_name }}' created from unauthorized branch"
+          echo "✅ This is expected behavior for selective CI execution"
+          echo "📝 Only tags from main or release/X.Y.Z branches trigger release builds"
+          exit 0
+
+      - name: Set Up JDK 21
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set Up Android SDK Tools
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        uses: android-actions/setup-android@v3
+
+      - name: Determine Version Name and Code
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        id: set_versions
+        run: |
+          # versionCode logic: use custom if provided for workflow_dispatch, otherwise use run_number
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.custom_version_code }}" ]]; then
+            VERSION_CODE="${{ inputs.custom_version_code }}"
+            echo "Using custom versionCode from input: $VERSION_CODE"
+          else
+            VERSION_CODE=${{ github.run_number }}
+            echo "Using run_number as versionCode: $VERSION_CODE"
+          fi
+          
+          # Add version code offset if provided
+          if [[ -n "${{ vars.VERSION_CODE_OFFSET }}" ]]; then
+            VERSION_CODE_OFFSET="${{ vars.VERSION_CODE_OFFSET }}"
+            VERSION_CODE=$((VERSION_CODE + VERSION_CODE_OFFSET))
+            echo "Added version code offset $VERSION_CODE_OFFSET. Final versionCode: $VERSION_CODE"
+          fi
+          
+          VERSION_NAME=""
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # For Pull Requests: 'PR#number-branch-name'
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            BRANCH_NAME="${{ github.head_ref }}"
+            VERSION_NAME="PR#${PR_NUMBER}-${BRANCH_NAME}"
+            echo "Detected PR event. Setting versionName to: $VERSION_NAME"
+          elif [[ ("${{ github.event_name }}" == "create" || "${{ github.event_name }}" == "push") && "${{ github.ref_type == 'tag' }}" == "true" ]]; then
+            # For tag create event (GitHub web GUI) or tag push event (command line): 'tag name'
+            TAG_NAME="${{ github.ref_name }}" # github.ref_name gives the tag name directly
+            VERSION_NAME="${TAG_NAME}"
+            echo "Detected tag ${{ github.event_name }}. Setting versionName to tag name: $VERSION_NAME"
+          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+            # For nightly builds: 'Nightly-YYYY-MM-DD'
+            NIGHTLY_DATE=$(date +"%Y-%m-%d")
+            COMMIT_HASH=$(echo "${{ github.sha }}" | cut -c1-7)
+            VERSION_NAME="Nightly-${NIGHTLY_DATE}-${COMMIT_HASH}"
+            echo "Detected nightly build. Setting versionName to: $VERSION_NAME"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # For manual workflow dispatch
+            if [[ -n "${{ inputs.custom_version_name }}" ]]; then
+              # Use custom version name if provided (will always have default value)
+              VERSION_NAME="${{ inputs.custom_version_name }}"
+              echo "Using custom version name from input: $VERSION_NAME"
+            fi
+          else
+            # Fallback for other events or branches (e.g., pushes to feature branches not covered by PR)
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g') # Sanitize branch name for versioning
+            COMMIT_HASH=$(echo "${{ github.sha }}" | cut -c1-7)
+            VERSION_NAME="DEV-${BRANCH_NAME}-${COMMIT_HASH}"
+            echo "Detected other event/branch. Setting versionName to: $VERSION_NAME"
+          fi
+          
+          # Sanitize version name by replacing forward slashes with hyphens to prevent artifact naming conflicts
+          VERSION_NAME=$(echo "$VERSION_NAME" | sed 's/\//-/g')
+          echo "Sanitized versionName (replaced / with -): $VERSION_NAME"
+          
+          # Output the calculated versions to be used by subsequent steps
+          echo "ciVersionCode=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "ciVersionName=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Decode Keystore
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        id: decode_keystore
+        run: |
+          base64 -d <<< "${{ secrets.SIGNING_KEY_STORE_BASE64 }}" > keystore
+          echo "keystore_path=$PWD/keystore" >> "$GITHUB_OUTPUT"
+
+      - name: Save google-services.json
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        id: save_google_services
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [[ -n "$GOOGLE_SERVICES_JSON" ]]; then
+            echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
+          fi
+
+      - name: Build :app Module Artifact
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        run: |
+          export GRADLE_OPTS=-Xmx6g
+          chmod +x ./gradlew
+          ./gradlew app:signingReport :app:assembleProductionRelease :app:bundleProductionRelease \
+            -PciVersionCode=${{ steps.set_versions.outputs.ciVersionCode }} \
+            -PciVersionName=${{ steps.set_versions.outputs.ciVersionName }} \
+            -PSIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS }}" \
+            -PSIGNING_KEY_STORE_PATH="${{ steps.decode_keystore.outputs.keystore_path }}" \
+            -PSIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD }}" \
+            -PSIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD }}"
+
+      - name: Upload APK to Google Drive
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.BRANCH_VALIDATION != 'failed'
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.GG_DRIVE_CREDENTIAL_JSON_BASE64 }}
+          filename: "app/build/outputs/apk/production/release/*.apk"
+          folderId: ${{ secrets.GG_DRIVE_FOLDER_ID }}
+
+      - name: Upload AAB to Google Drive
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.BRANCH_VALIDATION != 'failed'
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.GG_DRIVE_CREDENTIAL_JSON_BASE64 }}
+          filename: "app/build/outputs/bundle/productionRelease/*.aab"
+          folderId: ${{ secrets.GG_DRIVE_FOLDER_ID }}
+
+      - name: Handle Release for Tags
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.BRANCH_VALIDATION != 'failed'
+        uses: softprops/action-gh-release@v2
+        continue-on-error: true
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+          files: |
+            app/build/outputs/apk/production/release/*.apk
+            app/build/outputs/bundle/productionRelease/*.aab
+            app/build/outputs/mapping/productionRelease/mapping.txt
+            app/build/outputs/mapping/productionRelease/resources.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Release Notes
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.BRANCH_VALIDATION != 'failed'
+        id: release_notes
+        run: |
+          # Get the release notes from the created release using GitHub API
+          RELEASE_NOTES=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}" \
+            | jq -r '.body // "No release notes available"')
+          
+          # Transform PR links to markdown format [#PR-number](PR-link)
+          RELEASE_NOTES=$(echo "$RELEASE_NOTES" | perl -pe 's|(https?://github\.com/[^/]+/[^/]+/pull/(\d+))|\#$2|g')
+          
+          # Truncate release notes if too long (Discord has message limits)
+          if [ ${#RELEASE_NOTES} -gt 1000 ]; then
+            RELEASE_NOTES="${RELEASE_NOTES:0:1000}..."
+          fi
+          # Escape newlines and quotes for GitHub output
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" > release_note.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Release Notes for PR
+        if: github.event_name == 'pull_request' && env.BRANCH_VALIDATION != 'failed'
+        id: pr_release_notes
+        run: |
+          # Create release notes for PR
+          echo "Pull Request Information" > release_note.txt
+          echo "========================" >> release_note.txt
+          echo "" >> release_note.txt
+          # Escape backticks in PR title to avoid shell issues
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_TITLE_ESCAPED="${PR_TITLE//\`/\\\`}"
+          echo "Title: $PR_TITLE_ESCAPED" >> release_note.txt
+          echo "Number: #${{ github.event.pull_request.number }}" >> release_note.txt
+          echo "Author: ${{ github.event.pull_request.user.login }}" >> release_note.txt
+          echo "Branch: ${{ github.head_ref }} -> ${{ github.base_ref }}" >> release_note.txt
+          echo "URL: ${{ github.event.pull_request.html_url }}" >> release_note.txt
+          echo "" >> release_note.txt
+          
+          # Add assignee information if available
+          if [[ -n "${{ github.event.pull_request.assignee.login }}" ]]; then
+            echo "Assignee: ${{ github.event.pull_request.assignee.login }}" >> release_note.txt
+          else
+            echo "Assignee: Not assigned" >> release_note.txt
+          fi
+          echo "" >> release_note.txt
+          
+          # Add PR body if available
+          if [[ -n "${{ github.event.pull_request.body }}" ]]; then
+            echo "Description:" >> release_note.txt
+            PR_BODY="${{ github.event.pull_request.body }}"
+            # Transform PR links to markdown format [#PR-number](PR-link)
+            PR_BODY=$(echo "$PR_BODY" | perl -pe 's|(https?://github\.com/[^/]+/[^/]+/pull/(\d+))|\#$2|g')
+            echo "$PR_BODY" >> release_note.txt
+          else
+            echo "Description: No description provided" >> release_note.txt
+          fi
+          echo "" >> release_note.txt
+          
+          # Add commit information
+          echo "Commits: ${{ github.event.pull_request.commits }}" >> release_note.txt
+          echo "Files Changed: ${{ github.event.pull_request.changed_files }}" >> release_note.txt
+          echo "Additions: +${{ github.event.pull_request.additions }}" >> release_note.txt
+          echo "Deletions: -${{ github.event.pull_request.deletions }}" >> release_note.txt
+
+      - name: Save Firebase Distribution Credential
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        id: save_firebase_credentials
+        env:
+          FIREBASE_DISTRIBUTION_CREDENTIAL_JSON: ${{ secrets.FIREBASE_DISTRIBUTION_CREDENTIAL_JSON }}
+        run: |
+          echo "$FIREBASE_DISTRIBUTION_CREDENTIAL_JSON" > firebase_distribution_credential.json
+
+      - name: Upload APK to Firebase Distribution
+        if: ((vars.FIREBASE_DISTRIBUTION_SKIP_APK == '' || contains(vars.FIREBASE_DISTRIBUTION_SKIP_APK, 'false')) && hashFiles('release_note.txt') != '') && ((github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed')
+        id: upload_apk
+        run: |
+          ./gradlew --stop
+          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/firebase_distribution_credential.json
+          ./gradlew :app:appDistributionUploadRelease \
+            --artifactType="APK" \
+            --testersFile=.distribution/testers.txt \
+            --groupsFile=.distribution/tester_groups.txt \
+            --releaseNotesFile=release_note.txt | tee upload_apk_output.txt
+          
+          # Extract Firebase links
+          CONSOLE_LINK=$(grep "View this release in the Firebase console:" upload_apk_output.txt | sed 's/.*View this release in the Firebase console: //')
+          SHARE_LINK=$(grep "Share this release with testers who have access:" upload_apk_output.txt | sed 's/.*Share this release with testers who have access: //')
+          
+          echo "console_link=$CONSOLE_LINK" >> $GITHUB_OUTPUT
+          echo "share_link=$SHARE_LINK" >> $GITHUB_OUTPUT
+
+      - name: Upload AAB to Firebase Distribution
+        if: ((vars.FIREBASE_DISTRIBUTION_SKIP_AAB == '' || contains(vars.FIREBASE_DISTRIBUTION_SKIP_AAB, 'false')) && hashFiles('release_note.txt') != '') && ((github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed')
+        id: upload_aab
+        run: |
+          ./gradlew --stop
+          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/firebase_distribution_credential.json
+          AAB_PATH=$(find app/build/outputs/bundle/productionRelease -name "*.aab" -type f | head -n 1)
+          if [ -z "$AAB_PATH" ]; then
+            echo "No AAB file found!"
+            exit 1
+          fi
+          echo "Found AAB at: $AAB_PATH"
+          ./gradlew :app:appDistributionUploadProductionRelease \
+            --artifactType="AAB" \
+            --artifactPath="$AAB_PATH" \
+            --testersFile=.distribution/testers.txt \
+            --groupsFile=.distribution/tester_groups.txt \
+            --releaseNotesFile=release_note.txt | tee upload_aab_output.txt
+          
+          # Extract Firebase links
+          CONSOLE_LINK=$(grep "View this release in the Firebase console:" upload_aab_output.txt | sed 's/.*View this release in the Firebase console: //')
+          SHARE_LINK=$(grep "Share this release with testers who have access:" upload_aab_output.txt | sed 's/.*Share this release with testers who have access: //')
+          
+          echo "console_link=$CONSOLE_LINK" >> $GITHUB_OUTPUT
+          echo "share_link=$SHARE_LINK" >> $GITHUB_OUTPUT
+
+      - name: Extract Firebase Distribution links
+        if: (github.event_name != 'push' && github.event_name != 'create') || github.ref_type != 'tag' || env.BRANCH_VALIDATION != 'failed'
+        id: extract_distribution_links
+        env:
+          APK_CONSOLE_LINK: ${{ steps.upload_apk.outputs.console_link }}
+          APK_SHARE_LINK: ${{ steps.upload_apk.outputs.share_link }}
+          AAB_CONSOLE_LINK: ${{ steps.upload_aab.outputs.console_link }}
+          AAB_SHARE_LINK: ${{ steps.upload_aab.outputs.share_link }}
+        run: |
+          # Prepare Firebase links section if any links exist
+          FIREBASE_SECTION=""
+          if [[ -n "$APK_CONSOLE_LINK" || -n "$AAB_CONSOLE_LINK" ]]; then
+            FIREBASE_SECTION+="📱 **Firebase Distribution:**\n"
+
+            if [[ -n "$APK_CONSOLE_LINK" ]]; then
+              FIREBASE_SECTION+="- [View/Download APK release on Firebase Distribution](<$APK_CONSOLE_LINK>)\n"
+            fi
+
+            if [[ -n "$APK_SHARE_LINK" ]]; then
+              FIREBASE_SECTION+="- [Install APK in App Tester](<$APK_SHARE_LINK>)\n"
+            fi
+            if [[ -n "$AAB_CONSOLE_LINK" ]]; then
+              FIREBASE_SECTION+="- [View/Download AAB release on Firebase Distribution](<$AAB_CONSOLE_LINK>)\n"
+            fi
+
+            if [[ -n "$AAB_SHARE_LINK" ]]; then
+              FIREBASE_SECTION+="- [Install AAB in App Tester](<$AAB_SHARE_LINK>)\n"
+            fi
+          fi
+          
+          # Add Google Drive folder link if available
+          GOOGLE_DRIVE_SECTION=""
+          if [[ -n "${{ secrets.GG_DRIVE_FOLDER_ID }}" ]]; then
+            GOOGLE_DRIVE_SECTION+="📁 **[Google Drive](<https://drive.google.com/drive/folders/${{ secrets.GG_DRIVE_FOLDER_ID }}>)**\n"
+          fi
+          
+          # Use multiline output format for GitHub Actions
+          echo "share_links<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$FIREBASE_SECTION" >> $GITHUB_OUTPUT
+          echo -e "$GOOGLE_DRIVE_SECTION" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Prepare Play Store Warning
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.BRANCH_VALIDATION != 'failed'
+        id: play_store_warning
+        run: |
+          if [[ "${{ github.ref_name }}" == *"-"* ]]; then
+            echo "warning=# ** ⚠ DO NOT USE THIS BUILD TO PUBLISH PLAY STORE ⚠ **" >> $GITHUB_OUTPUT
+          else
+            echo "warning=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Discord Notification - Release Complete
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.DISCORD_WEBHOOK != '' && success() && env.BRANCH_VALIDATION != 'failed'
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            🚀 **[Release ${{ github.ref_name }}](<${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}>) Complete!**
+            **Repository:** ${{ github.repository }}
+            **Author:** ${{ github.actor }}
+            **Commit:** ${{ github.sha }}
+            
+            ${{ steps.extract_distribution_links.outputs.share_links }}
+            
+            ${{ steps.play_store_warning.outputs.warning }}
+            
+            📝 **Release Notes:**
+            ${{ steps.release_notes.outputs.notes }}
+            @everyone
+
+      - name: Discord Notification - Build Failed
+        if: (github.event_name == 'create' || github.event_name == 'push') && github.ref_type == 'tag' && env.DISCORD_WEBHOOK != '' && (failure() || cancelled()) && env.BRANCH_VALIDATION != 'failed'
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            ❌ **Release ${{ github.ref_name }} Failed!**
+            **Repository:** [${{ github.repository }}](<${{ github.server_url }}/${{ github.repository }}>)
+            **Author:** [${{ github.actor }}](<https://github.com/orgs/${{ github.repository_owner }}/people/${{ github.actor }}>)
+            **Commit:** [${{ github.sha }}](<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}>)
+            **Workflow:** [View failed workflow](<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>)
+            
+            🔍 Please check the workflow logs for details.
+            @here

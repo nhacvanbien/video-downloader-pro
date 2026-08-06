@@ -1,0 +1,182 @@
+/*
+ * Copyright (c) 2025. Tevo Global Limited
+ *
+ * This software and all accompanying documentation is the sole property of
+ * Tevo Global Limited and is protected by copyright law and international treaties.
+ *
+ * Unauthorized copying, distribution, or reproduction of this software, or any
+ * portion of it, is strictly prohibited. The software is licensed to you solely for
+ * your personal use and may not be used for commercial purposes without
+ * a separate license agreement.
+ *
+ * You may not modify, reverse engineer, decompile, or disassemble this software.
+ * You are not permitted to remove or alter any copyright notices or proprietary
+ * legends from the software.
+ *
+ * All rights not expressly granted herein are reserved by Tevo Global Limited.
+ *
+ * Contact information: hello@tevo.app
+ */
+
+package com.smarttool.videodownloader.core.ads
+
+import android.content.Context
+import android.content.Intent
+import android.net.ConnectivityManager
+import android.util.Log
+import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import com.ads.admob.data.ContentAd
+import com.ads.admob.helper.interstitial.InterstitialAdConfig
+import com.ads.admob.helper.interstitial.test.InterstitialAdsHelper
+import com.ads.admob.listener.InterstitialAdRequestCallBack
+import com.ads.admob.listener.InterstitialAdShowCallBack
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.LoadAdError
+import com.smarttool.videodownloader.android.BuildConfig
+import com.smarttool.videodownloader.ui.nativefull.NativeFullActivity
+
+object InterAdsManager {
+    const val INTER_ALL = "inter_all"
+
+    private var isShowNativeFull = false
+    private var pendingAction: (() -> Unit)? = null
+
+    fun configInterAds(context: Context?) {
+        if (context == null) return
+        InterstitialAdsHelper.getInstance(INTER_ALL).setInterstitialAdConfig(
+            InterstitialAdConfig(
+                idAds = BuildConfig.INTER_ALL,
+                canShowAds = AdsConstant.showInterAll,
+                canReloadAds = false,
+                adPlacement = INTER_ALL,
+            )
+        )
+    }
+
+    fun requestInter(context: Context?, adPlacement: String) {
+        if (context == null) return
+        InterstitialAdsHelper.getInstance(adPlacement)
+            .requestInterAds(context, object : InterstitialAdRequestCallBack {
+                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                }
+
+                override fun onAdLoaded(data: ContentAd) {
+                }
+            })
+    }
+
+    fun onNativeFullActivityFinished() {
+        isShowNativeFull = true
+        pendingAction?.invoke()
+        pendingAction = null
+    }
+
+    fun showInterAll(
+        activity: FragmentActivity,
+        onAction: () -> Unit
+    ) {
+        if (!activity.isNetwork() || (isShowNativeFull && !CheckTimeShowAdsInter.isTimeShow)) {
+            onAction.invoke()
+            return
+        }
+        if (!isShowNativeFull && !CheckTimeShowAdsInter.isTimeShow) {
+            // navigate to NativeFullActivity, after that call onAction
+            pendingAction = onAction
+            val intent = Intent(activity, NativeFullActivity::class.java)
+            activity.startActivity(intent)
+            return
+        }
+
+        activity.let {
+            InterstitialAdsHelper.getInstance(INTER_ALL)
+                .forceShowInterstitial(
+                    activity,
+                    activity,
+                    object : InterstitialAdShowCallBack {
+                        override fun onAdClicked() {
+
+                        }
+
+                        override fun onAdClose() {
+                            isShowNativeFull = false
+                            CheckTimeShowAdsInter.logShowed()
+                            requestInter(
+                                activity,
+                                INTER_ALL
+                            )
+                            onAction()
+                        }
+
+                        override fun onAdFailedToShow(adError: AdError) {
+                            Log.e("TAG", "onAdFailedToShow: ${adError.message}")
+                        }
+
+                        override fun onAdImpression() {
+                        }
+
+                        override fun onInterstitialShow() {
+                        }
+
+                        override fun onNextAction() {
+                            onAction()
+                        }
+
+                    })
+        }
+    }
+}
+
+fun FragmentActivity.showInterAll(onAction: () -> Unit) {
+    InterAdsManager.showInterAll(this) {
+        onAction()
+    }
+}
+
+fun Fragment.showInterAll(onAction: () -> Unit) {
+    val activity = this.activity
+    if (activity != null) {
+        InterAdsManager.showInterAll(activity) {
+            onAction()
+        }
+    }
+}
+
+fun View.setOnClickListenerWithShowInterAd(activity: FragmentActivity?, action: () -> Unit) {
+    if (activity == null) return
+    setOnClickListener {
+        activity.showInterAll(action)
+    }
+}
+
+object CheckTimeShowAdsInter {
+    private var lastShow: Long = 0
+    val isTimeShow: Boolean
+        get() {
+            var isTimeShow = true
+
+            var time = if (AdsConstant.interIntervalTime > 20) {
+                AdsConstant.interIntervalTime
+            } else {
+                20
+            }
+
+            if (lastShow == 0L) {
+                lastShow = Long.MIN_VALUE
+            }
+            if (lastShow > System.currentTimeMillis() - time * 1000) {
+                isTimeShow = false
+            }
+            return isTimeShow
+        }
+
+    fun logShowed() {
+        lastShow = System.currentTimeMillis()
+    }
+}
+
+fun Context.isNetwork(): Boolean {
+    val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    return cm.activeNetworkInfo != null && cm.activeNetworkInfo?.isConnected == true
+}

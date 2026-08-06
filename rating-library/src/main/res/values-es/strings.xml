@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<resources>
+    <string name="lib_material_send">Enviar</string>
+    <string name="lib_material_cancel">Cancelar</string>
+    <string name="lib_material_feedback">Comentario</string>
+    <string name="lib_material_rating">¡Gracias por su apoyo!</string>
+    <string name="lib_material_tips">Estaríamos muy agradecidos si puede calificarnos.</string>
+    <string name="lib_material_sorry_message">Oh, lo sentimos</string>
+    <string name="lib_material_feedback_welcome">Tus comentarios son bienvenidos</string>
+    <string name="lib_material_much_appreciated">¡Muy apreciado!</string>
+    <string name="lib_material_support_motivation">¡Su apoyo es nuestra mayor motivación!</string>
+    <string name="lib_material_appreciate_feedback">¡Aprecia tus comentarios!</string>
+    <string name="lib_material_feedback_noted">Se han observado sus comentarios y mejoraremos la aplicación en la próxima actualización. ¡Gracias!</string>
+    <string name="lib_material_reason_request">Háganos saber la razón</string>
+    <string name="lib_material_feedback_submitted">Se han observado sus comentarios y mejoraremos la aplicación en la próxima actualización. ¡Gracias!</string>
+    <string name="lib_material_vpn_connection_failed">Falló la conexión VPN</string>
+    <string name="lib_material_vpn_connection_slow">La conexión VPN es lenta</string>
+    <string name="lib_material_proxy_filter_not_working">El filtro proxy no funciona</string>
+    <string name="lib_material_other">Otro</string>
+    <string name="lib_material_description_optional">Descripción (opcional)</string>
+    <string name="lib_material_close">Cerca</string>
+    <string name="lib_material_best_rating">Lo mejor que podemos obtener</string>
+    <string name="lib_material_rate">Tasa</string>
+    <string name="upload_screenshot_files">Cargar captura de pantalla/archivos</string>
+    <string name="up_to_5_files_images">hasta 5 archivos imágenes o videos</string>
+
+    <string name="lib_material_email_optional">Correo electrónico (opcional)</string>
+    <string name="lib_material_checkbox_1">Enlace no detectado o sitio no compatible</string>
+    <string name="lib_material_checkbox_2">La aplicación falla o se congela</string>
+    <string name="lib_material_checkbox_3">La descarga falló o es demasiado lenta</string>
+    <string name="lib_material_checkbox_4">El video no se reproduce o muestra un error</string>
+    <string name="lib_material_checkbox_5">Calidad de vídeo inferior a la esperada.</string>
+    <string name="the_best_we_can_get">Lo mejor que podemos conseguir :)</string>
+    <string name="which_of_the_following_best_describes_the_main_issue">¿Cuál de las siguientes opciones describe mejor el problema principal que ha encontrado\?</string>
+</resources>

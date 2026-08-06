@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background Circle -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#FFE5D9" />
+            <size
+                android:width="120dp"
+                android:height="120dp" />
+        </shape>
+    </item>
+
+    <!-- Language Icon A -->
+    <item
+        android:bottom="40dp"
+        android:left="20dp"
+        android:right="50dp"
+        android:top="20dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFA726" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+
+    <!-- Language Icon Text A -->
+    <item
+        android:bottom="50dp"
+        android:left="30dp"
+        android:right="60dp"
+        android:top="30dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Language Icon B -->
+    <item
+        android:bottom="20dp"
+        android:left="50dp"
+        android:right="20dp"
+        android:top="40dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#EF5350" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+
+    <!-- Language Icon Text B -->
+    <item
+        android:bottom="30dp"
+        android:left="60dp"
+        android:right="30dp"
+        android:top="50dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+</layer-list>
+

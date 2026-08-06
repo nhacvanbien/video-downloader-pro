@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<resources>
+    <string name="lib_material_send">보내다</string>
+    <string name="lib_material_cancel">취소</string>
+    <string name="lib_material_feedback">피드백</string>
+    <string name="lib_material_rating">지원해 주셔서 감사합니다!</string>
+    <string name="lib_material_tips">당신이 우리를 평가할 수 있다면 우리는 매우 감사 할 것입니다.</string>
+    <string name="lib_material_sorry_message">오, 죄송합니다</string>
+    <string name="lib_material_feedback_welcome">귀하의 의견을 환영합니다</string>
+    <string name="lib_material_much_appreciated">대단히 감사합니다!</string>
+    <string name="lib_material_support_motivation">당신의 지원은 우리의 가장 큰 동기입니다!</string>
+    <string name="lib_material_appreciate_feedback">당신의 의견에 감사드립니다!</string>
+    <string name="lib_material_feedback_noted">귀하의 의견이 주목되었으며 다음 업데이트에서 앱을 개선하겠습니다. 감사합니다!</string>
+    <string name="lib_material_reason_request">이유를 알려주십시오</string>
+    <string name="lib_material_feedback_submitted">귀하의 의견이 주목되었으며 다음 업데이트에서 앱을 개선하겠습니다. 감사합니다!</string>
+    <string name="lib_material_vpn_connection_failed">VPN 연결이 실패했습니다</string>
+    <string name="lib_material_vpn_connection_slow">VPN 연결은 느립니다</string>
+    <string name="lib_material_proxy_filter_not_working">프록시 필터가 작동하지 않습니다</string>
+    <string name="lib_material_other">다른</string>
+    <string name="lib_material_description_optional">설명 (선택 사항)</string>
+    <string name="lib_material_close">닫다</string>
+    <string name="lib_material_best_rating">우리가 얻을 수있는 최선</string>
+    <string name="lib_material_rate">비율</string>
+    <string name="upload_screenshot_files">스크린 샷/파일 업로드</string>
+    <string name="up_to_5_files_images">최대 5 개의 파일 이미지 또는 비디오</string>
+
+    <string name="lib_material_email_optional">이메일(선택사항)</string>
+    <string name="lib_material_checkbox_1">링크가 감지되지 않거나 사이트가 지원되지 않습니다.</string>
+    <string name="lib_material_checkbox_2">앱이 충돌하거나 멈춥니다.</string>
+    <string name="lib_material_checkbox_3">다운로드 실패 또는 너무 느림</string>
+    <string name="lib_material_checkbox_4">동영상이 재생되지 않거나 오류가 표시됩니다.</string>
+    <string name="lib_material_checkbox_5">예상보다 낮은 비디오 품질</string>
+    <string name="the_best_we_can_get">우리가 얻을 수 있는 최고의 것 :)</string>
+    <string name="which_of_the_following_best_describes_the_main_issue">다음 중 발생한 주요 문제를 가장 잘 설명하는 것은 무엇입니까\?</string>
+</resources>

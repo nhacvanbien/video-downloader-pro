@@ -1,0 +1,68 @@
+#
+# Copyright (c) 2025. Tevo Global Limited
+#
+# This software and all accompanying documentation is the sole property of
+# Tevo Global Limited and is protected by copyright law and international treaties.
+#
+# Unauthorized copying, distribution, or reproduction of this software, or any
+# portion of it, is strictly prohibited. The software is licensed to you solely for
+# your personal use and may not be used for commercial purposes without
+# a separate license agreement.
+#
+# You may not modify, reverse engineer, decompile, or disassemble this software.
+# You are not permitted to remove or alter any copyright notices or proprietary
+# legends from the software.
+#
+# All rights not expressly granted herein are reserved by Tevo Global Limited.
+# Contact information: hello@tevo.app
+#
+
+name: Sync Upstream Template
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Run at 2 AM daily
+  workflow_dispatch:  # Allow manual trigger
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token to read from source repo # see: https://github.com/tibdex/github-app-token
+        id: generate_token
+        # https://github.com/tibdex/github-app-token
+        uses: tevo-studio/github-app-token@v2.1.1
+
+      - name: Checkout
+        # https://github.com/actions/checkout#usage
+        uses: actions/checkout@v5
+        with:
+          # submodules: true
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: actions-template-sync
+        uses: AndreasAugustin/actions-template-sync@v2
+        id: pre-check
+        with:
+          source_gh_token: ${{ steps.generate_token.outputs.token }}
+          source_repo_path: tevo-studio/code-android-template
+          upstream_branch: main # defaults to main
+          pr_labels: template_sync # defaults to template_sync
+          steps: "prechecks,pull"
+
+      - name: in between step
+        run: |
+          echo "branch: ${{ steps.pre-check.outputs.pr_branch }} "
+          git reset --hard FETCH_HEAD
+
+      - name: actions-template-sync
+        uses: AndreasAugustin/actions-template-sync@v2
+        with:
+          source_gh_token: ${{ steps.generate_token.outputs.token }}
+          source_repo_path: tevo-studio/code-android-template
+          upstream_branch: main # defaults to main
+          pr_labels: template_sync # defaults to template_sync
+          steps: "push,pr"

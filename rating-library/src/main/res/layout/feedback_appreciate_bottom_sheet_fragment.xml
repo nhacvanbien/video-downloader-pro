@@ -1,0 +1,85 @@
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="?dialogPreferredPadding"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp"
+    app:shapeAppearanceOverlay="@style/TopRoundedCorners">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/icon"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="24dp"
+            app:srcCompat="@drawable/ic_face_feedback" />
+
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/lib_material_appreciate_feedback"
+            android:textColor="#1A1D1F"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/text_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/lib_material_feedback_noted"
+            android:textColor="#676E76"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/bt_ratingSend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="26dp"
+            android:layout_marginVertical="24dp"
+            android:background="@drawable/bg_button_action"
+            android:gravity="center"
+            android:paddingVertical="15dp"
+            android:text="@string/lib_material_close"
+            android:fontFamily="@font/poppins_bold"
+            android:includeFontPadding="false"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+
+</com.google.android.material.card.MaterialCardView>

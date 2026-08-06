@@ -1,0 +1,21 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.videodownloader.videoplayer.videosaver.download.video",
+  "variantName": "productionDebug",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 1,
+      "versionName": "1.0",
+      "outputFile": "com.videodownloader.videoplayer.videosaver.download.video_1.0_1_20251027_1529-production-debug.apk"
+    }
+  ],
+  "elementType": "File",
+  "minSdkVersionForDexing": 27
+}

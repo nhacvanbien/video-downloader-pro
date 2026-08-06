@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="34dp"
+    android:height="32dp"
+    android:viewportWidth="34"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M15.429,2.52C16.119,1.372 17.752,1.337 18.501,2.412L18.571,2.52L21.569,7.503C22.202,8.554 23.21,9.323 24.384,9.658L24.62,9.719L30.287,11.031C31.591,11.334 32.129,12.875 31.338,13.92L31.258,14.019L27.444,18.411C26.64,19.338 26.221,20.533 26.265,21.753L26.279,21.998L26.782,27.792C26.898,29.126 25.598,30.114 24.36,29.685L24.241,29.639L18.886,27.37C17.756,26.891 16.489,26.861 15.342,27.28L15.114,27.37L9.759,29.639C8.526,30.16 7.185,29.23 7.211,27.92L7.218,27.792L7.721,21.998C7.827,20.775 7.464,19.561 6.711,18.6L6.556,18.411L2.742,14.019C1.865,13.009 2.335,11.444 3.59,11.064L3.713,11.031L9.38,9.719C10.575,9.442 11.617,8.722 12.299,7.709L12.431,7.503L15.429,2.52Z"
+      android:strokeWidth="3"
+      android:fillColor="#00000000"
+      android:strokeColor="#E5E7EA"/>
+</vector>

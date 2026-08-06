@@ -1,0 +1,19 @@
+# Default ignored files
+/compiler.xml
+/deploymentTargetSelector.xml
+/detekt.xml
+/inspectionProfiles/Project_Default.xml
+/kotlinc.xml
+/migrations.xml
+/misc.xml
+/shelf/
+/studiobot.xml
+/workspace.xml
+/.name
+/androidTestResultsUserPreferences.xml
+/AndroidProjectSystem.xml
+/appInsightsSettings.xml
+/ChatHistory_schema_v2.xml
+/gradle.xml
+/runConfigurations.xml
+/vcs.xml

@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<resources>
+    <string name="lib_material_send">भेजना</string>
+    <string name="lib_material_cancel">रद्द करना</string>
+    <string name="lib_material_feedback">प्रतिक्रिया</string>
+    <string name="lib_material_rating">आपके समर्थन के लिए धन्यवाद!</string>
+    <string name="lib_material_tips">यदि आप हमें रेट कर सकते हैं तो हम बहुत आभारी होंगे।</string>
+    <string name="lib_material_sorry_message">ओह, हमें खेद है</string>
+    <string name="lib_material_feedback_welcome">आपकी प्रतिक्रिया का स्वागत है</string>
+    <string name="lib_material_much_appreciated">बहुत सराहना की!</string>
+    <string name="lib_material_support_motivation">आपका समर्थन हमारी सबसे बड़ी प्रेरणा है!</string>
+    <string name="lib_material_appreciate_feedback">आपकी प्रतिपुष्टि की सराहना!</string>
+    <string name="lib_material_feedback_noted">आपकी प्रतिक्रिया नोट की गई है और हम अगले अपडेट में ऐप में सुधार करेंगे। धन्यवाद!</string>
+    <string name="lib_material_reason_request">कृपया हमें कारण बताएं</string>
+    <string name="lib_material_feedback_submitted">आपकी प्रतिक्रिया नोट की गई है और हम अगले अपडेट में ऐप में सुधार करेंगे। धन्यवाद!</string>
+    <string name="lib_material_vpn_connection_failed">वीपीएन कनेक्शन विफल रहा</string>
+    <string name="lib_material_vpn_connection_slow">वीपीएन कनेक्शन धीमा है</string>
+    <string name="lib_material_proxy_filter_not_working">प्रॉक्सी फ़िल्टर काम नहीं कर रहा है</string>
+    <string name="lib_material_other">अन्य</string>
+    <string name="lib_material_description_optional">विवरण (वैकल्पिक)</string>
+    <string name="lib_material_close">बंद करना</string>
+    <string name="lib_material_best_rating">सबसे अच्छा हम प्राप्त कर सकते हैं</string>
+    <string name="lib_material_rate">दर</string>
+    <string name="upload_screenshot_files">स्क्रीनशॉट/फ़ाइलें अपलोड करें</string>
+    <string name="up_to_5_files_images">5 फ़ाइलों की छवियों या वीडियो तक</string>
+
+    <string name="lib_material_email_optional">ईमेल वैकल्पिक)</string>
+    <string name="lib_material_checkbox_1">लिंक का पता नहीं चला या साइट समर्थित नहीं है</string>
+    <string name="lib_material_checkbox_2">ऐप क्रैश या फ़्रीज़ हो जाता है</string>
+    <string name="lib_material_checkbox_3">डाउनलोड विफल या बहुत धीमा</string>
+    <string name="lib_material_checkbox_4">वीडियो नहीं चलेगा या त्रुटि दिखाएगा</string>
+    <string name="lib_material_checkbox_5">वीडियो की गुणवत्ता अपेक्षा से कम है</string>
+    <string name="the_best_we_can_get">सबसे अच्छा हम पा सकते हैं :)</string>
+    <string name="which_of_the_following_best_describes_the_main_issue">निम्नलिखित में से कौन सा आपके द्वारा सामना की गई मुख्य समस्या का सबसे अच्छा वर्णन करता है\?</string>
+</resources>

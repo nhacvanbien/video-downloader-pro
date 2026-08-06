@@ -1,0 +1,80 @@
+#
+# Copyright (c) 2025. Tevo Global Limited
+#
+# This software and all accompanying documentation is the sole property of
+# Tevo Global Limited and is protected by copyright law and international treaties.
+#
+# Unauthorized copying, distribution, or reproduction of this software, or any
+# portion of it, is strictly prohibited. The software is licensed to you solely for
+# your personal use and may not be used for commercial purposes without
+# a separate license agreement.
+#
+# You may not modify, reverse engineer, decompile, or disassemble this software.
+# You are not permitted to remove or alter any copyright notices or proprietary
+# legends from the software.
+#
+# All rights not expressly granted herein are reserved by Tevo Global Limited.
+# Contact information: hello@tevo.app
+#
+
+# Release Drafter Configuration
+name-template: 'Release $RESOLVED_VERSION'
+tag-template: '$RESOLVED_VERSION'
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
+
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+      - 'feat'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '📚 Documentation'
+    labels:
+      - 'documentation'
+      - 'docs'
+  - title: '🏗️ Dependencies'
+    labels:
+      - 'dependencies'
+      - 'deps'
+  - title: '🔧 Other Changes'
+    labels:
+      - '*'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+
+exclude-labels:
+  - 'skip-changelog'
+  - 'invalid'
+  - 'duplicate'
+  - 'wontfix'
+  - 'question'
+
+include-pre-releases: false
+sort-direction: ascending
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+  minor:
+    labels:
+      - 'minor'
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'patch'
+      - 'fix'
+      - 'bugfix'
+  default: patch

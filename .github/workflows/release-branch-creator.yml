@@ -1,0 +1,361 @@
+#
+# Copyright (c) 2025. Tevo Global Limited
+#
+# This software and all accompanying documentation is the sole property of
+# Tevo Global Limited and is protected by copyright law and international treaties.
+#
+# Unauthorized copying, distribution, or reproduction of this software, or any
+# portion of it, is strictly prohibited. The software is licensed to you solely for
+# your personal use and may not be used for commercial purposes without
+# a separate license agreement.
+#
+# You may not modify, reverse engineer, decompile, or disassemble this software.
+# You are not permitted to remove or alter any copyright notices or proprietary
+# legends from the software.
+#
+# All rights not expressly granted herein are reserved by Tevo Global Limited.
+# Contact information: hello@tevo.app
+#
+
+name: Release Branch Creator
+
+on:
+  issues:
+    types: [ opened ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0, 2.1.0)'
+        required: true
+        type: string
+      commit_hash:
+        description: 'Base commit hash (minimum 7 characters, defaults to main)'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  create-release-branch:
+    runs-on: ubuntu-latest
+    if: >
+      (github.event_name == 'issues' && 
+       github.event.action == 'opened' && 
+       github.event.issue.title && 
+       contains(github.event.issue.title, '.') &&
+       !contains(github.event.issue.title, ' ')) ||
+      github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Extract Version from Issue Title
+        if: github.event_name == 'issues'
+        id: extract-version-issue
+        run: |
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          echo "Issue title: $ISSUE_TITLE"
+          
+          # Validate semantic version format (X.Y.Z)
+          if [[ $ISSUE_TITLE =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "version=$ISSUE_TITLE" >> $GITHUB_OUTPUT
+            echo "✅ Valid semantic version: $ISSUE_TITLE"
+          else
+            echo "❌ Invalid version format: $ISSUE_TITLE"
+            echo "Expected format: X.Y.Z (e.g., 1.0.0, 2.1.0)"
+            exit 1
+          fi
+
+      - name: Extract Commit Hash from Issue Description
+        if: github.event_name == 'issues'
+        id: extract-commit-issue
+        run: |
+          ISSUE_BODY="${{ github.event.issue.body }}"
+          echo "Issue body: $ISSUE_BODY"
+          
+          # Look for "Base commit: <hash>" pattern in issue description
+          # Updated regex to capture branch names, commit hashes, and references with slashes, dots, dashes
+          if [[ $ISSUE_BODY =~ Base\ commit:\ ([a-zA-Z0-9/_.-]{3,}) ]]; then
+            COMMIT_HASH="${BASH_REMATCH[1]}"
+            echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+            echo "✅ Found commit hash in issue: $COMMIT_HASH"
+          else
+            # Default to main if no commit hash specified
+            echo "commit_hash=main" >> $GITHUB_OUTPUT
+            echo "📝 No commit hash found in issue, defaulting to 'main'"
+          fi
+
+      - name: Set Variables for Manual Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        id: extract-version-manual
+        run: |
+          VERSION="${{ inputs.version }}"
+          COMMIT_HASH="${{ inputs.commit_hash }}"
+          
+          # Validate semantic version format
+          if [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+            echo "✅ Manual dispatch - Version: $VERSION, Commit: $COMMIT_HASH"
+          else
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected format: X.Y.Z (e.g., 1.0.0, 2.1.0)"
+            exit 1
+          fi
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine Final Variables
+        id: final-vars
+        run: |
+          if [[ "${{ github.event_name }}" == "issues" ]]; then
+            VERSION="${{ steps.extract-version-issue.outputs.version }}"
+            COMMIT_HASH="${{ steps.extract-commit-issue.outputs.commit_hash }}"
+          else
+            VERSION="${{ steps.extract-version-manual.outputs.version }}"
+            COMMIT_HASH="${{ steps.extract-version-manual.outputs.commit_hash }}"
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+          echo "branch_name=release/$VERSION" >> $GITHUB_OUTPUT
+          
+          echo "🚀 Creating release branch: release/$VERSION from commit: $COMMIT_HASH"
+
+      - name: Validate Commit Hash Exists
+        run: |
+          COMMIT_HASH="${{ steps.final-vars.outputs.commit_hash }}"
+          
+          if [[ "$COMMIT_HASH" == "main" ]]; then
+            echo "✅ Using main branch as base"
+            git checkout main
+            git pull origin main
+          else
+            # Validate commit hash/branch/tag exists using git rev-parse
+            # This works for commit hashes, branch names, and tag references
+            if git rev-parse --verify "$COMMIT_HASH" >/dev/null 2>&1; then
+              echo "✅ Reference $COMMIT_HASH exists"
+              git checkout "$COMMIT_HASH"
+            else
+              # Try as remote branch if local reference doesn't exist
+              if git rev-parse --verify "origin/$COMMIT_HASH" >/dev/null 2>&1; then
+                echo "✅ Remote branch origin/$COMMIT_HASH exists"
+                git checkout -b "$COMMIT_HASH" "origin/$COMMIT_HASH"
+              else
+                echo "❌ Reference $COMMIT_HASH does not exist (tried both local and remote)"
+                echo "Available branches:"
+                git branch -a | head -10
+                exit 1
+              fi
+            fi
+          fi
+
+      - name: Check if Release Branch Already Exists
+        id: check-branch
+        run: |
+          BRANCH_NAME="${{ steps.final-vars.outputs.branch_name }}"
+          
+          # Check if branch exists locally or remotely
+          if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME" || \
+             git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
+            echo "❌ Branch $BRANCH_NAME already exists"
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "✅ Branch $BRANCH_NAME does not exist, safe to create"
+            echo "branch_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release Branch
+        if: steps.check-branch.outputs.branch_exists == 'false'
+        run: |
+          BRANCH_NAME="${{ steps.final-vars.outputs.branch_name }}"
+          VERSION="${{ steps.final-vars.outputs.version }}"
+          COMMIT_HASH="${{ steps.final-vars.outputs.commit_hash }}"
+          
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Create the release branch
+          git checkout -b "$BRANCH_NAME"
+          
+          # Create an empty commit to mark the release branch creation
+          git commit --allow-empty -m "Initialize release branch for version $VERSION"
+          
+          # Push the release branch
+          git push origin "$BRANCH_NAME"
+          
+          echo "✅ Created and pushed release branch: $BRANCH_NAME"
+
+      - name: Create Release Tracking PR
+        if: steps.check-branch.outputs.branch_exists == 'false'
+        id: create-pr
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const version = '${{ steps.final-vars.outputs.version }}';
+            const branchName = '${{ steps.final-vars.outputs.branch_name }}';
+            const commitHash = '${{ steps.final-vars.outputs.commit_hash }}';
+            const issueNumber = context.payload.issue ? context.payload.issue.number : null;
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            
+            // Create PR body with release-drafter integration
+            let prBody = `# Release ${version}
+
+            ## 📋 Release Overview
+            This PR tracks all changes for release ${version}. The release notes and overview will be automatically updated by release-drafter as PRs are merged into this release branch.
+
+            ## 🧪 Testing Status
+            - [ ] RC builds tested
+            - [ ] QA approval received  
+            - [ ] Performance testing passed
+
+            ## What's Changed
+            <!-- This section will be automatically updated by release-drafter -->
+            _Detailed release notes will be generated automatically based on PR labels and descriptions._
+
+            ## 🔧 Release Information
+            - **Base Commit:** ${commitHash}
+            - **Branch:** ${branchName}
+            - **Created:** ${new Date().toISOString()}
+
+            ---`;
+            
+            // Add issue reference if created from issue
+            if (issueNumber) {
+              prBody += `\n**🔗 Tracking Issue:** Closes #${issueNumber}`;
+            }
+
+            const pr = await github.rest.pulls.create({
+              owner: owner,
+              repo: repo,
+              title: `Release ${version}`,
+              head: branchName,
+              base: 'main',
+              body: prBody,
+              draft: false
+            });
+
+            console.log(`Created PR #${pr.data.number}: ${pr.data.html_url}`);
+            
+            // Add labels for release-drafter integration
+            await github.rest.issues.addLabels({
+              owner: owner,
+              repo: repo,
+              issue_number: pr.data.number,
+              labels: ['release', 'tracking', 'release-drafter']
+            });
+
+            // Link to milestone if created from issue
+            if (issueNumber) {
+              try {
+                // Get the issue to check if it has a milestone
+                const issue = await github.rest.issues.get({
+                  owner: owner,
+                  repo: repo,
+                  issue_number: issueNumber
+                });
+            
+                if (issue.data.milestone) {
+                  await github.rest.issues.update({
+                    owner: owner,
+                    repo: repo,
+                    issue_number: pr.data.number,
+                    milestone: issue.data.milestone.number
+                  });
+                  console.log(`Linked PR to milestone: ${issue.data.milestone.title}`);
+                }
+              } catch (error) {
+                console.log('Could not link milestone:', error.message);
+              }
+            }
+
+            // Set outputs for next steps
+            core.setOutput('pr_number', pr.data.number);
+            core.setOutput('pr_url', pr.data.html_url);
+
+      - name: Comment on Issue (Success)
+        if: github.event_name == 'issues' && steps.check-branch.outputs.branch_exists == 'false'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const version = '${{ steps.final-vars.outputs.version }}';
+            const branchName = '${{ steps.final-vars.outputs.branch_name }}';
+            const commitHash = '${{ steps.final-vars.outputs.commit_hash }}';
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: owner,
+              repo: repo,
+              body: `✅ **Release branch created successfully!**
+
+            - **Branch:** \`${branchName}\`
+            - **Base Commit:** \`${commitHash}\`
+            - **Tracking PR:** Created automatically
+
+            ## Next Steps:
+            1. Create feature branches targeting \`${branchName}\`
+            2. Merge features via PRs to the release branch
+            3. Use \`/build rc\` in the tracking PR to create release candidates
+            4. Use \`/build release\` in the tracking PR to create production release
+
+            > ⚡️ **Release Notes Automation:** Release notes will be automatically generated and updated in the tracking PR using release-drafter as PRs are merged into the release branch!
+
+            [View Release Branch](${{ github.server_url }}/${{ github.repository }}/tree/${branchName})`
+            });
+
+      - name: Comment on Issue (Branch Exists)
+        if: github.event_name == 'issues' && steps.check-branch.outputs.branch_exists == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const version = '${{ steps.final-vars.outputs.version }}';
+            const branchName = '${{ steps.final-vars.outputs.branch_name }}';
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: owner,
+              repo: repo,
+              body: `❌ **Release branch already exists!**
+
+            The branch \`${branchName}\` already exists for version ${version}.
+
+            [View Existing Branch](${{ github.server_url }}/${{ github.repository }}/tree/${branchName})
+
+            Please use a different version number or check if this release is already in progress.`
+            });
+
+      - name: Handle Failure
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const version = '${{ steps.final-vars.outputs.version || 'unknown' }}';
+            const workflowUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            
+            if (context.payload.issue) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: owner,
+                repo: repo,
+                body: `❌ **Failed to create release branch for version ${version}**
+
+                Please check the [workflow logs](${workflowUrl}) for details.
+
+                Common issues:
+                - Invalid version format (expected: X.Y.Z)
+                - Commit hash does not exist
+                - Branch already exists
+                - Insufficient permissions`
+              });
+            }

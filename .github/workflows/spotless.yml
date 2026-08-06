@@ -1,0 +1,54 @@
+#
+# Copyright (c) 2025. Tevo Global Limited
+#
+# This software and all accompanying documentation is the sole property of
+# Tevo Global Limited and is protected by copyright law and international treaties.
+#
+# Unauthorized copying, distribution, or reproduction of this software, or any
+# portion of it, is strictly prohibited. The software is licensed to you solely for
+# your personal use and may not be used for commercial purposes without
+# a separate license agreement.
+#
+# You may not modify, reverse engineer, decompile, or disassemble this software.
+# You are not permitted to remove or alter any copyright notices or proprietary
+# legends from the software.
+#
+# All rights not expressly granted herein are reserved by Tevo Global Limited.
+# Contact information: hello@tevo.app
+#
+
+name: Code Quality - Spotless
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spotless:
+    name: Spotless Check
+    runs-on: [ self-hosted, linux ]
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Set Up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Spotless Check
+        run: |
+          chmod +x ./gradlew
+          ./gradlew spotlessCheck

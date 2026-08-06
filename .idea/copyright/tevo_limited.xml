@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="notice" value="Copyright (c) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year. Tevo Global Limited&#10;&#10;This software and all accompanying documentation is the sole property of&#10;Tevo Global Limited and is protected by copyright law and international treaties.&#10;&#10;Unauthorized copying, distribution, or reproduction of this software, or any&#10;portion of it, is strictly prohibited. The software is licensed to you solely for&#10;your personal use and may not be used for commercial purposes without&#10;a separate license agreement.&#10;&#10;You may not modify, reverse engineer, decompile, or disassemble this software.&#10;You are not permitted to remove or alter any copyright notices or proprietary&#10;legends from the software.&#10;&#10;All rights not expressly granted herein are reserved by Tevo Global Limited.&#10;&#10;Contact information: hello@tevo.app" />
+    <option name="myName" value="tevo-limited" />
+  </copyright>
+</component>

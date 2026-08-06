@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<resources>
+    <string name="lib_material_send">发送</string>
+    <string name="lib_material_cancel">取消</string>
+    <string name="lib_material_feedback">反馈</string>
+    <string name="lib_material_rating">谢谢您的支持！</string>
+    <string name="lib_material_tips">如果您能评分我们，我们将非常感谢。</string>
+    <string name="lib_material_sorry_message">哦，我们很抱歉</string>
+    <string name="lib_material_feedback_welcome">欢迎您的反馈</string>
+    <string name="lib_material_much_appreciated">非常感谢！</string>
+    <string name="lib_material_support_motivation">您的支持是我们最大的动力！</string>
+    <string name="lib_material_appreciate_feedback">感谢您的反馈！</string>
+    <string name="lib_material_feedback_noted">您已经注意到了您的反馈，我们将在下一个更新中改进该应用程序。谢谢你！</string>
+    <string name="lib_material_reason_request">请让我们知道原因</string>
+    <string name="lib_material_feedback_submitted">您已经注意到了您的反馈，我们将在下一个更新中改进该应用程序。谢谢你！</string>
+    <string name="lib_material_vpn_connection_failed">VPN连接失败</string>
+    <string name="lib_material_vpn_connection_slow">VPN连接很慢</string>
+    <string name="lib_material_proxy_filter_not_working">代理过滤器不起作用</string>
+    <string name="lib_material_other">其他</string>
+    <string name="lib_material_description_optional">描述（可选）</string>
+    <string name="lib_material_close">关闭</string>
+    <string name="lib_material_best_rating">我们能得到的最好的</string>
+    <string name="lib_material_rate">速度</string>
+    <string name="upload_screenshot_files">上传屏幕截图/文件</string>
+    <string name="up_to_5_files_images">最多5个文件图像或视频</string>
+    <string name="lib_material_email_optional">电子邮件（可选）</string>
+    <string name="lib_material_checkbox_1">未检测到链接或站点不受支持</string>
+    <string name="lib_material_checkbox_2">应用程序崩溃或冻结</string>
+    <string name="lib_material_checkbox_3">下载失败或太慢</string>
+    <string name="lib_material_checkbox_4">视频无法播放或显示错误</string>
+    <string name="lib_material_checkbox_5">视频质量低于预期</string>
+    <string name="the_best_we_can_get">我们能得到的最好的:)</string>
+    <string name="which_of_the_following_best_describes_the_main_issue">以下哪一项最能描述您遇到的主要问题？</string>
+</resources>

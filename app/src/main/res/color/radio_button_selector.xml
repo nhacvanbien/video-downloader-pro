@@ -1,0 +1,6 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu khi được chọn -->
+    <item android:color="@color/primary" android:state_checked="true" />
+    <!-- Màu khi không được chọn -->
+    <item android:color="#E5E7EA" />
+</selector>

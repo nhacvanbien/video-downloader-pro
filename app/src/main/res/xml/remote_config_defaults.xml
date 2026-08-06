@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<defaults>
+    <entry>
+        <key>force_update</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_inter_splash</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_banner_splash</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_native_language_1_1</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_native_language_1_2</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_native_onboard_fullscreen_1_1</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_native_onboard_fullscreen_1_2</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_native_permission</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_banner_all</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_native_small_all</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
+        <key>show_open_resume</key>
+        <value>true</value>
+    </entry>
+</defaults>

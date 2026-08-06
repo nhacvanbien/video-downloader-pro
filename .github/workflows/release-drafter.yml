@@ -1,0 +1,215 @@
+#
+# Copyright (c) 2025. Tevo Global Limited
+#
+# This software and all accompanying documentation is the sole property of
+# Tevo Global Limited and is protected by copyright law and international treaties.
+#
+# Unauthorized copying, distribution, or reproduction of this software, or any
+# portion of it, is strictly prohibited. The software is licensed to you solely for
+# your personal use and may not be used for commercial purposes without
+# a separate license agreement.
+#
+# You may not modify, reverse engineer, decompile, or disassemble this software.
+# You are not permitted to remove or alter any copyright notices or proprietary
+# legends from the software.
+#
+# All rights not expressly granted herein are reserved by Tevo Global Limited.
+# Contact information: hello@tevo.app
+#
+
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - 'release/*'
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    branches:
+      - 'release/*'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+    
+    steps:
+      - name: Extract Release Version from Branch
+        id: extract-version
+        run: |
+          BRANCH_NAME="${{ github.ref_name }}"
+          
+          # Extract version from release/X.Y.Z branch name
+          if [[ $BRANCH_NAME =~ ^release/([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+            echo "✅ Extracted version: $VERSION from branch: $BRANCH_NAME"
+          else
+            echo "❌ Invalid release branch format: $BRANCH_NAME"
+            echo "Expected format: release/X.Y.Z"
+            exit 1
+          fi
+
+      - name: Check if Draft Already Exists
+        # linter:ignore:outputs,result
+        id: check-draft
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const version = '${{ steps.extract-version.outputs.version }}';
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            
+            try {
+              // Get all releases and check for existing draft with this version
+              const { data: releases } = await github.rest.repos.listReleases({
+                owner: owner,
+                repo: repo
+              });
+            
+              const existingDraft = releases.find(release => 
+                release.draft && release.tag_name === version
+              );
+            
+              if (existingDraft) {
+                console.log(`Found existing draft release for version ${version}: ${existingDraft.html_url}`);
+                core.setOutput('draft_exists', 'true');
+                core.setOutput('draft_id', existingDraft.id);
+              } else {
+                console.log(`No existing draft release found for version ${version}`);
+                core.setOutput('draft_exists', 'false');
+              }
+            } catch (error) {
+              console.log('Error checking for existing drafts:', error.message);
+              core.setOutput('draft_exists', 'false');
+            }
+
+      - name: Find Release Tracking PR
+        # linter:ignore:outputs,result,pr_number
+        id: find-pr
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const version = '${{ steps.extract-version.outputs.version }}';
+            const branchName = '${{ steps.extract-version.outputs.branch_name }}';
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            
+            // Find the release tracking PR (release/X.Y.Z -> main)
+            const { data: prs } = await github.rest.pulls.list({
+              owner: owner,
+              repo: repo,
+              head: `${owner}:${branchName}`,
+              base: 'main',
+              state: 'open'
+            });
+            
+            if (prs.length === 0) {
+              console.log('No open release tracking PR found for branch:', branchName);
+              return;
+            }
+            
+            const releasePr = prs[0];
+            console.log(`Found release tracking PR #${releasePr.number}: ${releasePr.title}`);
+            
+            // Check if PR has release-drafter label
+            const hasReleaseDrafterLabel = releasePr.labels.some(label => 
+              label.name === 'release-drafter' || label.name === 'release' || label.name === 'tracking'
+            );
+            
+            if (!hasReleaseDrafterLabel) {
+              console.log('Release tracking PR does not have appropriate labels, skipping...');
+              return;
+            }
+            
+            core.setOutput('pr_number', releasePr.number);
+            core.setOutput('pr_found', 'true');
+
+      - name: Update or Create Release Notes
+        # linter:ignore:outputs,result
+        if: steps.find-pr.outputs.pr_found == 'true'
+        uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release-drafter.yml
+          tag: ${{ steps.extract-version.outputs.version }}
+          name: ${{ steps.extract-version.outputs.version }}
+          version: ${{ steps.extract-version.outputs.version }}
+          # Create as draft to allow multiple concurrent release drafts
+          publish: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update PR Description with Latest Release Notes
+        # linter:ignore:outputs,result,pr_number
+        if: steps.find-pr.outputs.pr_found == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const prNumber = '${{ steps.find-pr.outputs.pr_number }}';
+            const version = '${{ steps.extract-version.outputs.version }}';
+            const branchName = '${{ steps.extract-version.outputs.branch_name }}';
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            
+            // Get the current PR
+            const { data: pr } = await github.rest.pulls.get({
+              owner: owner,
+              repo: repo,
+              pull_number: prNumber
+            });
+            
+            let releaseNotes = '_Release notes will be generated automatically from merged PRs targeting this release branch._';
+            
+            try {
+              // Wait a moment for the release-drafter to complete
+              await new Promise(resolve => setTimeout(resolve, 5000));
+            
+              // Get the latest draft release for this version
+              const { data: releases } = await github.rest.repos.listReleases({
+                owner: owner,
+                repo: repo
+              });
+            
+              const draftRelease = releases.find(release => 
+                release.draft && release.tag_name === version
+              );
+            
+              if (draftRelease && draftRelease.body && draftRelease.body.trim() !== '') {
+                releaseNotes = draftRelease.body;
+                console.log('✅ Found draft release, using generated release notes');
+              } else {
+                console.log('📝 Draft release found but no release notes content, using default placeholder');
+              }
+            } catch (error) {
+              console.log('⚠️ Error fetching releases, using default placeholder:', error.message);
+            }
+            
+            // Check if PR body contains the release notes section
+            if (!pr.body || !pr.body.includes('## What\'s Changed')) {
+              console.log('❌ PR body does not contain the expected release notes section');
+              console.log('PR body preview:', pr.body ? pr.body.substring(0, 200) + '...' : 'null');
+              return;
+            }
+            
+            // Update PR description with latest release notes
+            const updatedBody = pr.body.replace(
+              /## What's Changed[\s\S]*?(?=## 🔧 Release Information|$)/,
+              `${releaseNotes}`
+            );
+            
+            // Only update if the content actually changed
+            if (updatedBody !== pr.body) {
+              await github.rest.pulls.update({
+                owner: owner,
+                repo: repo,
+                pull_number: prNumber,
+                body: updatedBody
+              });
+            
+              console.log(`✅ Updated release tracking PR #${prNumber} with latest release notes`);
+            } else {
+              console.log(`ℹ️ No changes needed for PR #${prNumber} - release notes are already up to date`);
+            }

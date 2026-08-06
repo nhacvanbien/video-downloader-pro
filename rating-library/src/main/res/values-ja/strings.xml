@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<resources>
+    <string name="lib_material_send">送信</string>
+    <string name="lib_material_cancel">キャンセル</string>
+    <string name="lib_material_feedback">フィードバック</string>
+    <string name="lib_material_rating">ご支援ありがとうございます！</string>
+    <string name="lib_material_tips">あなたが私たちを評価できれば、私たちはとても感謝しています。</string>
+    <string name="lib_material_sorry_message">ああ、ごめんなさい</string>
+    <string name="lib_material_feedback_welcome">あなたのフィードバックは大歓迎です</string>
+    <string name="lib_material_much_appreciated">大歓迎です！</string>
+    <string name="lib_material_support_motivation">あなたのサポートは私たちの最大の動機です！</string>
+    <string name="lib_material_appreciate_feedback">フィードバックに感謝します！</string>
+    <string name="lib_material_feedback_noted">フィードバックが記録されており、次のアップデートでアプリを改善します。ありがとう！</string>
+    <string name="lib_material_reason_request">理由を教えてください</string>
+    <string name="lib_material_feedback_submitted">フィードバックが記録されており、次のアップデートでアプリを改善します。ありがとう！</string>
+    <string name="lib_material_vpn_connection_failed">VPN接続に失敗しました</string>
+    <string name="lib_material_vpn_connection_slow">VPN接続は遅いです</string>
+    <string name="lib_material_proxy_filter_not_working">プロキシフィルターが機能していません</string>
+    <string name="lib_material_other">他の</string>
+    <string name="lib_material_description_optional">説明（オプション）</string>
+    <string name="lib_material_close">近い</string>
+    <string name="lib_material_best_rating">私たちが得ることができる最高のもの</string>
+    <string name="lib_material_rate">レート</string>
+    <string name="upload_screenshot_files">スクリーンショット/ファイルをアップロードします</string>
+    <string name="up_to_5_files_images">最大5つのファイル画像またはビデオ</string>
+
+    <string name="lib_material_email_optional">電子メール (オプション)</string>
+    <string name="lib_material_checkbox_1">リンクが検出されないか、サイトがサポートされていません</string>
+    <string name="lib_material_checkbox_2">アプリがクラッシュまたはフリーズする</string>
+    <string name="lib_material_checkbox_3">ダウンロードが失敗したか、遅すぎる</string>
+    <string name="lib_material_checkbox_4">ビデオが再生されない、またはエラーが表示される</string>
+    <string name="lib_material_checkbox_5">ビデオの品質が予想より低い</string>
+    <string name="the_best_we_can_get">私たちが得ることができる最高のもの:)</string>
+    <string name="which_of_the_following_best_describes_the_main_issue">あなたが遭遇した主な問題を最もよく説明しているものは次のうちどれですか\?</string>
+</resources>

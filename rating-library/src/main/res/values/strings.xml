@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2025. Tevo Global Limited
+  ~
+  ~ This software and all accompanying documentation is the sole property of
+  ~ Tevo Global Limited and is protected by copyright law and international treaties.
+  ~
+  ~ Unauthorized copying, distribution, or reproduction of this software, or any
+  ~ portion of it, is strictly prohibited. The software is licensed to you solely for
+  ~ your personal use and may not be used for commercial purposes without
+  ~ a separate license agreement.
+  ~
+  ~ You may not modify, reverse engineer, decompile, or disassemble this software.
+  ~ You are not permitted to remove or alter any copyright notices or proprietary
+  ~ legends from the software.
+  ~
+  ~ All rights not expressly granted herein are reserved by Tevo Global Limited.
+  ~
+  ~ Contact information: hello@tevo.app
+  -->
+
+<resources>
+    <string name="lib_material_send">Send</string>
+    <string name="lib_material_cancel">Cancel</string>
+    <string name="lib_material_feedback">Feedback</string>
+    <string name="lib_material_rating">Thank you for your support!</string>
+    <string name="lib_material_tips">We would be very grateful if you can rate us.</string>
+    <string name="lib_material_sorry_message">Oh, We\'re sorry</string>
+    <string name="lib_material_feedback_welcome">Your feedback is welcome</string>
+    <string name="lib_material_much_appreciated">Much appreciated!</string>
+    <string name="lib_material_support_motivation">Your support is our biggest motivation!</string>
+    <string name="lib_material_appreciate_feedback">Appreciate your feedback!</string>
+    <string name="lib_material_feedback_noted">Your feedback has been noted and we\'ll improve the app in the next update. Thank you!</string>
+    <string name="lib_material_reason_request">Please let us know the reason</string>
+    <string name="lib_material_feedback_submitted">Your feedback has been noted and we\'ll improve the app in the next update. Thank you!</string>
+    <string name="lib_material_vpn_connection_failed">VPN connection failed</string>
+    <string name="lib_material_vpn_connection_slow">VPN connection is slow</string>
+    <string name="lib_material_proxy_filter_not_working">Proxy filter is not working</string>
+    <string name="lib_material_other">Other</string>
+    <string name="lib_material_description_optional">Description (optional)</string>
+    <string name="lib_material_close">Close</string>
+    <string name="lib_material_best_rating">The best we can get</string>
+    <string name="lib_material_rate">Rate</string>
+    <string name="upload_screenshot_files">Upload screenshot/files</string>
+    <string name="up_to_5_files_images">up to 5 files images or videos</string>
+    <string name="lib_material_email_optional">Email (optional)</string>
+    <string name="lib_material_checkbox_1">Link not detected or site not supported</string>
+    <string name="lib_material_checkbox_2">App crashes or freezes</string>
+    <string name="lib_material_checkbox_3">Download failed or too slow</string>
+    <string name="lib_material_checkbox_4">Video won’t play or shows error</string>
+    <string name="lib_material_checkbox_5">Video quality lower than expected</string>
+    <string name="the_best_we_can_get">The best we can get :)</string>
+    <string name="which_of_the_following_best_describes_the_main_issue">Which of the following best describes the main issue you\'ve encountered?</string>
+
+</resources>

@@ -1,0 +1,8 @@
+<component name="CopyrightManager">
+  <settings default="tevo-limited">
+    <module2copyright>
+      <element module="Project Source Files" copyright="tevo-limited" />
+      <element module="All Changed Files" copyright="tevo-limited" />
+    </module2copyright>
+  </settings>
+</component>
