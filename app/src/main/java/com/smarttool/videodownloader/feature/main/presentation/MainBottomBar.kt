@@ -35,12 +35,11 @@ fun MainBottomBar(
         Row(modifier = Modifier.fillMaxWidth().height(1.dp).background(AppGray)) {}
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             MainTab.entries.forEach { tab ->
                 val isSelected = tab == selected
-
                 Column(
                     modifier = Modifier
                         .weight(1f)

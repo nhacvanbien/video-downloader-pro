@@ -426,7 +426,7 @@ class DetectedVideosTabViewModel constructor(
         m3u8LoadingList.set(mutableSetOf())
         executorReload.cancel()
         executorRegular.cancel()
-        verifyVideoLinkJobStorage.forEach { (_, process) ->
+        verifyVideoLinkJobStorage.values.toList().forEach { process ->
             process.dispose()
         }
         verifyVideoLinkJobStorage.clear()

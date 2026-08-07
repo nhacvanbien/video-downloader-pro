@@ -7,11 +7,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -68,6 +74,9 @@ fun WebTabScreen(
 ) {
     Box(modifier = Modifier.fillMaxSize().background(AppWhite)) {
         Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsTopHeight(WindowInsets.statusBars))
             if (!state.isFullscreen) {
                 AddressBar(
                     state = state,
@@ -76,7 +85,6 @@ fun WebTabScreen(
                     onBack = onBack,
                     onReload = onReload,
                     onOpenTabs = onOpenTabs,
-                    onDownload = onDownload,
                 )
 
                 if (state.showProgress) {
@@ -101,10 +109,16 @@ fun WebTabScreen(
                     onNavigateForward = onNavigateForward,
                     onShare = onShare,
                     onBookmark = onBookmark,
+                    onDownload = onDownload
                 )
 
-                RetainedAndroidView(view = bannerAd, modifier = Modifier.fillMaxWidth())
+//                RetainedAndroidView(view = bannerAd, modifier = Modifier.fillMaxWidth())
             }
+
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsBottomHeight(WindowInsets.safeDrawing))
+
         }
 
         RetainedAndroidView(
@@ -126,14 +140,13 @@ private fun AddressBar(
     onBack: () -> Unit,
     onReload: () -> Unit,
     onOpenTabs: () -> Unit,
-    onDownload: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_arrow_back),
+            painter = painterResource(R.drawable.ic_close),
             contentDescription = null,
             tint = NavIconTint,
             modifier = Modifier.size(26.dp).clickable(onClick = onBack),
@@ -168,32 +181,31 @@ private fun AddressBar(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-
+            Spacer(modifier = Modifier.size(8.dp))
             Image(
                 painter = painterResource(
                     if (state.isLoadingPage) R.drawable.ic_close else R.drawable.ic_reload,
                 ),
                 contentDescription = null,
-                modifier = Modifier.size(18.dp).clickable(onClick = onReload),
+                modifier = Modifier.size(24.dp).clickable(onClick = onReload),
             )
         }
 
-        Text(
-            text = state.tabCount.toString(),
-            style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp),
-            color = Primary,
+        Box(
             modifier = Modifier
                 .size(26.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(AppGray)
-                .clickable(onClick = onOpenTabs)
-                .padding(top = 4.dp),
-        )
+                .clickable(onClick = onOpenTabs),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = state.tabCount.toString(),
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp),
+                color = Primary
+            )
+        }
 
-        DownloadAction(
-            buttonState = state.downloadButtonState,
-            onClick = onDownload,
-        )
     }
 }
 
@@ -210,19 +222,19 @@ private fun DownloadAction(
             DownloadButtonUiState.Loading -> CircularProgressIndicator(
                 color = Primary,
                 strokeWidth = 2.dp,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(40.dp),
             )
 
             DownloadButtonUiState.Enabled -> Image(
                 painter = painterResource(R.drawable.ic_download_enable),
                 contentDescription = null,
-                modifier = Modifier.size(30.dp).clickable(onClick = onClick),
+                modifier = Modifier.size(40.dp).clickable(onClick = onClick),
             )
 
             DownloadButtonUiState.Disabled -> Image(
                 painter = painterResource(R.drawable.ic_download_disable),
                 contentDescription = null,
-                modifier = Modifier.size(30.dp),
+                modifier = Modifier.size(40.dp),
             )
         }
     }
@@ -235,6 +247,7 @@ private fun BottomBar(
     onNavigateForward: () -> Unit,
     onShare: () -> Unit,
     onBookmark: () -> Unit,
+    onDownload: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 10.dp),
@@ -252,6 +265,11 @@ private fun BottomBar(
             enabled = state.canGoForward,
             onClick = onNavigateForward,
             modifier = Modifier.weight(1f),
+        )
+
+        DownloadAction(
+            buttonState = state.downloadButtonState,
+            onClick = onDownload,
         )
 
         NavAction(

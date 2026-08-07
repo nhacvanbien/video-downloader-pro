@@ -35,17 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
 import com.smarttool.videodownloader.core.ui.components.SheetCornerRadius
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
-import com.smarttool.videodownloader.core.ui.theme.AppGray
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.SearchFieldHint
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.feature.browser.domain.model.PopularSite
-import com.smarttool.videodownloader.core.ads.AdsConstant
 
 @Composable
 fun BrowserHomeScreen(
@@ -59,7 +57,7 @@ fun BrowserHomeScreen(
     onOpenBookmarks: () -> Unit,
     onOpenHistory: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 13.dp),
             verticalAlignment = Alignment.CenterVertically,

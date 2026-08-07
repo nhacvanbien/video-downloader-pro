@@ -277,19 +277,18 @@ class WebTabController(
                 override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                     uiState = uiState.copy(
                         downloadButtonState =
-                        when (videoDetectionTabViewModel.downloadButtonState.get()) {
-                            is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
-                            is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
-                            else -> DownloadButtonUiState.Disabled
-                        },
+                            when (videoDetectionTabViewModel.downloadButtonState.get()) {
+                                is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
+                                is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
+                                else -> DownloadButtonUiState.Disabled
+                            },
                     )
                 }
             },
         )
 
         videoDetectionTabViewModel.showDetectedVideosEvent.observe(activity) {
-            val firstItem = videoDetectionTabViewModel.detectedVideosList.get()?.firstOrNull()
-            if (firstItem == null) return@observe
+            videoDetectionTabViewModel.detectedVideosList.get()?.firstOrNull() ?: return@observe
 
             if (permissionChecker.hasAll()) openDetectedSheet() else permissionSheet.show()
         }
@@ -402,7 +401,12 @@ class WebTabController(
             putExtra(Intent.EXTRA_SUBJECT, webTab.getTitle())
             putExtra(Intent.EXTRA_TEXT, webTab.getUrl())
         }
-        activity.startActivity(Intent.createChooser(intent, activity.getString(R.string.string_share)))
+        activity.startActivity(
+            Intent.createChooser(
+                intent,
+                activity.getString(R.string.string_share)
+            )
+        )
     }
 
     /** Mirrors the WebView's history state into the Compose chrome. */
@@ -753,10 +757,10 @@ class WebTabController(
             )
 
             val isManifest = contentType == ContentType.M3U8 ||
-                contentType == ContentType.MPD ||
-                url.contains(".m3u8") ||
-                url.contains(".mpd") ||
-                (url.contains(".txt") && url.contains("hentaihaven"))
+                    contentType == ContentType.MPD ||
+                    url.contains(".m3u8") ||
+                    url.contains(".mpd") ||
+                    (url.contains(".txt") && url.contains("hentaihaven"))
 
             if (isManifest) {
                 if (requestWithCookies != null) {
@@ -811,13 +815,14 @@ class WebTabController(
                 if (!tabViewModel.isTabInputFocused.get()) {
                     tabViewModel.setTabTextInput(url)
                 }
+                // Trả về false: Tiếp tục tải trang ngay trong WebView hiện tại
                 false
             } else {
-                try {
-                    activity.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
-                } catch (e: Exception) {
-                    Timber.w(e, "No activity found to open url: $url")
-                }
+                // Nếu là quảng cáo (isAd) hoặc chạy trong iframe (isForMainFrame == false):
+                // Chúng ta KHÔNG gọi activity.startActivity() nữa để chặn mở app ngoài.
+
+                // Trả về true: Nói với Android rằng ứng dụng đã xử lý liên kết này,
+                // WebView sẽ hủy bỏ lệnh tải và không làm gì cả.
                 true
             }
         }
@@ -947,10 +952,10 @@ class WebTabController(
             )
 
             val isManifest = contentType == ContentType.MPD ||
-                contentType == ContentType.M3U8 ||
-                url.contains(".m3u8") ||
-                url.contains(".mpd") ||
-                url.contains(".txt")
+                    contentType == ContentType.M3U8 ||
+                    url.contains(".m3u8") ||
+                    url.contains(".mpd") ||
+                    url.contains(".txt")
 
             if (isManifest) {
                 if (requestWithCookies != null) {
@@ -985,7 +990,7 @@ class WebTabController(
         val imageUrl = result.extra ?: return
 
         val isImage = result.type == WebView.HitTestResult.IMAGE_TYPE ||
-            result.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
+                result.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
 
         showImageDialog(imageUrl, isImage = isImage, showOpenInNewTab = true)
     }
@@ -1191,10 +1196,10 @@ class WebTabController(
         val isTitleEmpty = title?.trim()?.isEmpty() == true
 
         val shouldSave = !isTitleEmpty &&
-            lastSavedTitleHistory != title &&
-            lastSavedHistoryUrl != url &&
-            url.isNotEmpty() &&
-            !url.contains("about:blank")
+                lastSavedTitleHistory != title &&
+                lastSavedHistoryUrl != url &&
+                url.isNotEmpty() &&
+                !url.contains("about:blank")
 
         if (!shouldSave) return
 

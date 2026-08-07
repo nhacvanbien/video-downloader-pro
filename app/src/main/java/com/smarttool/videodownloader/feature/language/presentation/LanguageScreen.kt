@@ -8,12 +8,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,17 +36,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.LottieView
-import com.smarttool.videodownloader.core.ui.components.NativeAdFullContainer
 import com.smarttool.videodownloader.core.ui.components.ScreenGradient
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.feature.language.domain.model.AppLanguage
-import com.smarttool.videodownloader.core.ads.AdsConstant
 
 private val NewUiBackground = Color(0xFFF3F3F3)
 private const val HINT_ANIMATION_INDEX = 3
@@ -63,7 +66,11 @@ fun LanguageScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize().then(backgroundModifier)) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsTopHeight(WindowInsets.statusBars))
             LanguageToolbar(
                 mode = mode,
                 headerTitle = headerTitle,
@@ -87,26 +94,27 @@ fun LanguageScreen(
                     )
                 }
             }
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsBottomHeight(WindowInsets.safeDrawing))
 
-            // The second ad slot replaces the first once a language is picked, mirroring
-            // the preload-then-swap behaviour the onboarding funnel depends on.
-            if (mode != LanguageMode.Settings && hasSelection) {
-                NativeAdFullContainer(
-                    adUnitId = BuildConfig.NATIVE_LANGUAGE_1_2,
-                    layoutRes = R.layout.layout_native_language_2,
-                    adPlacement = "native_language_1_2",
-                    canShowAds = AdsConstant.showNativeLanguage1_2,
-                    modifier = Modifier.fillMaxWidth().height(280.dp),
-                )
-            } else {
-                NativeAdFullContainer(
-                    adUnitId = BuildConfig.NATIVE_LANGUAGE_1_1,
-                    layoutRes = R.layout.layout_native_language,
-                    adPlacement = "native_language_1_1",
-                    canShowAds = AdsConstant.showNativeLanguage1_1,
-                    modifier = Modifier.fillMaxWidth().height(280.dp),
-                )
-            }
+//            if (mode != LanguageMode.Settings && hasSelection) {
+//                NativeAdFullContainer(
+//                    adUnitId = BuildConfig.NATIVE_LANGUAGE_1_2,
+//                    layoutRes = R.layout.layout_native_language_2,
+//                    adPlacement = "native_language_1_2",
+//                    canShowAds = AdsConstant.showNativeLanguage1_2,
+//                    modifier = Modifier.fillMaxWidth().height(280.dp),
+//                )
+//            } else {
+//                NativeAdFullContainer(
+//                    adUnitId = BuildConfig.NATIVE_LANGUAGE_1_1,
+//                    layoutRes = R.layout.layout_native_language,
+//                    adPlacement = "native_language_1_1",
+//                    canShowAds = AdsConstant.showNativeLanguage1_1,
+//                    modifier = Modifier.fillMaxWidth().height(280.dp),
+//                )
+//            }
         }
 
         if (showLoadingOverlay) {

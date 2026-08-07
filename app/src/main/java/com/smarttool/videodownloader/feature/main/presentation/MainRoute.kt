@@ -37,7 +37,6 @@ fun MainRoute(
 
     MainScreen(
         selectedTab = selectedTab,
-        bannerAd = bannerAd,
         onSelectTab = onSelectTab,
     ) { tab ->
         when (tab) {

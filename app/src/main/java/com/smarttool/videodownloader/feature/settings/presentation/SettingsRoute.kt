@@ -16,6 +16,7 @@ import com.smarttool.videodownloader.core.ui.components.findComponentActivity
 import com.vimalcvs.materialrating.DialogManager
 import androidx.fragment.app.FragmentActivity
 import org.koin.androidx.compose.koinViewModel
+import androidx.core.net.toUri
 
 /**
  * The Settings tab.
@@ -66,7 +67,7 @@ fun SettingsRoute(onOpenLanguage: () -> Unit) {
         onPolicyClick = {
             VideoDownloaderApplication.instance.appResumeAdHelper.setDisableAppResumeOnScreen()
             context.startActivity(
-                Intent(Intent.ACTION_VIEW, Uri.parse(POLICY_URL)),
+                Intent(Intent.ACTION_VIEW, POLICY_URL.toUri()),
             )
         },
     )

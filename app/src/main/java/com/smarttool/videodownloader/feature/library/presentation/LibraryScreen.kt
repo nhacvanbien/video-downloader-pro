@@ -67,7 +67,7 @@ fun LibraryScreen(
     trailingAction: @Composable (() -> Unit)? = null,
     selectionActions: SelectionActions? = null,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+    Column(modifier = Modifier.fillMaxSize()) {
         LibraryToolbar(
             title = title,
             state = state,

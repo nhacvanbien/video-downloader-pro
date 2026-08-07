@@ -62,7 +62,7 @@ fun ProcessingScreen(
     onPauseResume: (ProgressInfo) -> Unit,
     onCancel: (ProgressInfo) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+    Column(modifier = Modifier.fillMaxSize()) {
         AppTopBar(
             title = stringResource(R.string.string_processing),
             trailing = {

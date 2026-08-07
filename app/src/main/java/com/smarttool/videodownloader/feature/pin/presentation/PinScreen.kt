@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,6 +64,9 @@ fun PinScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .windowInsetsTopHeight(WindowInsets.statusBars))
         AppTopBar(title = stringResource(R.string.string_set_pin), onBack = onBack)
 
         Text(
