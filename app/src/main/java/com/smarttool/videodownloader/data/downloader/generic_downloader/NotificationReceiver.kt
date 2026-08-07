@@ -6,9 +6,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import timber.log.Timber
 
 
 class NotificationReceiver : BroadcastReceiver() {
@@ -32,15 +32,13 @@ class NotificationReceiver : BroadcastReceiver() {
                 return
             }
             if (notification == null)
-                Log.e(TAG, "EXTRA_NOTIFICATION ($EXTRA_NOTIFICATION) was not provided!")
+                Timber.e("EXTRA_NOTIFICATION ($EXTRA_NOTIFICATION) was not provided!")
             else
                 NotificationManagerCompat.from(context).notify(id, notification)
         }
     }
 
     companion object {
-        const val TAG = "NotificationReceiver"
-
         const val ACTION_SEND_NOTIFICATION = "intent.action.SEND_NOTIFICATION"
 
         const val EXTRA_NOTIFICATION = "notification_parcel"

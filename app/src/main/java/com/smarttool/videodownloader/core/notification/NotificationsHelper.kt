@@ -9,7 +9,6 @@ import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.smarttool.videodownloader.MainActivity
@@ -22,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import timber.log.Timber
 class NotificationsHelper  constructor(
     private val context: Context,
     private val videoTaskItemRepository: VideoTaskItemRepository
@@ -78,7 +78,7 @@ class NotificationsHelper  constructor(
                 val actionWatch = notificationActionWatch(task.fileName)
                 val actionWatchIntent = notificationIntentWatch(task.fileName)
 
-                Log.d("ntt", "createNotificationBuilder: ${task}")
+                Timber.d("createNotificationBuilder: $task")
 
                 val file = File(task.filePath)
                 if (file.exists()) {

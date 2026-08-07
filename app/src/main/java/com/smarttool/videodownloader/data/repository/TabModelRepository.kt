@@ -18,7 +18,7 @@ class TabModelRepository  constructor(
 
     }
 
-    fun deleteTabModel(item: TabModel) {
+    suspend fun deleteTabModel(item: TabModel) {
         tabModelDao.deleteTabModel(item)
     }
 

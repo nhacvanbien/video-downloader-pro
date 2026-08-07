@@ -8,6 +8,7 @@ import okhttp3.Request
 import okio.use
 import org.jsoup.Jsoup
 import java.io.ByteArrayOutputStream
+import timber.log.Timber
 
 
 class FaviconUtils {
@@ -72,9 +73,7 @@ class FaviconUtils {
                 try {
                     bodyBytes = BitmapFactory.decodeStream(source.toByteArray().inputStream())
                 } catch (e: Throwable) {
-//                    AppLogger.d(
-//                        "BitmapFactory.decodeStream(source?.toByteArray()?.inputStream()) ERROR: ${e.message}"
-//                    )
+                    Timber.w(e, "Failed to decode favicon bitmap")
                 }
 
                 return bodyBytes

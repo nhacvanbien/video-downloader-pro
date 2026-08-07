@@ -25,7 +25,6 @@ import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat.setAudioMuted
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.core.browser.BrowserUserAgent
 import com.smarttool.videodownloader.core.di.ScopedViewModelStore
 import com.smarttool.videodownloader.core.file.FileNameCleaner
@@ -57,6 +56,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 
 /**
  * The Processing tab: paste a link, probe it with an off-screen WebView, then list and
@@ -391,7 +391,7 @@ class ProcessingController(
             mediaPlaybackRequiresUserGesture = true // Chặn autoplay
         }
 
-        AppLogger.d("Processing detection WebView ready")
+        Timber.d("Processing detection WebView ready")
     }
 
     private val webViewClient = object : WebViewClient() {
@@ -544,7 +544,7 @@ class ProcessingController(
 
             val isAd = tabViewModel.isAd(url)
 
-            AppLogger.d(
+            Timber.d(
                 "ON_CREATE_WINDOW::************* $url ${view.url} isAd:: $isAd $isUserGesture",
             )
 

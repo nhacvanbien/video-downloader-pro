@@ -3,7 +3,6 @@ package com.smarttool.videodownloader
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -33,8 +32,8 @@ import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.feature.splash.presentation.SplashActivity
 import com.smarttool.videodownloader.feature.tab.presentation.TabViewModel
 import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.core.ContextUtils
+import com.smarttool.videodownloader.core.logging.CrashlyticsTree
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.SystemUtil
 import com.yausername.ffmpeg.FFmpeg
@@ -47,11 +46,11 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import timber.log.Timber
 import java.io.File
 import kotlin.jvm.java
 import androidx.work.WorkerFactory
 import org.koin.android.ext.android.inject
+import timber.log.Timber
 
 class VideoDownloaderApplication : Application() {
 
@@ -75,6 +74,10 @@ class VideoDownloaderApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Planted first so everything below (startup, DI, youtube-dl init) is captured.
+        Timber.plant(if (BuildConfig.DEBUG) Timber.DebugTree() else CrashlyticsTree())
+        Timber.i("App starting: versionName=${BuildConfig.VERSION_NAME} versionCode=${BuildConfig.VERSION_CODE}")
 
         ContextUtils.initApplicationContext(applicationContext)
         instance = this
@@ -110,7 +113,7 @@ class VideoDownloaderApplication : Application() {
         )
 
         RxJavaPlugins.setErrorHandler { error: Throwable? ->
-            AppLogger.e("RxJavaError unhandled $error")
+            Timber.e(error, "Unhandled RxJava error")
         }
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -124,18 +127,13 @@ class VideoDownloaderApplication : Application() {
         }
 
         initTevoAdLib()
-
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
     }
 
     private fun initializeFileUtils() {
         val isExternal = sharedPrefHelper.getIsExternalUse()
         val isAppDir = sharedPrefHelper.getIsAppDirUse()
 
-        Log.d("ntt", "initializeFileUtils: isExternal: $isExternal")
-        Log.d("ntt", "initializeFileUtils: isAppDir: $isAppDir")
+        Timber.d("initializeFileUtils: isExternal=$isExternal isAppDir=$isAppDir")
 
         FileUtil.IS_EXTERNAL_STORAGE_USE = isExternal
         FileUtil.IS_APP_DATA_DIR_USE = isAppDir
@@ -148,7 +146,7 @@ class VideoDownloaderApplication : Application() {
             FFmpeg.getInstance().init(this)
 //            Aria2c.getInstance().init(this)
         } catch (e: YoutubeDLException) {
-            AppLogger.e("failed to initialize youtubedl-android $e")
+            Timber.e(e, "Failed to initialize youtubedl-android")
         }
     }
 
@@ -156,9 +154,9 @@ class VideoDownloaderApplication : Application() {
         try {
             val status = YoutubeDL.getInstance()
                 .updateYoutubeDL(applicationContext, YoutubeDL.UpdateChannel.MASTER)
-            AppLogger.d("UPDATE_STATUS MASTER: $status")
+            Timber.i("youtube-dl update (MASTER) status=$status")
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "youtube-dl update failed")
         }
     }
 

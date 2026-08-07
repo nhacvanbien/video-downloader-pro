@@ -24,6 +24,7 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
+import timber.log.Timber
 
 const val AD_HOSTS_URL_LIST_ADAWAY = "https://adaway.org/hosts.txt"
 const val AD_HOSTS_URLS_LIST_ADMIRAL = "https://v.firebog.net/hosts/Admiral.txt"
@@ -143,7 +144,7 @@ class AdBlockHostsRemoteDataSource  constructor(
                 okHttpClient.getProxyOkHttpClient().newCall(Request.Builder().url(url).build())
                     .execute()
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.w(e, "Ad-block list fetch failed: $url")
                 null
             }
             response?.body?.byteStream().use { responseBytesStream ->
@@ -196,7 +197,7 @@ class AdBlockHostsRemoteDataSource  constructor(
         } catch (e: IOException) {
             yield()
 
-            e.printStackTrace()
+            Timber.w(e, "Ad-block list read failed")
         } finally {
             yield()
 

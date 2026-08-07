@@ -6,7 +6,6 @@ import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.model.Proxy
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
@@ -17,6 +16,7 @@ import com.yausername.youtubedl_android.mapper.VideoFormat
 import okhttp3.Request
 import org.jsoup.Jsoup
 import java.util.*
+import timber.log.Timber
 
 interface VideoService {
     fun getVideoInfo(url: Request, isM3u8OrMpd: Boolean = false): VideoInfoWrapper?
@@ -48,14 +48,14 @@ open class VideoServiceLocal(
     }
 
     fun getVideoInfo(url: Request, isM3u8OrMpd: Boolean): VideoInfoWrapper? {
-        AppLogger.d("Getting info url...:  $url  ${url.headers["Cookie"]}")
+        Timber.d("getVideoInfo: url=${url.url} isM3u8OrMpd=$isM3u8OrMpd hasCookie=${url.header("Cookie") != null}")
 
         var result: VideoInfoWrapper? = null
 
         try {
             result = handleYoutubeDlUrl(url, isM3u8OrMpd)
         } catch (e: Throwable) {
-            AppLogger.d("YoutubeDL Error: $e")
+            Timber.e(e, "youtube-dl failed for ${url.url}")
             if (isLoginRequiredError(e.message)) {
                 throw LoginRequiredException(url.url.host ?: "", e.message)
             }
@@ -196,7 +196,7 @@ class YoutubedlHelper  constructor(
             try {
                 loadFromAssets()
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.e(e, "loadFromAssets failed")
                 isLoading = false
             }
 

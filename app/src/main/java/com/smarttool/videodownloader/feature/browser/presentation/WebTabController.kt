@@ -48,7 +48,6 @@ import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
 import com.smarttool.videodownloader.core.AppConstant
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.browser.BrowserUserAgent
 import com.smarttool.videodownloader.core.di.ScopedViewModelStore
@@ -99,6 +98,7 @@ import org.koin.core.component.inject
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
+import timber.log.Timber
 
 /**
  * The browser tab: WebView, ad-blocking and video-detection wiring, download sheet.
@@ -266,7 +266,7 @@ class WebTabController(
                     )
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e, "Failed to insert initial tab model")
             }
         }
     }
@@ -355,7 +355,7 @@ class WebTabController(
                     when (info.downloadStatus) {
                         VideoTaskState.SUCCESS -> if (notifiedSuccess.add(info.id)) {
                             toast(R.string.string_download_successful)
-                            DialogManager.showRatingAfterDoFunction(
+                            DialogManager.showRatingAfterSuccessfulDownload(
                                 activity,
                                 AppConstant.FEEDBACK_EMAIL,
                             )
@@ -660,7 +660,7 @@ class WebTabController(
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
 
-        AppLogger.d(webTab.toString())
+        Timber.d("Web tab state: $webTab")
 
         webViewContainer.addView(webView, LinearLayout.LayoutParams(-1, -1))
     }
@@ -712,7 +712,7 @@ class WebTabController(
                             )
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        Timber.w(e, "Failed to update tab favicon")
                     }
                 }
             }
@@ -796,7 +796,7 @@ class WebTabController(
                         )
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Timber.w(e, "Failed to update selected tab favicon")
                 }
             }
 
@@ -816,7 +816,7 @@ class WebTabController(
                 try {
                     activity.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Timber.w(e, "No activity found to open url: $url")
                 }
                 true
             }
@@ -1049,7 +1049,7 @@ class WebTabController(
             val response = client.newCall(Request.Builder().url(imageUrl).build()).execute()
 
             if (!response.isSuccessful) {
-                AppLogger.e("Image download failed: ${response.code}")
+                Timber.e("Image download failed: ${response.code}")
                 return@withContext null
             }
 
@@ -1085,7 +1085,7 @@ class WebTabController(
             saveDownloadedImage(outputFile, fileName, fileSize, imageUrl)
             outputFile
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e, "Image download failed: $imageUrl")
             null
         }
     }
@@ -1094,7 +1094,7 @@ class WebTabController(
         try {
             val base64Data = base64String.substringAfter("base64,", "")
             if (base64Data.isBlank()) {
-                AppLogger.e("Invalid base64 data")
+                Timber.e("Invalid base64 data")
                 return@withContext null
             }
 
@@ -1126,7 +1126,7 @@ class WebTabController(
             saveDownloadedImage(outputFile, fileName, fileSize, base64String)
             outputFile
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e, "Saving base64 image failed")
             null
         }
     }

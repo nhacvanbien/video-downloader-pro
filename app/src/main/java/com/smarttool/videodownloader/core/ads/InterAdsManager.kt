@@ -23,7 +23,6 @@ package com.smarttool.videodownloader.core.ads
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -35,6 +34,7 @@ import com.ads.admob.listener.InterstitialAdShowCallBack
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.LoadAdError
 import com.smarttool.videodownloader.android.BuildConfig
+import timber.log.Timber
 
 object InterAdsManager {
     const val INTER_ALL = "inter_all"
@@ -124,7 +124,7 @@ object InterAdsManager {
                         }
 
                         override fun onAdFailedToShow(adError: AdError) {
-                            Log.e("TAG", "onAdFailedToShow: ${adError.message}")
+                            Timber.e("onAdFailedToShow: ${adError.message}")
                         }
 
                         override fun onAdImpression() {

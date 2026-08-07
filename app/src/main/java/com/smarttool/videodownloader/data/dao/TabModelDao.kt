@@ -14,7 +14,7 @@ interface TabModelDao {
     fun insertTabModel(item: TabModel)
 
     @Delete
-    fun deleteTabModel(item: TabModel)
+    suspend fun deleteTabModel(item: TabModel)
 
     @Query("UPDATE TabModel SET _url = :newUrl, _is_selected = :isSelected,_favicon = :favicon WHERE _id = :id")
     suspend fun updateInfoTabModel(

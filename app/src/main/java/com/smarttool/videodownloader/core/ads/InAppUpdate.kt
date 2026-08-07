@@ -11,6 +11,7 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import timber.log.Timber
 
 class InAppUpdate(
     activity: AppCompatActivity,
@@ -36,7 +37,7 @@ class InAppUpdate(
                 }
             }
                 .addOnFailureListener { e ->
-                    e.printStackTrace()
+                    Timber.w(e, "In-app update check failed")
                     installUpdatedListener.onUpdateNextAction()
                 }
             appUpdateManager.registerListener(this)

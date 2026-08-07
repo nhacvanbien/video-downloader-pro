@@ -1,11 +1,11 @@
 package com.smarttool.videodownloader.feature.tab.presentation
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.core.SingleLiveEvent
+import timber.log.Timber
 
 
 class TabViewModel(application: Application) : AndroidViewModel(application) {
@@ -18,13 +18,13 @@ class TabViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addNewTab(tab: WebTab) {
         val currentList = listTabWeb.value ?: mutableListOf()
-        Log.d("ntt", "addNewTab: $currentList")
+        Timber.d("addNewTab: current tabs=${currentList.size}")
         currentList.add(tab)
         listTabWeb.value = currentList
         currentPositionTabWeb.value = currentList.lastIndex
 
-        Log.d("ntt", "addNewTab listTabWeb.value: ${listTabWeb.value}")
-        Log.d("ntt", "addNewTab  currentPositionTabWeb.value: ${ currentPositionTabWeb.value}")
+        Timber.d("addNewTab listTabWeb.value: ${listTabWeb.value}")
+        Timber.d("addNewTab  currentPositionTabWeb.value: ${ currentPositionTabWeb.value}")
     }
 
     fun removeTabAt(position: Int) {

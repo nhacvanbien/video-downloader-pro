@@ -3,11 +3,9 @@ package com.smarttool.videodownloader.data.downloader.custom_downloader
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Base64
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.work.WorkerParameters
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
@@ -19,6 +17,7 @@ import java.net.URL
 import java.util.Date
 import kotlin.collections.iterator
 import kotlin.coroutines.resume
+import timber.log.Timber
 
 class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerParameters) :
     GenericDownloadWorkerWrapper(appContext, workerParams) {
@@ -79,7 +78,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
     }
 
     override fun finishWork(item: VideoTaskItem?) {
-        AppLogger.d("FINISHING... ${item?.filePath} $item")
+        Timber.d("finishWork: filePath=${item?.filePath} item=$item")
         if (getDone()) {
             getContinuation().resume(Result.success())
         }
@@ -118,7 +117,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                                 )
                                 if (sourcePath?.exists() == true) {
                                     try {
-                                        AppLogger.d(
+                                        Timber.d(
                                             "START MOOVING...  $sourcePath  $target"
                                         )
                                         fileMovedSuccess = fileUtil.moveMedia(
@@ -126,7 +125,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                                             sourcePath.toUri(),
                                             File(target).toUri()
                                         )
-                                        AppLogger.d(
+                                        Timber.d(
                                             "END MOOVING...  $sourcePath  $target"
                                         )
                                         if (!fileMovedSuccess) {
@@ -138,7 +137,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
                                             val result = extractFileName(target)
 
-                                            Log.d("ntt", "finishWork: $result")
+                                            Timber.d("finishWork: $result")
 
                                             result?.let {
                                                 item.fileName = extractFileName(target)!!.first
@@ -208,26 +207,26 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                         notificationIdPair.first, notificationIdPair.second
                     )
                     if (item.taskState == VideoTaskState.ERROR) {
-                        AppLogger.d("FINISHING ERROR  $item")
+                        Timber.w("Download finished with error: $item")
                         getContinuation().resume(Result.failure())
                     } else {
-                        AppLogger.d("FINISHING SUCCESS  $item")
+                        Timber.i("Download finished successfully: $item")
 
                         getContinuation().resume(Result.success())
                     }
                 } catch (_: Exception) {
-                    AppLogger.d("FINISHING UNEXPECTED ERROR  $item")
+                    Timber.e("Download finished with unexpected error: $item")
                     getContinuation().resume(Result.failure())
                 }
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.e(e, "finishWork failed: $item")
             }
         } else {
             try {
-                AppLogger.d("SMTH WRONG  $item")
+                Timber.e("finishWork called before work was done: $item")
                 getContinuation().resume(Result.failure())
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.e(e, "finishWork could not resume continuation: $item")
             }
         }
     }
@@ -242,7 +241,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
     @SuppressLint("RestrictedApi")
     private fun startDownload(taskItem: VideoTaskItem, headers: Map<String, String>) {
-        AppLogger.d("Start download regular: $taskItem, Header: $headers")
+        Timber.i("Start regular download: $taskItem")
 
 
         val taskId = inputData.getString(GenericDownloader.TASK_ID_KEY)!!
@@ -280,7 +279,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                 okHttpClient,
                 object : DownloadListener {
                     override fun onSuccess() {
-                        AppLogger.d(
+                        Timber.d(
                             "Download Success $outputFileName"
                         )
                         finishWork(taskItem.also {
@@ -291,7 +290,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                     }
 
                     override fun onFailure(e: Throwable) {
-                        AppLogger.d(
+                        Timber.d(
                             "Download Failed  ${e.message} $outputFileName"
                         )
                         val taskState =
@@ -329,9 +328,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                     override fun onChunkFailure(
                         e: Throwable, index: CustomFileDownloader.Chunk
                     ) {
-                        AppLogger.d(
-                            "Chunck failure $index ${e.printStackTrace()} "
-                        )
+                        Timber.e(e, "Chunk failure: $index")
                     }
                 }).download()
         }
@@ -441,7 +438,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
         taskId: String, progress: Progress, downloadStatus: Int, infoLine: String = ""
     ) {
         if (getDone() && downloadStatus == VideoTaskState.DOWNLOADING) {
-            AppLogger.d(
+            Timber.d(
                 "saveProgress task returned cause DONE!!! $progress"
             )
             return
@@ -475,7 +472,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
         if (dbTask != null) {
             if (getDone() && downloadStatus == VideoTaskState.DOWNLOADING) {
-                AppLogger.d(
+                Timber.d(
                     "saveProgress task returned cause DONE!!! $progress"
                 )
             } else {

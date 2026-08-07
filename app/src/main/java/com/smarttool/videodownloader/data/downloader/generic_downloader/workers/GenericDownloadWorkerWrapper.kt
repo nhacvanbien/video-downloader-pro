@@ -4,13 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.smarttool.videodownloader.data.repository.ProgressRepository
 import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.notification.NotificationsHelper
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
@@ -21,6 +19,7 @@ import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericD
 import com.smarttool.videodownloader.data.downloader.generic_downloader.NotificationReceiver
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlin.coroutines.resume
+import timber.log.Timber
 
 open class GenericDownloadWorkerWrapper  constructor(
     appContext: Context, workerParams: WorkerParameters
@@ -52,7 +51,7 @@ open class GenericDownloadWorkerWrapper  constructor(
     }
 
     override fun onDownloadPause(item: VideoTaskItem?) {
-        AppLogger.d("Download Task PAUSE!!! $item")
+        Timber.i("Download paused: $item")
 
         if (item?.taskState == VideoTaskState.SUCCESS) {
             return
@@ -64,7 +63,7 @@ open class GenericDownloadWorkerWrapper  constructor(
     }
 
     override fun onDownloadError(item: VideoTaskItem?) {
-        AppLogger.d("Download Task ERROR!!! $item")
+        Timber.w("Download failed: $item")
         super.onDownloadError(item)
 
         GenericDownloader.downloadListener?.onDownloadError(item)
@@ -72,7 +71,7 @@ open class GenericDownloadWorkerWrapper  constructor(
 
     override fun onDownloadSuccess(item: VideoTaskItem?) {
         super.onDownloadSuccess(item)
-        Log.d("ntt", "onDownloadSuccess: item: $item")
+        Timber.i("Download succeeded: $item")
 
         disposable?.dispose()
         disposable = progressRepository.getProgressInfos().subscribe { infos ->

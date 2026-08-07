@@ -24,7 +24,6 @@ import com.google.android.gms.ads.LoadAdError
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
 import com.smarttool.videodownloader.base.BaseComposeActivity
-import com.smarttool.videodownloader.core.AppConstant
 import com.smarttool.videodownloader.core.UpdateEvent
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ads.InterAdsManager
@@ -41,7 +40,6 @@ import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingCo
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
 import com.smarttool.videodownloader.feature.tab.presentation.TabViewModel
 import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.vimalcvs.materialrating.DialogManager
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import kotlin.system.exitProcess
@@ -97,7 +95,6 @@ class MainActivity : BaseComposeActivity() {
         super.onCreate(savedInstanceState)
 
         loadAd()
-        DialogManager.showRatingAfterAppOpened(this, AppConstant.FEEDBACK_EMAIL)
 
         // The full-screen native ad is a destination now, so the ad manager needs a way
         // to reach the graph instead of starting an Activity of its own.
@@ -122,9 +119,6 @@ class MainActivity : BaseComposeActivity() {
                     onSelectTab = { selectedTab = it },
                     showInterstitial = { onDone -> showInterAll(onDone) },
                     onExitRequested = ::showDialogExitApp,
-                    onReturnedToMain = {
-                        DialogManager.showRatingAfterDoFunction(this, AppConstant.FEEDBACK_EMAIL)
-                    },
                 )
             }
         }

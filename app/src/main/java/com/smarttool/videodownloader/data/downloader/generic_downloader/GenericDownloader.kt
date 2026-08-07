@@ -6,13 +6,13 @@ import android.util.Base64
 import androidx.work.*
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.GenericDownloadWorkerWrapper
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 import java.util.zip.Deflater
 import java.util.zip.Inflater
+import timber.log.Timber
 
 
 open class GenericDownloader {
@@ -49,11 +49,11 @@ open class GenericDownloader {
             val editor = getDownloaderPreferences(context).edit()
             editor.putString(workId, headersString)
             editor.apply()
-            AppLogger.d("saveHeadersStringToSharedPreferences  $workId")
+            Timber.d("saveHeadersStringToSharedPreferences  $workId")
         }
 
         fun loadHeadersStringFromSharedPreferences(context: Context, workId: String?): String? {
-            AppLogger.d("loadHeadersStringFromSharedPreferences  $workId")
+            Timber.d("loadHeadersStringFromSharedPreferences  $workId")
 
             if (workId == null) {
                 return null
@@ -73,7 +73,7 @@ open class GenericDownloader {
             val editor = getDownloaderPreferences(context).edit()
             editor.remove(workId)
             editor.apply()
-            AppLogger.d("deleteHeadersStringFromSharedPreferences  $workId")
+            Timber.d("deleteHeadersStringFromSharedPreferences  $workId")
         }
 
         fun compressString(text: String): String {

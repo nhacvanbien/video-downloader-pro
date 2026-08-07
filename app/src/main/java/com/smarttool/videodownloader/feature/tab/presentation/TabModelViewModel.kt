@@ -7,6 +7,7 @@ import com.smarttool.videodownloader.data.repository.TabModelRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
+import timber.log.Timber
 
 class TabModelViewModel constructor(
     private val tabModelRepository: TabModelRepository,
@@ -28,7 +29,7 @@ class TabModelViewModel constructor(
             try {
                 tabModelRepository.deleteTabModel(item)
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.e(e, "deleteTabModel failed: id=${item.id}")
             }
         }
     }

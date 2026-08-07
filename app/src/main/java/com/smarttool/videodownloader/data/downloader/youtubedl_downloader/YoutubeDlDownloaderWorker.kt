@@ -4,14 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.util.Base64
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.model.Proxy
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
@@ -31,6 +29,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.coroutines.resume
+import timber.log.Timber
 
 class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParameters) :
     GenericDownloadWorkerWrapper(appContext, workerParams) {
@@ -98,7 +97,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
     }
 
     private fun stopAndSave(task: VideoTaskItem) {
-        Log.d("ntt", "stopAndSave: task: $task")
+        Timber.d("stopAndSave: task: $task")
         val taskId = inputData.getString(GenericDownloader.DOWNLOAD_ID_KEY)
 
         if (taskId != null) {
@@ -147,7 +146,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             GenericDownloader.ORIGIN_KEY
         ) ?: throw Throwable("URL is NULL")
 
-        AppLogger.d("Start download dl:  ${vFormat.formatId} $url $task")
+        Timber.i("Start youtube-dl download: taskId=$taskId format=${vFormat.formatId} url=$url")
 
         val name = task.title
         val downloadDir = fileUtil.folderDir
@@ -402,7 +401,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                                 f.taskState = VideoTaskState.ERROR
                             })
                         } else {
-                            Log.d("ntt", "startDownload: ")
+                            Timber.w("startDownload: no output file produced for $url")
                             finishWork(VideoTaskItem(url).also { f ->
                                 f.errorCode = 1
                                 f.taskState = VideoTaskState.ERROR
@@ -412,7 +411,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                 }
             }
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "youtube-dl download failed: $url")
             if (this@YoutubeDlDownloaderWorker.cookieFile != null) {
                 this@YoutubeDlDownloaderWorker.cookieFile!!.delete()
             }
@@ -448,7 +447,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         tmpFileName: String,
         name: String
     ) {
-        AppLogger.d("Download Error: $throwable \ntaskId: $taskId")
+        Timber.e(throwable, "Download error: taskId=$taskId url=$url progress=$progressCached")
 
         finishWork(VideoTaskItem(url).also { f ->
             if (isCanceled && throwable is YoutubeDL.CanceledException) {
@@ -578,12 +577,12 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
     @SuppressLint("CheckResult")
     override fun finishWork(item: VideoTaskItem?) {
-        Log.d("ntt", "finishWork: $item")
+        Timber.d("finishWork: $item")
         if (getDone()) {
             try {
                 getContinuation().resume(Result.success())
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.e(e, "finishWork could not resume continuation: $item")
             }
             return
         }
@@ -651,7 +650,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         taskId: String, line: LineInfo? = null, task: VideoTaskItem
     ): Observable<Unit> {
         if (getDone() && task.taskState == VideoTaskState.DOWNLOADING) {
-            AppLogger.d(
+            Timber.d(
                 "saveProgress task returned cause DONE!!!"
             )
             return Observable.empty()
@@ -688,7 +687,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
             if (dbTask != null) {
                 if (getDone() && task.taskState == VideoTaskState.DOWNLOADING) {
-                    AppLogger.d(
+                    Timber.d(
                         "saveProgress task returned cause DONE!!!"
                     )
                 } else {
@@ -704,7 +703,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
     }
 
     private fun pauseDownload(task: VideoTaskItem, headers: Map<String, String>) {
-        Log.d("ntt", "pauseDownload: task: $task")
+        Timber.d("pauseDownload: task: $task")
         if (getDone()) return
 
         val id = inputData.getString(GenericDownloader.DOWNLOAD_ID_KEY)
@@ -723,7 +722,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
     }
 
     private fun cancelDownload(task: VideoTaskItem, headers: Map<String, String>) {
-        Log.d("ntt", "cancelDownload: task: $task")
+        Timber.d("cancelDownload: task: $task")
         val taskId = inputData.getString(GenericDownloader.DOWNLOAD_ID_KEY)
         val isFileRemove = inputData.getBoolean(GenericDownloader.IS_FILE_REMOVE_KEY, false)
 

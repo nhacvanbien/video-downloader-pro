@@ -27,7 +27,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
 
 object DialogManager {
-    private var ratingAppOpenedShown = false
 
     fun showMaterialFeedback(context: Context?, rating: Float, email: String?) {
         val fragmentManager = getFragManager(context)
@@ -43,31 +42,27 @@ object DialogManager {
         materialFeedback.show(fragmentManager, FeedbackAppreciateBottomSheetFragment.KEY)
     }
 
-    fun showRatingAfterDoFunction(context: Context, email: String?) {
-        if (RatingCache.getInstance(context).isRatingShown()) {
-            return
-        }
-        showRating(context, email)
-    }
+    /**
+     * Prompts after the user has felt the app deliver value, not on every launch.
+     * First ask comes on the [FIRST_PROMPT_DOWNLOAD_COUNT]th successful download; if the
+     * user dismisses it without rating, it waits another [PROMPT_COOLDOWN_DOWNLOADS]
+     * successful downloads before asking again. Once a rating or feedback is actually
+     * submitted, [RatingCache.isRatingShown] is set and this never fires again.
+     */
+    fun showRatingAfterSuccessfulDownload(context: Context, email: String?) {
+        val cache = RatingCache.getInstance(context)
+        if (cache.isRatingShown()) return
 
-    fun showRatingAfterFirstTimePlayVideo(context: Context, email: String?) {
-        if (RatingCache.getInstance(context).isRatingShown() ||
-            RatingCache.getInstance(context).isPlayedVideoRatingShown()) {
-            return
+        val downloadCount = cache.incrementSuccessfulDownloadCount()
+        val lastPrompted = cache.getLastPromptedDownloadCount()
+        val nextPromptAt = if (lastPrompted == 0) {
+            FIRST_PROMPT_DOWNLOAD_COUNT
+        } else {
+            lastPrompted + PROMPT_COOLDOWN_DOWNLOADS
         }
-        showRating(context, email)
-        RatingCache.getInstance(context).setPlayedVideoRatingShown()
-    }
+        if (downloadCount < nextPromptAt) return
 
-
-    fun showRatingAfterAppOpened(context: Context, email: String?) {
-        if (RatingCache.getInstance(context).isRatingShown() ||
-            RatingCache.getInstance(context).isFirstTime() ||
-            ratingAppOpenedShown
-        ) {
-            return
-        }
-        ratingAppOpenedShown = true
+        cache.setLastPromptedDownloadCount(downloadCount)
         showRating(context, email)
     }
 
@@ -85,4 +80,7 @@ object DialogManager {
         val activity = context as AppCompatActivity
         return activity.getSupportFragmentManager()
     }
+
+    private const val FIRST_PROMPT_DOWNLOAD_COUNT = 3
+    private const val PROMPT_COOLDOWN_DOWNLOADS = 10
 }

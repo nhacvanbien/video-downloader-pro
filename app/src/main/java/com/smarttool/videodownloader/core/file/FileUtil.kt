@@ -15,7 +15,6 @@ import android.os.StatFs
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
@@ -30,6 +29,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.text.iterator
 import com.smarttool.videodownloader.core.ContextUtils
+import timber.log.Timber
 
 //@OpenForTesting
 class FileUtil  constructor() {
@@ -208,12 +208,12 @@ class FileUtil  constructor() {
 
     fun moveMedia(context: Context, from: Uri, to: Uri): Boolean {
         if (isFileApiSupportedByUri(context, to)) {
-//            AppLogger.d("IS_FILE_API: TRUE -- from $from to $to")
+            Timber.d("moveMedia via File API: $from -> $to")
             val newFile = to.toFile()
 
             return from.toFile().renameTo(newFile)
         } else {
-//            AppLogger.d("IS_FILE_API: FALSE -- from $from to $to")
+            Timber.d("moveMedia via MediaStore: $from -> $to")
             return if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
                 moveFileToDownloadsFolder(
                     context.contentResolver, from.toFile(), to.toFile().name
@@ -255,6 +255,7 @@ class FileUtil  constructor() {
                 return Pair(cleanedFileName, newUri ?: from)
             }
         } catch (e: Throwable) {
+            Timber.e(e, "renameMediaUri failed: $from")
             Toast.makeText(context, context.getString(R.string.string_error), Toast.LENGTH_SHORT).show()
         }
 
@@ -294,7 +295,7 @@ class FileUtil  constructor() {
                 throw Exception("Không thể đổi tên file: ${oldFile.absolutePath}")
             }
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "renameMedia failed: filePath=$filePath newName=$newName")
             Toast.makeText(context,
                 context.getString(R.string.string_error_renaming_file), Toast.LENGTH_SHORT).show()
         }
@@ -304,7 +305,7 @@ class FileUtil  constructor() {
 
     fun renameImage(context: Context, filePath: String, newName: String): Pair<String, String>? {
         try {
-            Log.d("ntt", "renameMedia: newName: $newName")
+            Timber.d("renameMedia: filePath=$filePath newName=$newName")
 
             // Làm sạch tên file và đảm bảo có phần mở rộng của ảnh
             val cleanedFileName = FileNameCleaner.cleanFileNameImage(newName) + ".jpg"
@@ -321,7 +322,7 @@ class FileUtil  constructor() {
                 throw FileNotFoundException("Không tìm thấy file: $filePath")
             }
 
-            Log.d("ntt", "renameImage: cleanedFileName: $cleanedFileName")
+            Timber.d("renameImage: cleanedFileName: $cleanedFileName")
 
             val newFile = File(oldFile.parent, cleanedFileName)
 
@@ -339,7 +340,7 @@ class FileUtil  constructor() {
                 throw Exception("Không thể đổi tên file: ${oldFile.absolutePath}")
             }
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "renameImage failed: filePath=$filePath newName=$newName")
             Toast.makeText(context,
                 context.getString(R.string.string_error_renaming_image), Toast.LENGTH_SHORT).show()
         }
@@ -362,7 +363,7 @@ class FileUtil  constructor() {
             }
             deleted
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "deleteMedia failed: uri=$uri")
             Toast.makeText(context, context.getString(R.string.string_error), Toast.LENGTH_SHORT).show()
             false
         }
@@ -374,7 +375,7 @@ class FileUtil  constructor() {
 
             // Kiểm tra nếu file tồn tại
             if (!file.exists()) {
-                Log.e("FileUtil", "File not found: $filePath")
+                Timber.e("deleteMedia: file not found: $filePath")
                 return false
             }
 
@@ -382,7 +383,7 @@ class FileUtil  constructor() {
             if (filePath.startsWith("content://")) {
                 val uri = Uri.parse(filePath)
                 val deleted = context.contentResolver.delete(uri, null, null) > 0
-                Log.d("FileUtil", "Xóa file bằng contentResolver: $deleted")
+                Timber.d("deleteMedia via contentResolver: deleted=$deleted filePath=$filePath")
                 return deleted
             }
 
@@ -391,14 +392,14 @@ class FileUtil  constructor() {
             val deleted = file.delete()
 
             if (!deleted) {
-                Log.e("FileUtil", "Không thể xóa file: $filePath")
+                Timber.e("deleteMedia: could not delete file: $filePath")
             } else {
-                Log.d("FileUtil", "File đã được xóa: $filePath")
+                Timber.d("deleteMedia: file deleted: $filePath")
             }
 
             return deleted
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e, "deleteMedia failed: filePath=$filePath")
             Toast.makeText(context,
                 context.getString(R.string.string_error_deleting_file), Toast.LENGTH_SHORT).show()
             false
@@ -627,7 +628,7 @@ class FileUtil  constructor() {
             }
             deletedRows > 0
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e, "deleteDownloadedVideoContent failed: uri=$uri")
             false
         }
     }
@@ -655,9 +656,6 @@ class FileUtil  constructor() {
     private fun moveFileToDownloadsFolder(
         contentResolver: ContentResolver, sourceFile: File, fileName: String
     ): Boolean {
-//        AppLogger.d(
-//            "moveFileToDownloadsFoldermoveFileToDownloadsFolder $sourceFile $fileName"
-//        )
         // Check if there is enough free space in the Downloads folder
         val downloadsDirectory = folderDir
         val isFolderExternal = isExternalUri(folderDir.toUri())
@@ -702,12 +700,11 @@ class FileUtil  constructor() {
                     inputStream.copyTo(outputStream)
                 }
                 if (copied > 0) {
-//                    AppLogger.d("Source removing... $sourceFile")
                     // Delete the source file
                     sourceFile.delete()
                     true
                 } else {
-//                    AppLogger.d("Source move error $sourceFile")
+                    Timber.w("moveFileToDownloadsFolder copied 0 bytes: $sourceFile")
                     false
                 }
             }

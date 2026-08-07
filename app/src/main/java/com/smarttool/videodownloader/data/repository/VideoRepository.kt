@@ -1,8 +1,8 @@
 package com.smarttool.videodownloader.data.repository
 
-import android.util.Log
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import okhttp3.Request
+import timber.log.Timber
 
 interface VideoRepository {
 
@@ -15,7 +15,7 @@ class VideoRepositoryImpl  constructor() {
     private val cachedVideos: MutableMap<String, VideoInfo> = mutableMapOf()
 
     fun getVideoInfo(url: Request, isM3u8OrMpd: Boolean): VideoInfo? {
-        Log.d("ntt", "getVideoInfo: ${cachedVideos[url.url.toString()]}")
+        Timber.d("getVideoInfo: url=${url.url} cached=${cachedVideos.containsKey(url.url.toString())}")
         cachedVideos[url.url.toString()]?.let { return it }
 
         return getAndCacheRemoteVideo(url, isM3u8OrMpd)

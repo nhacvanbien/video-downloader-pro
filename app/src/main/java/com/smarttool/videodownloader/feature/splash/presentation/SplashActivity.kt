@@ -2,7 +2,6 @@ package com.smarttool.videodownloader.feature.splash.presentation
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.FrameLayout
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -49,6 +48,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 import org.koin.android.ext.android.inject
+import timber.log.Timber
 
 class SplashActivity : BaseComposeActivity() {
     private val preferenceHelper: PreferenceHelper by inject()
@@ -297,7 +297,7 @@ class SplashActivity : BaseComposeActivity() {
 
                     onComplete(true)
                 } else {
-                    Log.d("ntt", "Fetch failed: ${task.exception}")
+                    Timber.w(task.exception, "Remote config fetch failed")
                     onComplete(false)
                 }
             }

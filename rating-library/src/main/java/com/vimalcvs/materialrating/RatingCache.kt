@@ -23,8 +23,6 @@ package com.vimalcvs.materialrating
 import android.content.Context
 import androidx.core.content.edit
 
-private var isFirstTimeOpenApp = false
-
 class RatingCache private constructor(context: Context) {
 
     private val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -35,27 +33,24 @@ class RatingCache private constructor(context: Context) {
         sharedPreferences.edit { putBoolean(RATING_SHOWN_KEY, true) }
     }
 
-    fun isPlayedVideoRatingShown(): Boolean = sharedPreferences.getBoolean(PLAYED_VIDEO_RATING_SHOWN_KEY, false)
-
-    fun setPlayedVideoRatingShown() {
-        sharedPreferences.edit { putBoolean(PLAYED_VIDEO_RATING_SHOWN_KEY, true) }
+    /** Successful downloads are the signal the user is getting value out of the app. */
+    fun incrementSuccessfulDownloadCount(): Int {
+        val count = sharedPreferences.getInt(SUCCESSFUL_DOWNLOAD_COUNT_KEY, 0) + 1
+        sharedPreferences.edit { putInt(SUCCESSFUL_DOWNLOAD_COUNT_KEY, count) }
+        return count
     }
 
-    fun isFirstTime(): Boolean {
-        val isFirstTime = sharedPreferences.getBoolean(FIRST_TIME_OPEN_APP_KEY, false)
-        if (!isFirstTime) {
-            isFirstTimeOpenApp = true
-            sharedPreferences.edit { putBoolean(FIRST_TIME_OPEN_APP_KEY, true) }
-            return true
-        }
-        return isFirstTimeOpenApp
+    fun getLastPromptedDownloadCount(): Int = sharedPreferences.getInt(LAST_PROMPTED_DOWNLOAD_COUNT_KEY, 0)
+
+    fun setLastPromptedDownloadCount(count: Int) {
+        sharedPreferences.edit { putInt(LAST_PROMPTED_DOWNLOAD_COUNT_KEY, count) }
     }
 
     companion object {
         private const val PREF_NAME = "rating_cache"
-        private const val PLAYED_VIDEO_RATING_SHOWN_KEY = "played_video_rating_shown_key"
         private const val RATING_SHOWN_KEY = "rating_shown_key"
-        private const val FIRST_TIME_OPEN_APP_KEY = "first_time_open_app_key"
+        private const val SUCCESSFUL_DOWNLOAD_COUNT_KEY = "successful_download_count_key"
+        private const val LAST_PROMPTED_DOWNLOAD_COUNT_KEY = "last_prompted_download_count_key"
 
         @Volatile
         private var instance: RatingCache? = null

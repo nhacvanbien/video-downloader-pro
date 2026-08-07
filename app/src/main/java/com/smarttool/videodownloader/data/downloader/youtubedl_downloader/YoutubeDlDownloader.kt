@@ -7,13 +7,13 @@ import android.util.Base64
 import androidx.work.*
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.core.ContextUtils
 import com.google.gson.Gson
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import io.reactivex.rxjava3.disposables.Disposable
 import org.reactivestreams.Subscription
 import java.util.concurrent.TimeUnit
+import timber.log.Timber
 
 
 class YoutubeDlDownloader : GenericDownloader() {
@@ -95,7 +95,7 @@ class YoutubeDlDownloader : GenericDownloader() {
             try {
                 op.result.get()
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.w(e, "cancelAllWorkByTag failed: ${info.id}")
             } finally {
                 WorkManager.getInstance(context).enqueueUniqueWork(
                     info.id, ExistingWorkPolicy.REPLACE, taskData
@@ -149,7 +149,7 @@ class YoutubeDlDownloader : GenericDownloader() {
                 val zipHeaders = Base64.encodeToString(stringHeaders.toByteArray(), Base64.DEFAULT)
 
                 val superZip = compressString(zipHeaders)
-                AppLogger.d("superZip ${superZip.toByteArray().size}  ---- ${zipHeaders.toByteArray().size}")
+                Timber.d("superZip ${superZip.toByteArray().size}  ---- ${zipHeaders.toByteArray().size}")
 
                 saveHeadersStringToSharedPreferences(context, videoInfo.id, superZip)
             }

@@ -4,6 +4,7 @@ import com.smarttool.videodownloader.feature.browser.domain.model.ContentType
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import okhttp3.Headers
 import okhttp3.Request
+import timber.log.Timber
 
 class VideoUtils {
     companion object {
@@ -26,7 +27,7 @@ class VideoUtils {
             val response = try {
                 client.newCall(request).execute()
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.w(e, "Request failed: ${request.url}")
                 null
             }
             val contentTypeStr = response?.header("Content-Type")

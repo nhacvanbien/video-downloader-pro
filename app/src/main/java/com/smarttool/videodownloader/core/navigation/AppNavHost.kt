@@ -2,7 +2,6 @@ package com.smarttool.videodownloader.core.navigation
 
 import android.view.View
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -58,27 +57,7 @@ fun AppNavHost(
     onSelectTab: (MainTab) -> Unit,
     showInterstitial: (onDone: () -> Unit) -> Unit,
     onExitRequested: () -> Unit,
-    onReturnedToMain: () -> Unit,
 ) {
-    // Returning from any of the browser flows used to land in an Activity result
-    // callback, which is where the rating prompt was raised. There is no result to
-    // observe now, so the same moment is detected from the back stack instead —
-    // comparing against the previous route, because the flow also replays the current
-    // destination on subscribe and that must not count as a return.
-    LaunchedEffect(navController) {
-        var previousRoute: String? = null
-
-        navController.currentBackStackEntryFlow.collect { entry ->
-            val route = entry.destination.route
-
-            if (route == AppRoute.MAIN && previousRoute != null && previousRoute != AppRoute.MAIN) {
-                onReturnedToMain()
-            }
-
-            previousRoute = route
-        }
-    }
-
     val openWebTab: (String) -> Unit = { url ->
         navController.navigate(AppRoute.webTab(url)) {
             // Opening a page always replaces the browser rather than stacking a second

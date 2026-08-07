@@ -28,6 +28,7 @@ import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import kotlin.collections.iterator
 import com.smarttool.videodownloader.core.ContextUtils
+import timber.log.Timber
 
 
 object CookieUtils {
@@ -571,7 +572,7 @@ class ChromeBrowser : Browser() {
                     cookieStoreCopy.delete()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.w(e, "Reading browser cookie store failed")
                 // if the error message is "out of memory",
                 // it probably means no database file is found
             } finally {
@@ -624,7 +625,7 @@ class ChromeBrowser : Browser() {
             }
             decryptedBytes = cipher.doFinal(encryptedBytes)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.w(e, "Cookie decryption failed")
             decryptedBytes = null
         }
         return if (decryptedBytes == null) {

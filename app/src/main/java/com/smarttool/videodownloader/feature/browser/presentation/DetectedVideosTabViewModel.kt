@@ -1,7 +1,6 @@
 package com.smarttool.videodownloader.feature.browser.presentation
 
 import android.net.Uri
-import android.util.Log
 import android.webkit.CookieManager
 import androidx.databinding.Observable
 import androidx.databinding.Observable.OnPropertyChangedCallback
@@ -20,7 +19,6 @@ import com.smarttool.videodownloader.data.remote.service.VideoServiceLocal
 import com.smarttool.videodownloader.data.remote.service.YoutubedlHelper
 import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.core.ContextUtils
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.SingleLiveEvent
@@ -44,6 +42,7 @@ import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButton
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanNotDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
+import timber.log.Timber
 
 class DetectedVideosTabViewModel constructor(
     private val preferenceHelper: PreferenceHelper,
@@ -96,9 +95,9 @@ class DetectedVideosTabViewModel constructor(
     )
 
     override fun start() {
-        AppLogger.d("START")
+        Timber.d("Video detector started")
         viewModelScope.launch {
-            Log.d("ntt", "start: setListHost")
+            Timber.d("start: setListHost")
             webTabModel?.setListHost()
         }
         regularLoadingList.addOnPropertyChangedCallback(object :
@@ -136,7 +135,7 @@ class DetectedVideosTabViewModel constructor(
     }
 
     override fun stop() {
-        AppLogger.d("STOP")
+        Timber.d("Video detector stopped")
         cancelAllCheckJobs()
     }
 
@@ -173,7 +172,7 @@ class DetectedVideosTabViewModel constructor(
     }
 
     override fun showVideoInfo() {
-        AppLogger.d("SHOW")
+        Timber.d("showVideoInfo: state=${downloadButtonState.get()}")
         val state = downloadButtonState.get()
 
         if (state is DownloadButtonStateCanNotDownload) {
@@ -252,7 +251,7 @@ class DetectedVideosTabViewModel constructor(
         val loadings = m3u8LoadingList.get()?.toMutableSet()
         val url = resourceRequest.url.toString()
         loadings?.add(url)
-        AppLogger.d("m3u8LoadingList add: $url -> $loadings")
+        Timber.d("m3u8LoadingList add: $url -> $loadings")
         m3u8LoadingList.set(loadings?.toMutableSet())
         setButtonState(DownloadButtonStateLoading())
 
@@ -264,8 +263,7 @@ class DetectedVideosTabViewModel constructor(
                     loginRequiredEvent.postValue(e.host)
                     null
                 } catch (e: Throwable) {
-                    e.printStackTrace()
-                    Log.d("ntt", "startVerifyProcess:Throwable: $e ")
+                    Timber.w(e, "startVerifyProcess failed: ${resourceRequest.url}")
                     null
                 }
 
@@ -280,7 +278,7 @@ class DetectedVideosTabViewModel constructor(
                 // Xử lý khi job bị dispose
                 val loadings2 = m3u8LoadingList.get()?.toMutableSet()
                 loadings2?.remove(url)
-                AppLogger.d("m3u8LoadingList remove on dispose: $url -> $loadings2")
+                Timber.d("m3u8LoadingList remove on dispose: $url -> $loadings2")
                 m3u8LoadingList.set(loadings2?.toMutableSet())
                 verifyVideoLinkJobStorage.remove(taskUrlCleaned)
             }
@@ -288,15 +286,15 @@ class DetectedVideosTabViewModel constructor(
                 // Xử lý khi có lỗi
                 val loadings2 = m3u8LoadingList.get()?.toMutableSet()
                 loadings2?.remove(url)
-                AppLogger.d("m3u8LoadingList remove on error: $url -> $loadings2")
+                Timber.d("m3u8LoadingList remove on error: $url -> $loadings2")
                 m3u8LoadingList.set(loadings2?.toMutableSet())
                 verifyVideoLinkJobStorage.remove(taskUrlCleaned)
-                AppLogger.e("Error verifying video: ${error.message}")
+                Timber.e(error, "Error verifying video: $url")
             }
             .doOnComplete {
                 val loadings2 = m3u8LoadingList.get()?.toMutableSet()
                 loadings2?.remove(url)
-                AppLogger.d("m3u8LoadingList remove on complete: $url -> $loadings2")
+                Timber.d("m3u8LoadingList remove on complete: $url -> $loadings2")
                 m3u8LoadingList.set(loadings2?.toMutableSet())
                 verifyVideoLinkJobStorage.remove(taskUrlCleaned)
             }
@@ -364,7 +362,7 @@ class DetectedVideosTabViewModel constructor(
             return
         }
 
-        AppLogger.d("PUSHING $newInfo  to list: \n  ${detectedVideosList.get()}")
+        Timber.d("PUSHING $newInfo  to list: \n  ${detectedVideosList.get()}")
         val list = detectedVideosList.get()?.toMutableSet() ?: mutableSetOf()
         list.add(newInfo)
         detectedVideosList.set(list)
@@ -404,7 +402,7 @@ class DetectedVideosTabViewModel constructor(
 
         val disposable = io.reactivex.rxjava3.core.Observable.create<Unit> {
             if (request.url.toString().contains(".mp4")) {
-                AppLogger.d("setButtonState(DownloadButtonStateLoading()) in checkRegularMp4 for url: ${request.url}")
+                Timber.d("setButtonState(DownloadButtonStateLoading()) in checkRegularMp4 for url: ${request.url}")
                 setButtonState(DownloadButtonStateLoading())
             }
             val loadings = regularLoadingList.get()
@@ -417,7 +415,7 @@ class DetectedVideosTabViewModel constructor(
             loadings?.remove(request.url.toString())
             regularLoadingList.set(loadings?.toMutableSet())
         }.onErrorComplete().doOnError {
-            AppLogger.d("Checking ERROR... $clearedUrl")
+            Timber.w("checkRegularMp4 failed: $clearedUrl")
         }.subscribe()
 
         return disposable
@@ -446,8 +444,8 @@ class DetectedVideosTabViewModel constructor(
                     val impEl = regularLoadingList.get()?.find { it.contains(".mp4") }
                     if (m3u8LoadingList.get()?.isEmpty() != true || (m3u8LoadingList.get()?.isEmpty() == true && impEl != null)
                     ) {
-                        AppLogger.d("setButtonState(DownloadButtonStateLoading()) in setButtonState (CanNotDownload branch) ")
-                        AppLogger.d("(CanNotDownload branch) -> ${m3u8LoadingList.get()?.isEmpty()} - $impEl")
+                        Timber.d("setButtonState(DownloadButtonStateLoading()) in setButtonState (CanNotDownload branch) ")
+                        Timber.d("(CanNotDownload branch) -> ${m3u8LoadingList.get()?.isEmpty()} - $impEl")
 
                         downloadButtonState.set(DownloadButtonStateLoading())
                     } else {
@@ -465,7 +463,7 @@ class DetectedVideosTabViewModel constructor(
             is DownloadButtonStateLoading -> {
                 val list = detectedVideosList.get() ?: emptySet()
                 if (list.isEmpty()) {
-                    AppLogger.d("setButtonState(DownloadButtonStateLoading()) in setButtonState (Loading branch)")
+                    Timber.d("setButtonState(DownloadButtonStateLoading()) in setButtonState (Loading branch)")
                     downloadButtonState.set(DownloadButtonStateLoading())
                 } else {
                     downloadButtonState.set(DownloadButtonStateCanDownload(list.first()))
@@ -513,7 +511,7 @@ class DetectedVideosTabViewModel constructor(
                         builder?.addHeader("Cookie", stringBuilder.toString())
                     }
                 } catch (e: Exception) {
-                    AppLogger.d("Url parse error ${e.message}")
+                    Timber.w(e, "Failed to attach cookie header")
                 }
                 return builder
 
@@ -531,7 +529,7 @@ class DetectedVideosTabViewModel constructor(
                 return builder
             }
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.w(e, "Failed to build request headers")
         }
 
         return null
@@ -606,9 +604,9 @@ class DetectedVideosTabViewModel constructor(
                 )
             }
         } catch (e: InterruptedIOException) {
-            AppLogger.d("propagateCheckJob cancelled (interrupted) for $url")
+            Timber.d("propagateCheckJob cancelled (interrupted) for $url")
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "propagateCheckJob failed for $url")
         } finally {
             respons?.close()
         }
@@ -620,7 +618,7 @@ class DetectedVideosTabViewModel constructor(
         alternativeHeaders: Map<String, String> = emptyMap(),
         contentLength: Long
     ) {
-        Log.d("ntt", "setVideoInfoWrapperFromUrl: ")
+        Timber.d("setVideoInfoWrapperFromUrl: url=$url contentLength=$contentLength")
         try {
             if (!url.toString().startsWith("http")) {
                 return
@@ -661,7 +659,7 @@ class DetectedVideosTabViewModel constructor(
             )
             video.videoInfo?.let { pushNewVideoInfoToAll(it) }
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "setVideoInfoWrapperFromUrl failed")
         }
     }
 }

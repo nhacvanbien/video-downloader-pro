@@ -1,6 +1,5 @@
 package com.smarttool.videodownloader.data.downloader.custom_downloader
 
-import com.smarttool.videodownloader.core.AppLogger
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -17,6 +16,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicLongArray
+import timber.log.Timber
 
 interface DownloadListener {
     fun onSuccess()
@@ -134,7 +134,7 @@ class CustomFileDownloader(
         }
 
         val chunkFutureMap = mutableMapOf<Chunk, Future<*>>()
-        AppLogger.d(
+        Timber.d(
             "Start Downloading: file: $file threadCount: $threadCount ranges: $ranges"
         )
         ranges.forEachIndexed { index, range ->
@@ -159,13 +159,13 @@ class CustomFileDownloader(
         if (allPartsSucceed && !isStopped) {
             this.onSuccess()
         } else if (isStopped) {
-            AppLogger.d("CHUNKS STOPPED")
+            Timber.d("Chunks stopped: $file")
             this.onFailure(Error(STOPPED))
         } else if (isCanceled) {
-            AppLogger.d("CHUNKS CANCELED")
+            Timber.d("Chunks canceled: $file")
             this.onFailure(Error(CANCELED))
         } else {
-            AppLogger.d("CHUNKS ERROR")
+            Timber.w("Chunks incomplete, retry needed: $file")
             this.onFailure(Error("Not All Chunks downloaded, retry"))
         }
     }
@@ -173,7 +173,7 @@ class CustomFileDownloader(
     override fun onSuccess() {
         executorService.shutdown()
 
-        AppLogger.d("DOWNLOAD SUCCESS: $file")
+        Timber.i("Download success: $file")
 
         listener?.onSuccess()
     }
@@ -181,7 +181,7 @@ class CustomFileDownloader(
     override fun onFailure(e: Throwable) {
         executorService.shutdown()
 
-        AppLogger.e("Task Download Failed $e")
+        Timber.e(e, "Task download failed")
 
         listener?.onFailure(e)
     }
@@ -205,7 +205,7 @@ class CustomFileDownloader(
     }
 
     override fun onChunkFailure(e: Throwable, index: Chunk) {
-        AppLogger.e("Chunk $index Download Failed ${e.printStackTrace()}")
+        Timber.e(e, "Chunk download failed: $index")
         listener?.onChunkFailure(e, index)
     }
 
@@ -223,7 +223,7 @@ class CustomFileDownloader(
                 }
             }
         }
-        AppLogger.d(
+        Timber.d(
             "CHUNK $chunkIndex DOWNLOAD START, bytes copied: $bytesCopied  isResume: $isResume"
         )
 

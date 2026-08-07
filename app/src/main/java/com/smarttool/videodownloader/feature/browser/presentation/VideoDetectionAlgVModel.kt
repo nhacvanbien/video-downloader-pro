@@ -3,7 +3,6 @@ package com.smarttool.videodownloader.feature.browser.presentation
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.webkit.CookieManager
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
@@ -16,7 +15,6 @@ import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.feature.browser.presentation.BrowserSettingsViewModel
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.core.ContextUtils
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
@@ -34,6 +32,7 @@ import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButton
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanNotDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
+import timber.log.Timber
 
 interface IVideoDetector {
     fun onStartPage(url: String, userAgentString: String)
@@ -123,7 +122,7 @@ class VideoDetectionAlgVModel constructor(
         hlsTitle: String?,
         isM3u8: Boolean
     ) {
-        Log.d("ntt", "VideoDetectionAlgVModel verifyLinkStatus: ")
+        Timber.d("verifyLinkStatus: url=${resourceRequest.url} isM3u8=$isM3u8")
         if (resourceRequest.url.toString().contains("tiktok.")) {
             return
         }
@@ -177,7 +176,7 @@ class VideoDetectionAlgVModel constructor(
 
             return videoInfo
         }
-        Log.d("ntt", "getAndCacheRemoteVideo: $videoInfo")
+        Timber.d("getAndCacheRemoteVideo: $videoInfo")
         return null
     }
 
@@ -195,7 +194,7 @@ class VideoDetectionAlgVModel constructor(
                 val info = try {
                     getVideoInfo(resourceRequest, isM3u8)
                 } catch (e: Throwable) {
-                    e.printStackTrace()
+                    Timber.w(e, "getVideoInfo failed: ${resourceRequest.url}")
                     null
                 }
                 if (info != null) {
@@ -214,17 +213,17 @@ class VideoDetectionAlgVModel constructor(
                         val state = downloadButtonState.get()
                         if (state is DownloadButtonStateCanDownload) {
                             if (state.info?.isRegularDownload == true) {
-                                AppLogger.d(
+                                Timber.d(
                                     "Watching set new info state with Regular Download... currentState: $state skippingInfo: $info"
                                 )
                             }
                         }
                         if (state is DownloadButtonStateCanDownload && state.info?.isM3u8 == true && state.info.isMaster && isLastNotEmpty || (state is DownloadButtonStateCanDownload && state.info?.isRegularDownload != true && info.isRegularDownload) || state is DownloadButtonStateLoading && info.isRegularDownload) {
-                            AppLogger.d(
+                            Timber.d(
                                 "Skipping set new info state... currentState: $state skippingInfo: $info"
                             )
                         } else {
-                            AppLogger.d(
+                            Timber.d(
                                 "Setting set new info state... state: $state info: $info"
                             )
                             setCanDownloadState(info)
@@ -277,9 +276,9 @@ class VideoDetectionAlgVModel constructor(
             propagateCheckJob(uriString, headers)
             it.onComplete()
         }.subscribeOn(baseSchedulers.io).doOnComplete {
-            AppLogger.d("CHECK REGULAR MP4 DONE")
+            Timber.d("checkRegularMp4 done: $clearedUrl")
         }.onErrorComplete().doOnError {
-            AppLogger.d("Checking ERROR... $clearedUrl")
+            Timber.w("checkRegularMp4 failed: $clearedUrl")
         }.subscribe()
 
         return disposable
@@ -354,7 +353,7 @@ class VideoDetectionAlgVModel constructor(
                 )
             }
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "checkRegularMp4 failed: $url")
         } finally {
             respons?.close()
         }
@@ -366,7 +365,7 @@ class VideoDetectionAlgVModel constructor(
         alternativeHeaders: Map<String, String> = emptyMap(),
         contentLength: Long
     ) {
-        Log.d("ntt", "setVideoInfoWrapperFromUrl: ")
+        Timber.d("setVideoInfoWrapperFromUrl: url=$url contentLength=$contentLength")
         try {
             if (!url.toString().startsWith("http")) {
                 return
@@ -409,7 +408,7 @@ class VideoDetectionAlgVModel constructor(
                 setCanDownloadState(it)
             }
         } catch (e: Throwable) {
-            e.printStackTrace()
+            Timber.e(e, "setVideoInfoWrapperFromUrl failed")
         }
     }
 }

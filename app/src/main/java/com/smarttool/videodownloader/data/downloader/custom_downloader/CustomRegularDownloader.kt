@@ -2,21 +2,20 @@ package com.smarttool.videodownloader.data.downloader.custom_downloader
 
 import android.content.Context
 import android.util.Base64
-import android.util.Log
 import androidx.work.*
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.core.AppLogger
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import timber.log.Timber
 
 // TODO REFACTORING !!!!!
 class CustomRegularDownloader : GenericDownloader() {
     // TODO REMOVE DUPLICATE CODE
     companion object {
         fun addDownload(context: Context, videoInfo: VideoInfo, withoutHeaders: Boolean = false) {
-            Log.d("ntt", "addDownload: ")
+            Timber.i("addDownload: id=${videoInfo.id} url=${videoInfo.originalUrl} withoutHeaders=$withoutHeaders")
             val downloadWork = getWorkRequest(videoInfo.id)
 
             val downloaderData = try {
@@ -86,7 +85,7 @@ class CustomRegularDownloader : GenericDownloader() {
             try {
                 op.result.get()
             } catch (e: Throwable) {
-                e.printStackTrace()
+                Timber.w(e, "cancelAllWorkByTag failed: ${info.id}")
             } finally {
                 WorkManager.getInstance(context).enqueueUniqueWork(
                     info.id, ExistingWorkPolicy.REPLACE, taskData
@@ -133,7 +132,7 @@ class CustomRegularDownloader : GenericDownloader() {
             data.putString(TASK_ID_KEY, videoInfo.id)
 
             val zipHeaders = compressString(headersVal)
-            AppLogger.d("superZip ${zipHeaders.toByteArray().size}  ---- ${headersVal.toByteArray().size}")
+            Timber.d("superZip ${zipHeaders.toByteArray().size}  ---- ${headersVal.toByteArray().size}")
 
             saveHeadersStringToSharedPreferences(
                 context,
