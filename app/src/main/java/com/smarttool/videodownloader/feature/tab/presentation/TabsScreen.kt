@@ -43,7 +43,7 @@ import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 
-private val SelectedTint = Color(0xFFF46621)
+private val SelectedTint = Primary
 private val NormalTint = Color(0xFFF2F2F2)
 private val SelectedBackground = Color(0xFFF6F2FE)
 
