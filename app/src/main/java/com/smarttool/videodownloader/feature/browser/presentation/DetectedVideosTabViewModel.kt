@@ -25,11 +25,12 @@ import com.smarttool.videodownloader.core.SingleLiveEvent
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.scheduler.BaseSchedulers
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.Request
 import okhttp3.Response
@@ -50,15 +51,9 @@ class DetectedVideosTabViewModel constructor(
     private val okHttpProxyClient: OkHttpProxyClient,
     private val customProxyController: CustomProxyController,
 ) : BaseViewModel(), IVideoDetector {
-    // key: videoInfo.id, value: format - string
     val selectedFormats = ObservableField<Map<String, String>>()
 
-    // key: videoInfo.id, value: title - string
     val formatsTitles = ObservableField<Map<String, String>>()
-
-    val selectedFormatUrl = ObservableField<String>()
-
-//    val videoRepositoryImpl = VideoRepositoryImpl()
 
     @Volatile
     var m3u8LoadingList = ObservableField<MutableSet<String>>()
@@ -84,7 +79,7 @@ class DetectedVideosTabViewModel constructor(
     private val executorRegular = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
     @Volatile
-    private var verifyVideoLinkJobStorage = mutableMapOf<String, Disposable>()
+    private var verifyVideoLinkJobStorage = mutableMapOf<String, Job>()
 
     private val hasCheckLoadingsM3u8 = ObservableBoolean(false)
     private val hasCheckLoadingsRegular = ObservableBoolean(false)
@@ -215,28 +210,6 @@ class DetectedVideosTabViewModel constructor(
         }
     }
 
-//    var cachedVideos: MutableMap<String, VideoInfo> = mutableMapOf()
-//
-//    fun getVideoInfo(url: Request, isM3u8OrMpd: Boolean): VideoInfo? {
-//        cachedVideos[url.url.toString()]?.let { return it }
-//
-//        return getAndCacheRemoteVideo(url, isM3u8OrMpd)
-//    }
-//
-//    fun saveVideoInfo(videoInfo: VideoInfo) {
-//        cachedVideos[videoInfo.originalUrl] = videoInfo
-//    }
-//
-//    private fun getAndCacheRemoteVideo(url: Request, isM3u8OrMpd: Boolean): VideoInfo? {
-//        val videoInfo = getVideoInfo(url, isM3u8OrMpd)
-//        if (videoInfo != null) {
-//            videoInfo.originalUrl = url.url.toString()
-//            cachedVideos[videoInfo.originalUrl] = videoInfo
-//
-//            return videoInfo
-//        }
-//        return null
-//    }
 
     private fun startVerifyProcess(
         resourceRequest: Request, isM3u8: Boolean, hlsTitle: String? = null
@@ -244,7 +217,7 @@ class DetectedVideosTabViewModel constructor(
         val taskUrlCleaned = resourceRequest.url.toString().split("?").firstOrNull()?.trim() ?: ""
 
         val job = verifyVideoLinkJobStorage[taskUrlCleaned]
-        if (job != null && !job.isDisposed || taskUrlCleaned.isEmpty()) {
+        if (job != null && job.isActive || taskUrlCleaned.isEmpty()) {
             return
         }
 
@@ -256,58 +229,36 @@ class DetectedVideosTabViewModel constructor(
         setButtonState(DownloadButtonStateLoading())
 
         verifyVideoLinkJobStorage[taskUrlCleaned] =
-            io.reactivex.rxjava3.core.Observable.create { emitter ->
-                val info = try {
-                    videoServiceLocal.getVideoInfo(resourceRequest, isM3u8)?.videoInfo
-                } catch (e: LoginRequiredException) {
-                    loginRequiredEvent.postValue(e.host)
-                    null
-                } catch (e: Throwable) {
-                    Timber.w(e, "startVerifyProcess failed: ${resourceRequest.url}")
-                    null
-                }
-
-                if (info != null) {
-                    emitter.onNext(info)
-                } else {
-                    emitter.onNext(VideoInfo(id = ""))
-                }
-                emitter.onComplete()
-            }
-            .doOnDispose {
-                // Xử lý khi job bị dispose
-                val loadings2 = m3u8LoadingList.get()?.toMutableSet()
-                loadings2?.remove(url)
-                Timber.d("m3u8LoadingList remove on dispose: $url -> $loadings2")
-                m3u8LoadingList.set(loadings2?.toMutableSet())
-                verifyVideoLinkJobStorage.remove(taskUrlCleaned)
-            }
-            .doOnError { error ->
-                // Xử lý khi có lỗi
-                val loadings2 = m3u8LoadingList.get()?.toMutableSet()
-                loadings2?.remove(url)
-                Timber.d("m3u8LoadingList remove on error: $url -> $loadings2")
-                m3u8LoadingList.set(loadings2?.toMutableSet())
-                verifyVideoLinkJobStorage.remove(taskUrlCleaned)
-                Timber.e(error, "Error verifying video: $url")
-            }
-            .doOnComplete {
-                val loadings2 = m3u8LoadingList.get()?.toMutableSet()
-                loadings2?.remove(url)
-                Timber.d("m3u8LoadingList remove on complete: $url -> $loadings2")
-                m3u8LoadingList.set(loadings2?.toMutableSet())
-                verifyVideoLinkJobStorage.remove(taskUrlCleaned)
-            }
-            .observeOn(baseSchedulers.computation)
-            .subscribeOn(baseSchedulers.videoService)
-            .subscribe { info ->
-                if (info.id.isNotEmpty()) {
-                    if (info.isM3u8 && !hlsTitle.isNullOrEmpty()) {
-                        info.title = hlsTitle
+            viewModelScope.launch(baseSchedulers.videoService) {
+                try {
+                    val info = try {
+                        videoServiceLocal.getVideoInfo(resourceRequest, isM3u8)?.videoInfo
+                    } catch (e: LoginRequiredException) {
+                        loginRequiredEvent.postValue(e.host)
+                        null
+                    } catch (e: Throwable) {
+                        Timber.w(e, "startVerifyProcess failed: ${resourceRequest.url}")
+                        null
                     }
-                    pushNewVideoInfoToAll(info)
-                } else if (info.id.isEmpty()) {
-                    setButtonState(DownloadButtonStateCanNotDownload())
+
+                    val result = info ?: VideoInfo(id = "")
+
+                    withContext(baseSchedulers.computation) {
+                        if (result.id.isNotEmpty()) {
+                            if (result.isM3u8 && !hlsTitle.isNullOrEmpty()) {
+                                result.title = hlsTitle
+                            }
+                            pushNewVideoInfoToAll(result)
+                        } else {
+                            setButtonState(DownloadButtonStateCanNotDownload())
+                        }
+                    }
+                } finally {
+                    val loadings2 = m3u8LoadingList.get()?.toMutableSet()
+                    loadings2?.remove(url)
+                    Timber.d("m3u8LoadingList remove: $url -> $loadings2")
+                    m3u8LoadingList.set(loadings2?.toMutableSet())
+                    verifyVideoLinkJobStorage.remove(taskUrlCleaned)
                 }
             }
     }
@@ -376,7 +327,7 @@ class DetectedVideosTabViewModel constructor(
         return downloadButtonIcon
     }
 
-    override fun checkRegularMp4(request: Request?): Disposable? {
+    override fun checkRegularMp4(request: Request?): Job? {
         if (request == null) {
             return null
         }
@@ -400,25 +351,24 @@ class DetectedVideosTabViewModel constructor(
             mutableMapOf()
         }
 
-        val disposable = io.reactivex.rxjava3.core.Observable.create<Unit> {
-            if (request.url.toString().contains(".mp4")) {
-                Timber.d("setButtonState(DownloadButtonStateLoading()) in checkRegularMp4 for url: ${request.url}")
-                setButtonState(DownloadButtonStateLoading())
+        return viewModelScope.launch(baseSchedulers.io) {
+            try {
+                if (request.url.toString().contains(".mp4")) {
+                    Timber.d("setButtonState(DownloadButtonStateLoading()) in checkRegularMp4 for url: ${request.url}")
+                    setButtonState(DownloadButtonStateLoading())
+                }
+                val loadings = regularLoadingList.get()
+                loadings?.add(request.url.toString())
+                regularLoadingList.set(loadings?.toMutableSet())
+                propagateCheckJob(uriString, headers)
+            } catch (e: Throwable) {
+                Timber.w("checkRegularMp4 failed: $clearedUrl")
+            } finally {
+                val loadings = regularLoadingList.get()
+                loadings?.remove(request.url.toString())
+                regularLoadingList.set(loadings?.toMutableSet())
             }
-            val loadings = regularLoadingList.get()
-            loadings?.add(request.url.toString())
-            regularLoadingList.set(loadings?.toMutableSet())
-            propagateCheckJob(uriString, headers)
-            it.onComplete()
-        }.subscribeOn(baseSchedulers.io).doOnComplete {
-            val loadings = regularLoadingList.get()
-            loadings?.remove(request.url.toString())
-            regularLoadingList.set(loadings?.toMutableSet())
-        }.onErrorComplete().doOnError {
-            Timber.w("checkRegularMp4 failed: $clearedUrl")
-        }.subscribe()
-
-        return disposable
+        }
     }
 
     override fun cancelAllCheckJobs() {
@@ -427,7 +377,7 @@ class DetectedVideosTabViewModel constructor(
         executorReload.cancel()
         executorRegular.cancel()
         verifyVideoLinkJobStorage.values.toList().forEach { process ->
-            process.dispose()
+            process.cancel()
         }
         verifyVideoLinkJobStorage.clear()
     }

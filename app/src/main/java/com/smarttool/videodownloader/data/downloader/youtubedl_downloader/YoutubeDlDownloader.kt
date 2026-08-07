@@ -10,8 +10,7 @@ import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.core.ContextUtils
 import com.google.gson.Gson
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
-import io.reactivex.rxjava3.disposables.Disposable
-import org.reactivestreams.Subscription
+import kotlinx.coroutines.Job
 import java.util.concurrent.TimeUnit
 import timber.log.Timber
 
@@ -19,7 +18,7 @@ import timber.log.Timber
 class YoutubeDlDownloader : GenericDownloader() {
     companion object {
         fun startDownload(context: Context, videoInfo: VideoInfo) {
-            YoutubeDlDownloaderDisposableContainer.disposableContainer[videoInfo.id]?.dispose()
+            YoutubeDlDownloaderDisposableContainer.disposableContainer[videoInfo.id]?.cancel()
 
             val downloadWork = getWorkRequest(videoInfo.id)
 
@@ -35,7 +34,7 @@ class YoutubeDlDownloader : GenericDownloader() {
         }
 
         fun cancelDownload(context: Context, progressInfo: ProgressInfo, removeFile: Boolean) {
-            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.dispose()
+            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.cancel()
 
             val downloadWork = getWorkRequest(progressInfo.videoInfo.id)
             val downloaderData = getDownloadDataFromVideoInfo(context, progressInfo.videoInfo)
@@ -49,7 +48,7 @@ class YoutubeDlDownloader : GenericDownloader() {
         }
 
         fun stopAndSaveDownload(context: Context, progressInfo: ProgressInfo) {
-            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.dispose()
+            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.cancel()
 
             val downloadWork = getWorkRequest(progressInfo.videoInfo.id)
             val downloaderData = getDownloadDataFromVideoInfo(context, progressInfo.videoInfo)
@@ -62,7 +61,7 @@ class YoutubeDlDownloader : GenericDownloader() {
         }
 
         fun pauseDownload(context: Context, progressInfo: ProgressInfo) {
-            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.dispose()
+            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.cancel()
 
             val downloadWork = getWorkRequest(progressInfo.videoInfo.id)
 
@@ -76,7 +75,7 @@ class YoutubeDlDownloader : GenericDownloader() {
         }
 
         fun resumeDownload(context: Context, progressInfo: ProgressInfo) {
-            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.dispose()
+            YoutubeDlDownloaderDisposableContainer.disposableContainer[progressInfo.videoInfo.id]?.cancel()
 
             val downloadWork = getWorkRequest(progressInfo.videoInfo.id)
 
@@ -192,7 +191,6 @@ class CancelReceiver : BroadcastReceiver() {
 
 class YoutubeDlDownloaderDisposableContainer {
     companion object {
-        val disposableContainer = mutableMapOf<String, Disposable>()
-        val links = mutableMapOf<String, Subscription>()
+        val disposableContainer = mutableMapOf<String, Job>()
     }
 }

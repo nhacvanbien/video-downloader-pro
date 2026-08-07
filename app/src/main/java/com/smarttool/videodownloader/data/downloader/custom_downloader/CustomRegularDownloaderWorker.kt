@@ -11,7 +11,8 @@ import com.smarttool.videodownloader.data.downloader.generic_downloader.models.V
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.GenericDownloadWorkerWrapper
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.Progress
-import io.reactivex.rxjava3.core.Flowable
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URL
 import java.util.Date
@@ -266,7 +267,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
             }
         }
 
-        val inf = changeProgressInfoDownloadId(taskId, taskId.hashCode()).blockingFirst()
+        val inf = runBlocking { changeProgressInfoDownloadId(taskId, taskId.hashCode()) }
         saveProgress(
             inf.id, Progress(0, 0), VideoTaskState.PENDING
         )
@@ -418,20 +419,13 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
         showNotificationAsync(data.first, data.second)
     }
 
-    private fun changeProgressInfoDownloadId(oldId: String, newId: Int): Flowable<ProgressInfo> {
-        return progressRepository.getProgressInfos().flatMap { list ->
-            val result = list.find { it.id == oldId }
+    private suspend fun changeProgressInfoDownloadId(oldId: String, newId: Int): ProgressInfo {
+        val list = progressRepository.getProgressInfos().first()
+        val result = list.find { it.id == oldId } ?: throw NoSuchElementException()
 
-            if (result != null) {
-                Flowable.just(result)
-            } else {
-                Flowable.empty()
-            }
-        }.map {
-            it.downloadId = newId.toLong()
-            progressRepository.saveProgressInfo(it)
-            it
-        }
+        result.downloadId = newId.toLong()
+        progressRepository.saveProgressInfo(result)
+        return result
     }
 
     private fun saveProgress(
@@ -444,7 +438,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
             return
         }
 
-        val progressList = progressRepository.getProgressInfos().blockingFirst()
+        val progressList = runBlocking { progressRepository.getProgressInfos().first() }
         val dbTask = progressList.find { it.id == taskId }
         if (dbTask?.downloadStatus == VideoTaskState.SUCCESS) {
             return

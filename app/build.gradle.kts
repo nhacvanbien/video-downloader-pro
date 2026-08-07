@@ -164,7 +164,6 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.rx3)
 
     // Glide
     implementation(libs.glide)
@@ -173,7 +172,6 @@ dependencies {
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    implementation(libs.room.rxjava3)
     kapt(libs.room.compiler)
 
     // Misc
@@ -204,11 +202,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.coroutines.adapter)
     implementation(libs.retrofit.converter.moshi)
-    implementation(libs.retrofit.adapter.rxjava3)
-
-    // RxJava / RxAndroid
-    implementation(libs.rxjava3)
-    implementation(libs.rxandroid)
 
     // WorkManager
     implementation(libs.work.multiprocess)

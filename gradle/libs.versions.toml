@@ -39,9 +39,6 @@ lottie = "6.4.0"
 vtnAds = "2.0.4"
 jsoup = "1.18.3"
 youtubeDl = "0.17.2"
-rxjava3 = "3.1.10"
-rxandroid = "3.0.2"
-retrofitRxjava3 = "2.11.0"
 work = "2.9.1"
 swipeRevealLayout = "1.4.0"
 exoplayer = "2.19.1"
@@ -104,7 +101,6 @@ okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor" }
 # Coroutines
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
-kotlinx-coroutines-rx3 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3", version.ref = "coroutines" }
 
 # Glide
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
@@ -114,7 +110,6 @@ glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = 
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-room-rxjava3 = { module = "androidx.room:room-rxjava3", version.ref = "room" }
 
 # Misc libraries
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
@@ -133,11 +128,6 @@ vtn-ads = { module = "com.github.devvtn:vtn_ads_libs", version.ref = "vtnAds" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 youtube-dl = { module = "io.github.junkfood02.youtubedl-android:library", version.ref = "youtubeDl" }
 youtube-dl-ffmpeg = { module = "io.github.junkfood02.youtubedl-android:ffmpeg", version.ref = "youtubeDl" }
-
-# RxJava / RxAndroid
-rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava3" }
-rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
-retrofit-adapter-rxjava3 = { module = "com.squareup.retrofit2:adapter-rxjava3", version.ref = "retrofitRxjava3" }
 
 # WorkManager
 work-multiprocess = { module = "androidx.work:work-multiprocess", version.ref = "work" }

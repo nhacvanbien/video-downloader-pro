@@ -11,7 +11,6 @@ import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.SingleLiveEvent
 import com.smarttool.videodownloader.feature.library.domain.model.SortState
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
-import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -182,14 +181,8 @@ class PrivateVideoViewModel constructor(
         videoTaskItemRepository.resetSecurityFlag()
     }
 
-    fun findVideoByName(downloadFilename: String?): Observable<VideoTaskItem> {
-        return Observable.create { emitter ->
-            val found =
-                downloadFilename?.let { findVideoTaskItemByName(it) }
-            if (found != null) {
-                emitter.onNext(found)
-                emitter.onComplete()
-            }
+    suspend fun findVideoByName(downloadFilename: String?): VideoTaskItem? =
+        withContext(Dispatchers.IO) {
+            downloadFilename?.let { findVideoTaskItemByName(it) }
         }
-    }
 }

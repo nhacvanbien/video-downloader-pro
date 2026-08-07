@@ -1,24 +1,19 @@
 package com.smarttool.videodownloader.core.scheduler
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import java.util.concurrent.Executors
 
 interface BaseSchedulers {
-    val computation: Scheduler
-    val io: Scheduler
-    val newThread: Scheduler
-    val single: Scheduler
-    val mainThread: Scheduler
-    val videoService: Scheduler
+    val computation: CoroutineDispatcher
+    val io: CoroutineDispatcher
+    val videoService: CoroutineDispatcher
 }
 
-class BaseSchedulersImpl  constructor() : BaseSchedulers {
-    override val computation: Scheduler = Schedulers.computation()
-    override val io: Scheduler = Schedulers.io()
-    override val newThread: Scheduler = Schedulers.newThread()
-    override val single: Scheduler = Schedulers.single()
-    override val mainThread: Scheduler = AndroidSchedulers.mainThread()
-    override val videoService: Scheduler = Schedulers.from(Executors.newFixedThreadPool(16))
+class BaseSchedulersImpl constructor() : BaseSchedulers {
+    override val computation: CoroutineDispatcher = Dispatchers.Default
+    override val io: CoroutineDispatcher = Dispatchers.IO
+    override val videoService: CoroutineDispatcher =
+        Executors.newFixedThreadPool(16).asCoroutineDispatcher()
 }

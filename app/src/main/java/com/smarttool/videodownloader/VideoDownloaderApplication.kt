@@ -39,7 +39,6 @@ import com.smarttool.videodownloader.core.SystemUtil
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLException
-import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -112,10 +111,6 @@ class VideoDownloaderApplication : Application() {
                 .setWorkerFactory(workerFactory).build()
         )
 
-        RxJavaPlugins.setErrorHandler { error: Throwable? ->
-            Timber.e(error, "Unhandled RxJava error")
-        }
-
         CoroutineScope(Dispatchers.Default).launch {
             if (!file.exists()) {
                 file.mkdirs()
@@ -126,7 +121,6 @@ class VideoDownloaderApplication : Application() {
             updateYoutubeDL()
         }
 
-        initTevoAdLib()
     }
 
     private fun initializeFileUtils() {
@@ -153,25 +147,13 @@ class VideoDownloaderApplication : Application() {
     private fun updateYoutubeDL() {
         try {
             val status = YoutubeDL.getInstance()
-                .updateYoutubeDL(applicationContext, YoutubeDL.UpdateChannel.MASTER)
+                .updateYoutubeDL(applicationContext, YoutubeDL.UpdateChannel.NIGHTLY)
             Timber.i("youtube-dl update (MASTER) status=$status")
         } catch (e: Throwable) {
             Timber.e(e, "youtube-dl update failed")
         }
     }
 
-    private fun initTevoAdLib() {
-        val tevoAdjustConfig =
-            TevoAdjustConfig.Build("tcv1br2lo1s0", true).build()
-        val tevoAdsConfig = TevoAdsConfig.Builder(mexaAdjustConfig = tevoAdjustConfig)
-            .intervalBetweenInterstitial(15000L)
-            .buildVariantProduce(false)
-            .mediationProvider(NetworkProvider.ADMOB)
-            .eventConfig(EventConfig(exchangeRate = 26000, exchangeCurrency = "VND"))
-            .listTestDevices(arrayListOf("CFCDA023561C957CF4C6255116677DB6", "D000EACD8F96E69652B309A4A3037BAD", "533EC017154FECA5D81ADAB06C87416B"))
-            .build()
-        TevoAdmobFactory.initAdmob(this, tevoAdsConfig)
-    }
     val appResumeAdHelper by lazy { initAppOpenAd() }
     private fun initAppOpenAd(): AppResumeAdHelper {
         // The browser used to be listed here as WebTabActivity. It is a destination in

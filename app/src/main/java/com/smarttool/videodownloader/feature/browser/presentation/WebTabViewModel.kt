@@ -9,21 +9,17 @@ import com.smarttool.videodownloader.base.BaseViewModel
 import com.smarttool.videodownloader.data.network.entity.HistoryItem
 import com.smarttool.videodownloader.data.remote.service.AdBlockHostsRemoteDataSource
 import com.smarttool.videodownloader.core.SingleLiveEvent
-import com.smarttool.videodownloader.core.scheduler.BaseSchedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.Job
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 
 class WebTabViewModel constructor(
-    private val baseSchedulers: BaseSchedulers,
     private val adBlockHostsRemoteDataSource: AdBlockHostsRemoteDataSource,
 ) : BaseViewModel() {
     val isTabInputFocused = ObservableBoolean(false)
     val changeTabFocusEvent = SingleLiveEvent<Boolean>()
     val thisTabIndex = ObservableInt(-1)
     val isDownloadDialogShown = ObservableBoolean(false)
-    lateinit var tabPublishSubject: PublishSubject<String>
     var listTabSuggestions: ObservableField<MutableList<HistoryItem>> = ObservableField(
         mutableListOf()
     )
@@ -44,8 +40,6 @@ class WebTabViewModel constructor(
     private var tabSuggestionJob: Job? = null
 
     override fun start() {
-        tabPublishSubject = PublishSubject.create()
-
 //        isShowProgress.addOnPropertyChangedCallback(object :
 //            Observable.OnPropertyChangedCallback() {
 //            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -87,43 +81,6 @@ class WebTabViewModel constructor(
             tabUrl.set(url)
         }
     }
-
-//    fun showTabSuggestions() {
-//        if (tabSuggestionJob != null && tabSuggestionJob?.isActive == true) {
-//            tabSuggestionJob?.cancel()
-//        }
-//        tabSuggestionJob = viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                withContext(this.coroutineContext) {
-//                    val list = getListTabSuggestions().blockingFirst().reversed()
-//                    if (list.size > 50) {
-//                        listTabSuggestions.set(list.subList(0, 50).toMutableList())
-//                    } else {
-//                        listTabSuggestions.set(list.toMutableList())
-//                    }
-//                }
-//            } catch (e: Throwable) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
-
-//    private fun getListTabSuggestions(): Flowable<List<HistoryItem>> {
-//        return Flowable.combineLatest(
-//            tabPublishSubject.debounce(300, TimeUnit.MILLISECONDS)
-//                .toFlowable(BackpressureStrategy.LATEST), historyRepository.getAllHistory().take(1)
-//        ) { input, suggestions ->
-//            tabUrl.set(input)
-//
-//            val listSuggestions = suggestions.filter { historyItem ->
-//                historyItem.url.contains(
-//                    input
-//                )
-//            }
-//            listSuggestions.toList()
-//        }.take(1).observeOn(baseSchedulers.single)
-//            .subscribeOn(baseSchedulers.computation) // MAIN_TH
-//    }
 
     fun changeTabFocus(isFocus: Boolean) {
         this.isTabInputFocused.set(isFocus)

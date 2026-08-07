@@ -19,10 +19,11 @@ import com.smarttool.videodownloader.core.ContextUtils
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.scheduler.BaseSchedulers
-import io.reactivex.rxjava3.disposables.Disposable
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.Request
 import okhttp3.Response
@@ -47,7 +48,7 @@ interface IVideoDetector {
 
     fun getDownloadBtnIcon(): ObservableInt
 
-    fun checkRegularMp4(request: Request?): Disposable?
+    fun checkRegularMp4(request: Request?): Job?
 
     fun cancelAllCheckJobs()
 
@@ -70,7 +71,7 @@ class VideoDetectionAlgVModel constructor(
 
     var cachedVideos: MutableMap<String, VideoInfo> = mutableMapOf()
 
-    private var verifyVideoLinkJobStorage = mutableMapOf<String, Disposable>()
+    private var verifyVideoLinkJobStorage = mutableMapOf<String, Job>()
     private var lastVerifiedLink: String = ""
     private var lastVerifiedM3u8PointUrl = Pair("", "")
     private val executorRegular = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
@@ -184,12 +185,12 @@ class VideoDetectionAlgVModel constructor(
         resourceRequest: Request, isM3u8: Boolean, hlsTitle: String? = null
     ) {
         val job = verifyVideoLinkJobStorage[resourceRequest.url.toString()]
-        if (job != null && !job.isDisposed) {
+        if (job != null && job.isActive) {
             return
         }
 
         verifyVideoLinkJobStorage[resourceRequest.url.toString()] =
-            io.reactivex.rxjava3.core.Observable.create { emitter ->
+            viewModelScope.launch(baseSchedulers.io) {
                 downloadButtonState.set(DownloadButtonStateLoading())
                 val info = try {
                     getVideoInfo(resourceRequest, isM3u8)
@@ -197,45 +198,40 @@ class VideoDetectionAlgVModel constructor(
                     Timber.w(e, "getVideoInfo failed: ${resourceRequest.url}")
                     null
                 }
-                if (info != null) {
-                    emitter.onNext(info)
-                } else {
-                    emitter.onNext(VideoInfo(id = ""))
-                }
-            }.observeOn(baseSchedulers.io).subscribeOn(baseSchedulers.io)
-                .subscribe { info ->
-                    val isLastNotEmpty = lastVerifiedLink.isNotEmpty()
+                val result = info ?: VideoInfo(id = "")
 
-                    if (info.id.isNotEmpty()) {
-                        if (info.isM3u8 && !hlsTitle.isNullOrEmpty()) {
-                            info.title = hlsTitle
-                        }
-                        val state = downloadButtonState.get()
-                        if (state is DownloadButtonStateCanDownload) {
-                            if (state.info?.isRegularDownload == true) {
-                                Timber.d(
-                                    "Watching set new info state with Regular Download... currentState: $state skippingInfo: $info"
-                                )
-                            }
-                        }
-                        if (state is DownloadButtonStateCanDownload && state.info?.isM3u8 == true && state.info.isMaster && isLastNotEmpty || (state is DownloadButtonStateCanDownload && state.info?.isRegularDownload != true && info.isRegularDownload) || state is DownloadButtonStateLoading && info.isRegularDownload) {
-                            Timber.d(
-                                "Skipping set new info state... currentState: $state skippingInfo: $info"
-                            )
-                        } else {
-                            Timber.d(
-                                "Setting set new info state... state: $state info: $info"
-                            )
-                            setCanDownloadState(info)
-                        }
-                    } else {
-                        downloadButtonState.set(DownloadButtonStateCanNotDownload())
+                val isLastNotEmpty = lastVerifiedLink.isNotEmpty()
+
+                if (result.id.isNotEmpty()) {
+                    if (result.isM3u8 && !hlsTitle.isNullOrEmpty()) {
+                        result.title = hlsTitle
                     }
+                    val state = downloadButtonState.get()
+                    if (state is DownloadButtonStateCanDownload) {
+                        if (state.info?.isRegularDownload == true) {
+                            Timber.d(
+                                "Watching set new info state with Regular Download... currentState: $state skippingInfo: $result"
+                            )
+                        }
+                    }
+                    if (state is DownloadButtonStateCanDownload && state.info?.isM3u8 == true && state.info.isMaster && isLastNotEmpty || (state is DownloadButtonStateCanDownload && state.info?.isRegularDownload != true && result.isRegularDownload) || state is DownloadButtonStateLoading && result.isRegularDownload) {
+                        Timber.d(
+                            "Skipping set new info state... currentState: $state skippingInfo: $result"
+                        )
+                    } else {
+                        Timber.d(
+                            "Setting set new info state... state: $state info: $result"
+                        )
+                        setCanDownloadState(result)
+                    }
+                } else {
+                    downloadButtonState.set(DownloadButtonStateCanNotDownload())
                 }
+            }
     }
 
     private fun cancelAllVerifyJobs() {
-        verifyVideoLinkJobStorage.map { it1 -> it1.value.dispose() }
+        verifyVideoLinkJobStorage.forEach { it1 -> it1.value.cancel() }
         verifyVideoLinkJobStorage.clear()
 
         lastVerifiedLink = ""
@@ -248,7 +244,7 @@ class VideoDetectionAlgVModel constructor(
         }, 400)
     }
 
-    override fun checkRegularMp4(request: Request?): Disposable? {
+    override fun checkRegularMp4(request: Request?): Job? {
 
         if (request == null) {
             return null
@@ -272,16 +268,14 @@ class VideoDetectionAlgVModel constructor(
             mutableMapOf()
         }
 
-        val disposable = io.reactivex.rxjava3.core.Observable.create<Unit> {
-            propagateCheckJob(uriString, headers)
-            it.onComplete()
-        }.subscribeOn(baseSchedulers.io).doOnComplete {
-            Timber.d("checkRegularMp4 done: $clearedUrl")
-        }.onErrorComplete().doOnError {
-            Timber.w("checkRegularMp4 failed: $clearedUrl")
-        }.subscribe()
-
-        return disposable
+        return viewModelScope.launch(baseSchedulers.io) {
+            try {
+                propagateCheckJob(uriString, headers)
+                Timber.d("checkRegularMp4 done: $clearedUrl")
+            } catch (e: Throwable) {
+                Timber.w("checkRegularMp4 failed: $clearedUrl")
+            }
+        }
     }
 
     private fun propagateCheckJob(url: String, headersMap: Map<String, String>) {

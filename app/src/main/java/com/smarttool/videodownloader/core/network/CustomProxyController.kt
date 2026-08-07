@@ -7,13 +7,10 @@ import androidx.webkit.ProxyController
 import androidx.webkit.WebViewFeature
 import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.model.Proxy
-import com.smarttool.videodownloader.core.scheduler.BaseSchedulers
-import io.reactivex.rxjava3.core.Observable
 
 
 class CustomProxyController  constructor(
     private val sharedPrefHelper: PreferenceHelper,
-    private val schedulers: BaseSchedulers,
 ) {
 
     init {

@@ -50,8 +50,8 @@ import com.smarttool.videodownloader.feature.browser.presentation.VideoDetection
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
 import com.smarttool.videodownloader.feature.downloads.domain.model.DownloadTabListener
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.koin.core.component.KoinComponent
@@ -107,7 +107,7 @@ class ProcessingController(
     private var currentUrl = ""
     private var lastSavedHistoryUrl = ""
     private var lastRegularCheckUrl = ""
-    private val regularJobsStorage: MutableMap<String, List<Disposable>> = mutableMapOf()
+    private val regularJobsStorage: MutableMap<String, List<Job>> = mutableMapOf()
 
     private var started = false
 
@@ -146,7 +146,7 @@ class ProcessingController(
         videoDetectionModel.stop()
         videoDetectionTabViewModel.stop()
 
-        regularJobsStorage.values.flatten().forEach { it.dispose() }
+        regularJobsStorage.values.flatten().forEach { it.cancel() }
         regularJobsStorage.clear()
 
         webView?.let { view ->
@@ -514,17 +514,17 @@ class ProcessingController(
      * away disposes the previous page's checks instead of leaking them.
      */
     private fun trackRegularMp4(requestWithCookies: okhttp3.Request?) {
-        val disposable = videoDetectionTabViewModel.checkRegularMp4(requestWithCookies)
+        val job = videoDetectionTabViewModel.checkRegularMp4(requestWithCookies)
         val pageUrl = tabViewModel.getTabTextInput().get() ?: ""
 
         if (pageUrl != lastRegularCheckUrl) {
-            regularJobsStorage[lastRegularCheckUrl]?.forEach { it.dispose() }
+            regularJobsStorage[lastRegularCheckUrl]?.forEach { it.cancel() }
             regularJobsStorage.remove(lastRegularCheckUrl)
             lastRegularCheckUrl = pageUrl
         }
 
-        if (disposable != null) {
-            regularJobsStorage[pageUrl] = (regularJobsStorage[pageUrl].orEmpty()) + disposable
+        if (job != null) {
+            regularJobsStorage[pageUrl] = (regularJobsStorage[pageUrl].orEmpty()) + job
         }
     }
 

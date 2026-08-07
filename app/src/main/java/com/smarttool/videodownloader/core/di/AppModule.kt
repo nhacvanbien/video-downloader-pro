@@ -37,7 +37,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -85,7 +84,6 @@ val appModule = module {
             .baseUrl(DATA_URL)
             .client(get())
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .build()
             .create(ConfigService::class.java)
     }
@@ -101,7 +99,7 @@ val appModule = module {
     single { MediaPermissionChecker(androidContext()) }
     single { NotificationsHelper(androidContext(), get()) }
     single<BaseSchedulers> { BaseSchedulersImpl() }
-    single { CustomProxyController(get(), get()) }
+    single { CustomProxyController(get()) }
     single { OkHttpProxyClient(get(), get()) }
 
     // --- Repositories ---

@@ -17,7 +17,8 @@ import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.NotificationReceiver
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.resume
 import timber.log.Timber
 
@@ -30,8 +31,6 @@ open class GenericDownloadWorkerWrapper  constructor(
     lateinit var proxyController: CustomProxyController
     lateinit var proxyOkHttpClient: OkHttpProxyClient
     lateinit var sharedPrefHelper: PreferenceHelper
-
-    private var disposable: Disposable? = null
 
     override fun onDownloadPrepare(item: VideoTaskItem?) {
         super.onDownloadPrepare(item)
@@ -73,12 +72,10 @@ open class GenericDownloadWorkerWrapper  constructor(
         super.onDownloadSuccess(item)
         Timber.i("Download succeeded: $item")
 
-        disposable?.dispose()
-        disposable = progressRepository.getProgressInfos().subscribe { infos ->
-            if (item != null) {
-                infos.find { it.id == item.url }
-                    ?.let { it1 -> progressRepository.deleteProgressInfo(it1) }
-            }
+        val infos = runBlocking { progressRepository.getProgressInfos().first() }
+        if (item != null) {
+            infos.find { it.id == item.url }
+                ?.let { it1 -> progressRepository.deleteProgressInfo(it1) }
         }
 
         val builderPair = item?.let { notificationsHelper.createNotificationBuilder(it) }
@@ -161,7 +158,5 @@ open class GenericDownloadWorkerWrapper  constructor(
 
     override fun finishWork(item: VideoTaskItem?) {
         setDone()
-
-        disposable?.dispose()
     }
 }

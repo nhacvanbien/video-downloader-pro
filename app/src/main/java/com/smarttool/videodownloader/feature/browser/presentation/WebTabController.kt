@@ -85,8 +85,8 @@ import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoVi
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import com.smarttool.videodownloader.feature.tab.presentation.TabModelViewModel
 import com.vimalcvs.materialrating.DialogManager
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -172,7 +172,7 @@ class WebTabController(
     private var lastSavedHistoryUrl: String = ""
     private var lastSavedTitleHistory: String = ""
     private var lastRegularCheckUrl = ""
-    private val regularJobsStorage: MutableMap<String, List<Disposable>> = mutableMapOf()
+    private val regularJobsStorage: MutableMap<String, List<Job>> = mutableMapOf()
 
     private var isReload = false
     private var canGoCounter = 0
@@ -229,7 +229,7 @@ class WebTabController(
         videoDetectionModel.stop()
         videoDetectionTabViewModel.stop()
 
-        regularJobsStorage.values.flatten().forEach { it.dispose() }
+        regularJobsStorage.values.flatten().forEach { it.cancel() }
         regularJobsStorage.clear()
 
         webTab.getWebView()?.let { webView ->
@@ -849,18 +849,18 @@ class WebTabController(
      * away disposes the previous page's checks instead of leaking them.
      */
     private fun trackRegularMp4(requestWithCookies: okhttp3.Request?) {
-        val disposable = videoDetectionTabViewModel.checkRegularMp4(requestWithCookies)
+        val job = videoDetectionTabViewModel.checkRegularMp4(requestWithCookies)
         val currentUrl = tabViewModel.getTabTextInput().get() ?: ""
 
         if (currentUrl != lastRegularCheckUrl) {
-            regularJobsStorage[lastRegularCheckUrl]?.forEach { it.dispose() }
+            regularJobsStorage[lastRegularCheckUrl]?.forEach { it.cancel() }
             regularJobsStorage.remove(lastRegularCheckUrl)
             lastRegularCheckUrl = currentUrl
         }
 
-        if (disposable != null) {
+        if (job != null) {
             regularJobsStorage[currentUrl] =
-                (regularJobsStorage[currentUrl].orEmpty()) + disposable
+                (regularJobsStorage[currentUrl].orEmpty()) + job
         }
     }
 

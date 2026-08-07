@@ -1,11 +1,11 @@
 package com.smarttool.videodownloader.data.repository
 
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
-import io.reactivex.rxjava3.core.Flowable
+import kotlinx.coroutines.flow.Flow
 
 interface ProgressRepository {
 
-    fun getProgressInfos(): Flowable<List<ProgressInfo>>
+    fun getProgressInfos(): Flow<List<ProgressInfo>>
 
     fun saveProgressInfo(progressInfo: ProgressInfo)
 
@@ -19,7 +19,7 @@ class ProgressRepositoryImpl  constructor(
     private var lastDeletedInfo: ProgressInfo? = null
 
 
-    override fun getProgressInfos(): Flowable<List<ProgressInfo>> {
+    override fun getProgressInfos(): Flow<List<ProgressInfo>> {
         return localDataSource.getProgressInfos()
     }
 

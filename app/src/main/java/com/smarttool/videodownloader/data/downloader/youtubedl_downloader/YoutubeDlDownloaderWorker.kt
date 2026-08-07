@@ -20,12 +20,18 @@ import com.google.gson.Gson
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import com.yausername.youtubedl_android.YoutubeDLResponse
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.Date
-import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.coroutines.resume
@@ -47,13 +53,15 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
     private var isLiveCounter: Int = 0
     private var isDownloadOk: Boolean = false
     private var isDownloadJustStarted: Boolean = false
-    private var monitorProcess: Disposable? = null
+    private var monitorProcess: Job? = null
 
     private var progressCached = 0
 
-    private var disposable: Disposable? = null
+    private val workerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private var progressDisposable: Disposable? = null
+    private var disposable: Job? = null
+
+    private var progressDisposable: Job? = null
 
     private var cookieFile: File? = null
 
@@ -63,7 +71,8 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
     var time = 0L
 
     override fun afterDone() {
-        monitorProcess?.dispose()
+        monitorProcess?.cancel()
+        workerScope.cancel()
     }
 
     override fun handleAction(
@@ -168,11 +177,14 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             tmpFile.mkdir()
         }
 
-        monitorProcess = Observable.interval(0, 1, TimeUnit.SECONDS)
-            .subscribeOn(Schedulers.io())
-            .map { calculateFolderSize(tmpFile) }
-            .onErrorReturn { -1 }
-            .subscribe { folderSize ->
+        monitorProcess = workerScope.launch {
+            while (isActive) {
+                val folderSize = try {
+                    calculateFolderSize(tmpFile)
+                } catch (e: Throwable) {
+                    -1L
+                }
+
                 if (folderSize > 0 && folderSize != lastTmpDirSize) {
                     val downloadedTmpFolderSize =
                         FileUtil.getFileSizeReadable(folderSize.toDouble())
@@ -180,8 +192,8 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
                     if (progressCached > 0) {
                         isDownloadOk = true
-                        monitorProcess?.dispose()
-                        return@subscribe
+                        monitorProcess?.cancel()
+                        return@launch
                     }
 
                     if (isDownloadJustStarted && !isDownloadOk) {
@@ -203,7 +215,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                                     item.lineInfo = downloadedTmpFolderSize
                                     item.downloadSize = downloaded
                                     item.totalSize = downloaded
-                                }).blockingFirst(Unit)
+                                })
                             showProgress(
                                 taskId,
                                 taskId,
@@ -215,7 +227,10 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                         }
                     }
                 }
+
+                delay(1000)
             }
+        }
 
         request.addOption("--progress")
 
@@ -249,9 +264,11 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         }
 
         showProgress(taskId, taskId, name, 0, "Fetching info, Please wait...", tmpFile)
-        saveProgress(taskId,
-            line = LineInfo(taskId, 0.0, 0.0, sourceLine = "Fetching info, Please wait..."),
-            task.also { it.taskState = VideoTaskState.PREPARE }).blockingFirst(Unit)
+        runBlocking {
+            saveProgress(taskId,
+                line = LineInfo(taskId, 0.0, 0.0, sourceLine = "Fetching info, Please wait..."),
+                task.also { it.taskState = VideoTaskState.PREPARE })
+        }
 
         request.addOption("-o", "${tmpFile.absolutePath}/${name}.%(ext)s")
 
@@ -273,10 +290,12 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             val interval = 1000
 
             showProgress(taskId, taskId, name, 0, "Starting...", tmpFile)
-            saveProgress(taskId,
-                line = LineInfo(taskId, 0.0, 0.0, sourceLine = "Starting..."),
-                task.also { it.taskState = VideoTaskState.DOWNLOADING }).blockingFirst(Unit)
-            disposable?.dispose()
+            runBlocking {
+                saveProgress(taskId,
+                    line = LineInfo(taskId, 0.0, 0.0, sourceLine = "Starting..."),
+                    task.also { it.taskState = VideoTaskState.DOWNLOADING })
+            }
+            disposable?.cancel()
 
             val freeSpace = FileUtil.getFreeDiskSpace(fileUtil.folderDir)
             if (freeSpace < TRESHOLD) {
@@ -288,126 +307,129 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                 return
             }
 
-            disposable = Observable.fromCallable<YoutubeDLResponse> {
-                YoutubeDL.getInstance().execute(request, taskId) { pr, _, line ->
-                    if (line.contains("[download] Destination:")) {
-                        isDownloadJustStarted = true
-                    }
-                    if (line.contains(Regex("""\[download] {3}\d+"""))) {
-                        isDownloadOk = true
-                    }
+            disposable = workerScope.launch {
+                try {
+                    val dlResponse: YoutubeDLResponse =
+                        YoutubeDL.getInstance().execute(request, taskId) { pr, _, line ->
+                            if (line.contains("[download] Destination:")) {
+                                isDownloadJustStarted = true
+                            }
+                            if (line.contains(Regex("""\[download] {3}\d+"""))) {
+                                isDownloadOk = true
+                            }
 
-                    val lineInfo: LineInfo? = try {
-                        parseInfoFromLine(line)
-                    } catch (e: Throwable) {
+                            val lineInfo: LineInfo? = try {
+                                parseInfoFromLine(line)
+                            } catch (e: Throwable) {
+                                null
+                            }
+
+                            progressCached = pr.toInt()
+
+                            if (Date().time - time > interval && !getDone()) {
+                                time = Date().time
+
+                                val totalBytes = (lineInfo?.total ?: 0).toLong()
+
+                                val downloadBytes = (totalBytes * (pr / 100)).toLong()
+                                val downloadBytesFixed = if (downloadBytes > 0) {
+                                    downloadBytes
+                                } else {
+                                    0
+                                }
+                                task.percent = pr
+                                task.totalSize = totalBytes
+                                task.downloadSize = downloadBytesFixed
+                                task.taskState = VideoTaskState.DOWNLOADING
+
+                                if (progressDisposable != null) {
+                                    progressDisposable?.cancel()
+                                    progressDisposable = null
+                                }
+                                runBlocking {
+                                    saveProgress(taskId, lineInfo, task)
+                                }
+                                showProgress(
+                                    taskId, taskId, name, pr.toInt(), line ?: "", tmpFile
+                                )
+                                val freeSpace = FileUtil.getFreeDiskSpace(fileUtil.folderDir)
+                                if (freeSpace < TRESHOLD) {
+                                    finishWork(task.also {
+                                        it.mId = taskId
+                                        it.taskState = VideoTaskState.ERROR
+                                        it.errorMessage = "Not enough space"
+                                    })
+                                    return@execute
+                                }
+                            }
+                        }
+
+                    // Seems like youtubedlp has a bug and sometimes skip removing of merged fragments
+                    val list = tmpFile.listFiles()
+                    val finalFile = if (!list.isNullOrEmpty()) {
+                        tmpFile.walkTopDown()
+                            .filter { it.isFile && it.extension.equals("mp4", ignoreCase = true) }
+                            .firstOrNull()
+                    } else {
                         null
                     }
+                    if (dlResponse.exitCode == 0 && finalFile != null) {
 
-                    progressCached = pr.toInt()
+                        val toUri =
+                            Uri.fromFile(File(fixFileName("${downloadDir.absolutePath}/${finalFile.name}")))
 
-                    if (Date().time - time > interval && !getDone()) {
-                        time = Date().time
-
-                        val totalBytes = (lineInfo?.total ?: 0).toLong()
-
-                        val downloadBytes = (totalBytes * (pr / 100)).toLong()
-                        val downloadBytesFixed = if (downloadBytes > 0) {
-                            downloadBytes
-                        } else {
-                            0
-                        }
-                        task.percent = pr
-                        task.totalSize = totalBytes
-                        task.downloadSize = downloadBytesFixed
-                        task.taskState = VideoTaskState.DOWNLOADING
-
-                        if (progressDisposable != null) {
-                            progressDisposable?.dispose()
-                            progressDisposable = null
-                        }
-                        saveProgress(
-                            taskId, lineInfo, task
-                        ).blockingFirst(Unit)
-                        showProgress(
-                            taskId, taskId, name, pr.toInt(), line ?: "", tmpFile
+                        val moved = fileUtil.moveMedia(
+                            this@YoutubeDlDownloaderWorker.applicationContext,
+                            Uri.fromFile(finalFile),
+                            toUri
                         )
-                        val freeSpace = FileUtil.getFreeDiskSpace(fileUtil.folderDir)
-                        if (freeSpace < TRESHOLD) {
-                            finishWork(task.also {
-                                it.mId = taskId
-                                it.taskState = VideoTaskState.ERROR
-                                it.errorMessage = "Not enough space"
-                            })
-                            return@execute
+
+                        if (this@YoutubeDlDownloaderWorker.cookieFile != null) {
+                            this@YoutubeDlDownloaderWorker.cookieFile!!.delete()
+                        }
+
+                        var movedFilePath = ""
+
+                        if (moved) {
+                            tmpFile.deleteRecursively()
+
+                            movedFilePath = toUri.path.toString()
+
+                        }
+
+                        finishWork(VideoTaskItem(url).also { f ->
+                            f.filePath = movedFilePath
+                            f.fileName = extractFileName(movedFilePath).first
+                            f.title = extractFileName(movedFilePath).second
+                            f.errorCode = if (moved) 0 else 1
+                            f.percent = 100F
+                            f.taskState =
+                                if (moved) VideoTaskState.SUCCESS else VideoTaskState.ERROR
+                        })
+                    } else {
+                        val fixedList = tmpFile.listFiles()?.filter { !it.name.contains("part") }
+                        if (this@YoutubeDlDownloaderWorker.cookieFile != null) {
+                            this@YoutubeDlDownloaderWorker.cookieFile!!.delete()
+                        }
+
+                        fixedList?.firstOrNull().let {
+                            if (it != null) {
+                                finishWork(VideoTaskItem(url).also { f ->
+                                    f.fileName = it.name
+                                    f.errorCode = 1
+                                    f.taskState = VideoTaskState.ERROR
+                                })
+                            } else {
+                                Timber.w("startDownload: no output file produced for $url")
+                                finishWork(VideoTaskItem(url).also { f ->
+                                    f.errorCode = 1
+                                    f.taskState = VideoTaskState.ERROR
+                                })
+                            }
                         }
                     }
-                }
-            }.doOnError {
-                handleError(taskId, url, progressCached, it, tmpFile.name, name)
-            }.onErrorComplete().subscribe { dlResponse ->
-                // Seems like youtubedlp has a bug and sometimes skip removing of merged fragments
-                val list = tmpFile.listFiles()
-                val finalFile = if (!list.isNullOrEmpty()) {
-                    tmpFile.walkTopDown()
-                        .filter { it.isFile && it.extension.equals("mp4", ignoreCase = true) }
-                        .firstOrNull()
-                } else {
-                    null
-                }
-                if (dlResponse.exitCode == 0 && finalFile != null) {
-
-                    val toUri =
-                        Uri.fromFile(File(fixFileName("${downloadDir.absolutePath}/${finalFile.name}")))
-
-                    val moved = fileUtil.moveMedia(
-                        this@YoutubeDlDownloaderWorker.applicationContext,
-                        Uri.fromFile(finalFile),
-                        toUri
-                    )
-
-                    if (this@YoutubeDlDownloaderWorker.cookieFile != null) {
-                        this@YoutubeDlDownloaderWorker.cookieFile!!.delete()
-                    }
-
-                    var movedFilePath = ""
-
-                    if (moved) {
-                        tmpFile.deleteRecursively()
-
-                        movedFilePath = toUri.path.toString()
-
-                    }
-
-                    finishWork(VideoTaskItem(url).also { f ->
-                        f.filePath = movedFilePath
-                        f.fileName = extractFileName(movedFilePath).first
-                        f.title = extractFileName(movedFilePath).second
-                        f.errorCode = if (moved) 0 else 1
-                        f.percent = 100F
-                        f.taskState =
-                            if (moved) VideoTaskState.SUCCESS else VideoTaskState.ERROR
-                    })
-                } else {
-                    val fixedList = tmpFile.listFiles()?.filter { !it.name.contains("part") }
-                    if (this@YoutubeDlDownloaderWorker.cookieFile != null) {
-                        this@YoutubeDlDownloaderWorker.cookieFile!!.delete()
-                    }
-
-                    fixedList?.firstOrNull().let {
-                        if (it != null) {
-                            finishWork(VideoTaskItem(url).also { f ->
-                                f.fileName = it.name
-                                f.errorCode = 1
-                                f.taskState = VideoTaskState.ERROR
-                            })
-                        } else {
-                            Timber.w("startDownload: no output file produced for $url")
-                            finishWork(VideoTaskItem(url).also { f ->
-                                f.errorCode = 1
-                                f.taskState = VideoTaskState.ERROR
-                            })
-                        }
-                    }
+                } catch (e: Throwable) {
+                    handleError(taskId, url, progressCached, e, tmpFile.name, name)
                 }
             }
         } catch (e: Throwable) {
@@ -602,19 +624,21 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             )
         }
 
-        disposable?.dispose()
-        progressDisposable?.dispose()
+        disposable?.cancel()
+        progressDisposable?.cancel()
         disposable = null
         progressDisposable = null
         cookieFile?.delete()
 
         if (taskId != null) {
             if (item != null) {
-                saveProgress(
-                    taskId,
-                    line = LineInfo(taskId, 0.0, 0.0, sourceLine = item.errorMessage ?: ""),
-                    item
-                ).blockingFirst(Unit)
+                runBlocking {
+                    saveProgress(
+                        taskId,
+                        line = LineInfo(taskId, 0.0, 0.0, sourceLine = item.errorMessage ?: ""),
+                        item
+                    )
+                }
                 setDone()
 
                 try {
@@ -646,55 +670,51 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         }
     }
 
-    private fun saveProgress(
+    private suspend fun saveProgress(
         taskId: String, line: LineInfo? = null, task: VideoTaskItem
-    ): Observable<Unit> {
+    ) {
         if (getDone() && task.taskState == VideoTaskState.DOWNLOADING) {
             Timber.d(
                 "saveProgress task returned cause DONE!!!"
             )
-            return Observable.empty()
+            return
         }
         val isBytesNoTouch = line?.total == null || line.total == 0.0
         val iProgressUpdate = task.downloadSize.toInt() > 0
 
-        return progressRepository.getProgressInfos().doOnSubscribe {
-            YoutubeDlDownloaderDisposableContainer.links[taskId] = it
-        }.take(1).toObservable().flatMap { progressList ->
-            val dbTask = progressList.find { it.id == taskId }
+        val progressList = progressRepository.getProgressInfos().first()
+        val dbTask = progressList.find { it.id == taskId }
 
-            if (!isBytesNoTouch) {
-                dbTask?.progressTotal = (line?.total ?: task.totalSize).toLong()
+        if (!isBytesNoTouch) {
+            dbTask?.progressTotal = (line?.total ?: task.totalSize).toLong()
+        }
+
+        if (task.taskState != VideoTaskState.SUCCESS) {
+            if (!isBytesNoTouch && iProgressUpdate) {
+                dbTask?.progressDownloaded = task.downloadSize
             }
+        } else {
+            dbTask?.progressDownloaded = dbTask?.progressTotal ?: -1
+        }
 
-            if (task.taskState != VideoTaskState.SUCCESS) {
-                if (!isBytesNoTouch && iProgressUpdate) {
-                    dbTask?.progressDownloaded = task.downloadSize
-                }
+        dbTask?.fragmentsTotal = line?.fragTotal ?: 1
+        dbTask?.fragmentsDownloaded = line?.fragDownloaded ?: 0
+        dbTask?.downloadStatus = task.taskState
+
+        dbTask?.infoLine = line?.sourceLine ?: ""
+
+        if (line?.id == "LIVE" && dbTask?.isLive != true) {
+            dbTask?.isLive = true
+        }
+
+        if (dbTask != null) {
+            if (getDone() && task.taskState == VideoTaskState.DOWNLOADING) {
+                Timber.d(
+                    "saveProgress task returned cause DONE!!!"
+                )
             } else {
-                dbTask?.progressDownloaded = dbTask?.progressTotal ?: -1
+                progressRepository.saveProgressInfo(dbTask)
             }
-
-            dbTask?.fragmentsTotal = line?.fragTotal ?: 1
-            dbTask?.fragmentsDownloaded = line?.fragDownloaded ?: 0
-            dbTask?.downloadStatus = task.taskState
-
-            dbTask?.infoLine = line?.sourceLine ?: ""
-
-            if (line?.id == "LIVE" && dbTask?.isLive != true) {
-                dbTask?.isLive = true
-            }
-
-            if (dbTask != null) {
-                if (getDone() && task.taskState == VideoTaskState.DOWNLOADING) {
-                    Timber.d(
-                        "saveProgress task returned cause DONE!!!"
-                    )
-                } else {
-                    progressRepository.saveProgressInfo(dbTask)
-                }
-            }
-            Observable.empty()
         }
     }
 
