@@ -153,6 +153,7 @@ dependencies {
     implementation(libs.compose.activity)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation.compose)
 
     // Moshi
     implementation(libs.moshi)

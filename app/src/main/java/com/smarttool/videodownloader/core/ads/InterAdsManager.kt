@@ -35,10 +35,17 @@ import com.ads.admob.listener.InterstitialAdShowCallBack
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.LoadAdError
 import com.smarttool.videodownloader.android.BuildConfig
-import com.smarttool.videodownloader.ui.nativefull.NativeFullActivity
 
 object InterAdsManager {
     const val INTER_ALL = "inter_all"
+
+    /**
+     * Opens the full-screen native ad. It used to be `startActivity(NativeFullActivity)`;
+     * now that it is a destination in the nav graph, the host Activity installs this on
+     * create and clears it on destroy. Null means there is no graph to navigate — the
+     * caller falls through to its own action rather than dropping it.
+     */
+    var openNativeFull: (() -> Unit)? = null
 
     private var isShowNativeFull = false
     private var pendingAction: (() -> Unit)? = null
@@ -82,10 +89,17 @@ object InterAdsManager {
             return
         }
         if (!isShowNativeFull && !CheckTimeShowAdsInter.isTimeShow) {
-            // navigate to NativeFullActivity, after that call onAction
+            val open = openNativeFull
+
+            if (open == null) {
+                onAction.invoke()
+                return
+            }
+
+            // The ad destination calls back into onNativeFullActivityFinished, which is
+            // what runs the pending action once it closes.
             pendingAction = onAction
-            val intent = Intent(activity, NativeFullActivity::class.java)
-            activity.startActivity(intent)
+            open()
             return
         }
 

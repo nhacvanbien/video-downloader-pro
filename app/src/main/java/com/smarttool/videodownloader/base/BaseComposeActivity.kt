@@ -7,9 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.smarttool.videodownloader.core.SystemUtil
 
 /**
- * Compose counterpart of [BaseActivity]: applies the same immersive-fullscreen window
- * setup and locale handling, so migrated screens keep drawing edge-to-edge with the
- * system bars hidden exactly as the View-based screens did.
+ * Applies the immersive-fullscreen window setup and locale handling the deleted
+ * View-based `BaseActivity` used to, so screens keep drawing edge-to-edge with the
+ * system bars hidden exactly as they did before the Compose migration.
  */
 abstract class BaseComposeActivity : AppCompatActivity() {
 

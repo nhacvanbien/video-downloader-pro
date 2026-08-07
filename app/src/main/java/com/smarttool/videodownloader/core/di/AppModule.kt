@@ -22,6 +22,7 @@ import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.core.ui.SystemUiController
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.file.IntentUtil
+import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.network.Memory
 import com.smarttool.videodownloader.core.notification.NotificationsHelper
 import com.smarttool.videodownloader.data.downloader.generic_downloader.DaggerWorkerFactory
@@ -97,6 +98,7 @@ val appModule = module {
     single { FileUtil() }
     single { SystemUiController() }
     single { IntentUtil(get()) }
+    single { MediaPermissionChecker(androidContext()) }
     single { NotificationsHelper(androidContext(), get()) }
     single<BaseSchedulers> { BaseSchedulersImpl() }
     single { CustomProxyController(get(), get()) }

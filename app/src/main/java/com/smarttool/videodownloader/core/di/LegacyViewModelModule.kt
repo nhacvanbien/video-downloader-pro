@@ -10,9 +10,12 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 /**
- * ViewModels that still belong to the pre-migration `ui/` packages — the WebView
- * video-detection pipeline and its collaborators. They are Koin-wired so Hilt can be
- * removed; splitting them into `feature/` packages is a separate refactor.
+ * The WebView video-detection pipeline and its collaborators, carried over from the
+ * pre-migration `ui/` packages.
+ *
+ * They are resolved through a private [ScopedViewModelStore] per host rather than the
+ * Activity store: the browser and the processing screen each make themselves the
+ * pipeline's owner, so one shared instance would cross-wire them.
  */
 val legacyViewModelModule = module {
     viewModel { TabModelViewModel(get()) }

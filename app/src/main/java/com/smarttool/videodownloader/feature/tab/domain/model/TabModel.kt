@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.smarttool.videodownloader.data.network.entity.HistoryItem
 import java.util.UUID
 
 @Entity(tableName = "TabModel")
@@ -32,15 +31,22 @@ data class TabModel(
         return BitmapFactory.decodeByteArray(favicon, 0, favicon?.size ?: 0)
     }
 
+    /**
+     * Identity is id + url; the favicon blob is deliberately excluded so a re-fetched
+     * icon does not read as a different tab.
+     *
+     * The cast used to be to `HistoryItem`, which threw `ClassCastException` for every
+     * comparison of two non-identical tabs — including the equality check a `StateFlow`
+     * runs before emitting the tab list.
+     */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as HistoryItem
+        other as TabModel
 
         if (id != other.id) return false
         if (url != other.url) return false
-//        if (title != other.title) return false
 
         return true
     }

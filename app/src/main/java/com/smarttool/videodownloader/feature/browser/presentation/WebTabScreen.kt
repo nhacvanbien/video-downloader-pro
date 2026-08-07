@@ -32,8 +32,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ui.components.RetainedAndroidView
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
 import com.smarttool.videodownloader.core.ui.theme.AppGray
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
@@ -89,8 +89,8 @@ fun WebTabScreen(
                 }
             }
 
-            AndroidView(
-                factory = { webView },
+            RetainedAndroidView(
+                view = webView,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
             )
 
@@ -103,12 +103,12 @@ fun WebTabScreen(
                     onBookmark = onBookmark,
                 )
 
-                AndroidView(factory = { bannerAd }, modifier = Modifier.fillMaxWidth())
+                RetainedAndroidView(view = bannerAd, modifier = Modifier.fillMaxWidth())
             }
         }
 
-        AndroidView(
-            factory = { fullscreenContainer },
+        RetainedAndroidView(
+            view = fullscreenContainer,
             modifier = if (state.isFullscreen) {
                 Modifier.fillMaxSize()
             } else {

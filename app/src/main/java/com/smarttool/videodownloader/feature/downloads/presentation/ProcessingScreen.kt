@@ -32,11 +32,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.AppTopBar
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
+import com.smarttool.videodownloader.core.ui.components.RetainedAndroidView
 import com.smarttool.videodownloader.core.ui.components.ScreenGradient
 import com.smarttool.videodownloader.core.ui.components.SheetCornerRadius
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
@@ -84,7 +84,7 @@ fun ProcessingScreen(
         // Off-screen WebView that loads the pasted URL so the detection pipeline can
         // scan it. It must stay attached and laid out, so it is sized to 1dp rather
         // than removed from composition.
-        AndroidView(factory = { detectionWebView }, modifier = Modifier.size(1.dp))
+        RetainedAndroidView(view = detectionWebView, modifier = Modifier.size(1.dp))
 
         Column(
             modifier = Modifier

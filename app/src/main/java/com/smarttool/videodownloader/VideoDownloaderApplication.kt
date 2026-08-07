@@ -30,7 +30,7 @@ import com.smarttool.videodownloader.feature.pin.di.pinModule
 import com.smarttool.videodownloader.feature.tab.di.tabModule
 import com.smarttool.videodownloader.feature.settings.di.settingsModule
 import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.smarttool.videodownloader.ui.splash.SplashActivity
+import com.smarttool.videodownloader.feature.splash.presentation.SplashActivity
 import com.smarttool.videodownloader.feature.tab.presentation.TabViewModel
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.AppLogger
@@ -52,7 +52,6 @@ import java.io.File
 import kotlin.jvm.java
 import androidx.work.WorkerFactory
 import org.koin.android.ext.android.inject
-import com.smarttool.videodownloader.ui.browser.webTab.WebTabActivity
 
 class VideoDownloaderApplication : Application() {
 
@@ -177,10 +176,13 @@ class VideoDownloaderApplication : Application() {
     }
     val appResumeAdHelper by lazy { initAppOpenAd() }
     private fun initAppOpenAd(): AppResumeAdHelper {
+        // The browser used to be listed here as WebTabActivity. It is a destination in
+        // MainActivity's graph now, and blocking by class would suppress app-resume ads
+        // on every screen; the browser destination calls
+        // setDisableAppResumeOnScreen/setEnableAppResumeOnScreen for itself instead.
         val listClassInValid = mutableListOf<Class<*>>()
         listClassInValid.add(AdActivity::class.java)
         listClassInValid.add(SplashActivity::class.java)
-        listClassInValid.add(WebTabActivity::class.java)
         val config = AppResumeAdConfig(
             idAds = BuildConfig.OPEN_RESUME,
             listClassInValid = listClassInValid,

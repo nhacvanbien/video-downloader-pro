@@ -23,10 +23,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
+import com.smarttool.videodownloader.core.ui.components.RetainedAndroidView
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Video playback chrome. [playerView] is the ExoPlayer `PlayerView` the activity owns
- * — Compose has no player surface, so the real View is hosted via [AndroidView] and
+ * — Compose has no player surface, so the real View is hosted via [RetainedAndroidView] and
  * only the controls around it are composed.
  */
 @Composable
@@ -61,7 +61,7 @@ fun MediaScreen(
         }
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            AndroidView(factory = { playerView }, modifier = Modifier.fillMaxSize())
+            RetainedAndroidView(view = playerView, modifier = Modifier.fillMaxSize())
         }
 
         MediaControls(

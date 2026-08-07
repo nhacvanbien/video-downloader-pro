@@ -2,15 +2,18 @@ package com.smarttool.videodownloader
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import android.view.LayoutInflater
+import android.view.ContextMenu
+import android.view.ContextMenu.ContextMenuInfo
 import android.view.View
-import android.widget.Toast
-import androidx.annotation.DrawableRes
-import androidx.fragment.app.Fragment
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.navigation.compose.rememberNavController
 import com.ads.admob.data.ContentAd
 import com.ads.admob.helper.banner.BannerAdConfig
 import com.ads.admob.helper.banner.BannerAdHelper
@@ -18,95 +21,76 @@ import com.ads.admob.helper.banner.params.BannerAdParam
 import com.ads.admob.listener.BannerAdCallBack
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.play.core.review.ReviewManagerFactory
 import com.smarttool.videodownloader.android.BuildConfig
-import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.base.BaseActivity
-import com.smarttool.videodownloader.data.remote.service.AdBlockHostsRemoteDataSource
-import androidx.activity.compose.setContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
-import com.smarttool.videodownloader.android.databinding.LayoutMainContentBinding
 import com.smarttool.videodownloader.base.BaseComposeActivity
-import com.smarttool.videodownloader.core.ui.theme.AppTheme
-import com.smarttool.videodownloader.feature.main.presentation.MainScreen
-import com.smarttool.videodownloader.feature.main.presentation.MainTab
-import com.smarttool.videodownloader.dialog.DialogExitApp
-import com.smarttool.videodownloader.dialog.RatingDialog
-import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.smarttool.videodownloader.ui.downloaded.DownloadedFragment
-import com.smarttool.videodownloader.ui.processing.ProcessingFragment
-import com.smarttool.videodownloader.ui.settings.SettingsFragment
-import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.AppConstant
-import com.smarttool.videodownloader.core.ads.InterAdsManager
 import com.smarttool.videodownloader.core.UpdateEvent
+import com.smarttool.videodownloader.core.ads.AdsConstant
+import com.smarttool.videodownloader.core.ads.InterAdsManager
+import com.smarttool.videodownloader.core.ads.showInterAll
+import com.smarttool.videodownloader.core.navigation.AppNavHost
+import com.smarttool.videodownloader.core.navigation.AppRoute
+import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
+import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
+import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
+import com.smarttool.videodownloader.dialog.DialogExitApp
+import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
+import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
+import com.smarttool.videodownloader.feature.main.presentation.MainTab
+import com.smarttool.videodownloader.feature.tab.presentation.TabViewModel
+import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.vimalcvs.materialrating.DialogManager
 import org.greenrobot.eventbus.EventBus
-import kotlin.system.exitProcess
-import android.os.Bundle
-import com.smarttool.videodownloader.feature.tab.presentation.TabViewModel
-import androidx.core.view.doOnAttach
 import org.koin.android.ext.android.inject
-import com.smarttool.videodownloader.ui.browser.BrowserFragment
+import kotlin.system.exitProcess
 
+/**
+ * The app's only screen host. Everything except the splash lives in [AppNavHost].
+ *
+ * The Activity still owns three things the composition cannot: the WebView-backed
+ * controllers (they have to outlive their destination's composable), the shared
+ * permission sheet (its result launchers belong to the Activity), and the ad SDK
+ * surfaces, which are Views.
+ */
 class MainActivity : BaseComposeActivity() {
+
     private val preferenceHelper: PreferenceHelper by inject()
-
-    // Color
-    private var colorSelected = 0
-    private var colorNormal = 0
-
-    @DrawableRes
-    private var drawableBrowserNormal: Int = 0
-
-    @DrawableRes
-    private var drawableBrowserSelected: Int = 0
-
-    @DrawableRes
-    private var drawableProcessingNormal: Int = 0
-
-    @DrawableRes
-    private var drawableProcessingSelected: Int = 0
-
-    @DrawableRes
-    private var drawableDownloadedNormal: Int = 0
-
-    @DrawableRes
-    private var drawableDownloadedSelected: Int = 0
-
-    @DrawableRes
-    private var drawableSettingsNormal: Int = 0
-
-    @DrawableRes
-    private var drawableSettingsSelected: Int = 0
-
-    private var posSelectedNavigation = 0
-    private val adBlockHostsRemoteDataSource: AdBlockHostsRemoteDataSource by inject()
+    private val permissionChecker: MediaPermissionChecker by inject()
 
     private var selectedTab by mutableStateOf(MainTab.Browser)
 
-    /** Global tab store, previously inherited from BaseActivity. */
+    /** Global tab store, shared with the download workers. */
     private val tabViewModels: TabViewModel by lazy {
         (application as VideoDownloaderApplication).globalViewModel
     }
 
-    private val contentBinding by lazy { LayoutMainContentBinding.inflate(layoutInflater) }
+    private val permissionSheet by lazy {
+        StoragePermissionSheet(this, permissionChecker)
+    }
+
+    private val processingController by lazy {
+        ProcessingController(this, permissionSheet, permissionChecker)
+    }
+
+    private val webTabController by lazy {
+        WebTabController(this, permissionSheet, permissionChecker)
+    }
 
     private val bannerBinding by lazy { LayoutBannerContainerBinding.inflate(layoutInflater) }
 
-    private val bannerAdHelper by lazy { initBannerAd() }
-    private fun initBannerAd(): BannerAdHelper {
-        val config = BannerAdConfig(
-            idAds = BuildConfig.BANNER_ALL,
-            canShowAds = AdsConstant.showBannerAll,
-            canReloadAds = true,
-            adPlacement = "banner_home",
+    private val bannerAdHelper by lazy {
+        BannerAdHelper(
+            activity = this,
+            lifecycleOwner = this,
+            config = BannerAdConfig(
+                idAds = BuildConfig.BANNER_ALL,
+                canShowAds = AdsConstant.showBannerAll,
+                canReloadAds = true,
+                adPlacement = "banner_home",
+            ),
         )
-        return BannerAdHelper(activity = this, lifecycleOwner = this, config = config)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,24 +99,48 @@ class MainActivity : BaseComposeActivity() {
         loadAd()
         DialogManager.showRatingAfterAppOpened(this, AppConstant.FEEDBACK_EMAIL)
 
+        // The full-screen native ad is a destination now, so the ad manager needs a way
+        // to reach the graph instead of starting an Activity of its own.
+        InterAdsManager.openNativeFull = { openNativeFull?.invoke() }
+
+        selectedTab = initialTab()
+        processingController.start()
+
         setContent {
+            val navController = rememberNavController()
+
+            SideEffect { openNativeFull = { navController.navigate(AppRoute.NATIVE_FULL) } }
+
             AppTheme {
-                MainScreen(
+                AppNavHost(
+                    navController = navController,
+                    startDestination = startDestination(),
                     selectedTab = selectedTab,
-                    tabContent = contentBinding.root,
-                    bannerAd = bannerBinding.root,
-                    onSelectTab = ::selectTab,
+                    mainBannerAd = bannerBinding.root,
+                    processingController = processingController,
+                    webTabController = webTabController,
+                    onSelectTab = { selectedTab = it },
+                    showInterstitial = { onDone -> showInterAll(onDone) },
+                    onExitRequested = ::showDialogExitApp,
+                    onReturnedToMain = {
+                        DialogManager.showRatingAfterDoFunction(this, AppConstant.FEEDBACK_EMAIL)
+                    },
                 )
             }
         }
 
-        // The container lives inside the composition, so the first transaction has to
-        // wait until Compose has actually attached it to the window.
-        contentBinding.frameLayout.doOnAttach {
-            selectTab(initialTab(), force = true)
-            handleFinishedDownloadIntent()
-        }
+        handleFinishedDownloadIntent()
     }
+
+    /** Set once the NavHost exists; see [InterAdsManager.openNativeFull]. */
+    private var openNativeFull: (() -> Unit)? = null
+
+    /**
+     * The splash decides where the graph starts, so onboarding steps do not have to be
+     * Activities just to be reachable before the home screen exists.
+     */
+    private fun startDestination(): String =
+        intent?.getStringExtra(EXTRA_START_DESTINATION) ?: AppRoute.MAIN
 
     /** The notification that launched us decides which tab opens first. */
     private fun initialTab(): MainTab {
@@ -162,44 +170,46 @@ class MainActivity : BaseComposeActivity() {
         val downloadFileName =
             intent.getStringExtra(YoutubeDlDownloaderWorker.DOWNLOAD_FILENAME_KEY).orEmpty()
 
-        // The tab fragment needs a beat to attach before it can react to the event.
+        // The library screen needs a beat to compose before it can react to the event.
         Handler(Looper.getMainLooper()).postDelayed({
             tabViewModels.openDownloadedVideoEvent.value = downloadFileName
         }, OPEN_DOWNLOADED_DELAY_MILLIS)
     }
 
-    private fun selectTab(tab: MainTab, force: Boolean = false) {
-        if (!force && tab == selectedTab) return
-
-        selectedTab = tab
-
-        val fragment = when (tab) {
-            MainTab.Browser -> BrowserFragment()
-            MainTab.Processing -> ProcessingFragment()
-            MainTab.Downloaded -> DownloadedFragment()
-            MainTab.Settings -> SettingsFragment()
-        }
-
-        replaceFragment(fragment, tab.name)
+    /** The browser registers its WebView for a context menu; only the Activity is asked. */
+    override fun onCreateContextMenu(
+        menu: ContextMenu?,
+        v: View,
+        menuInfo: ContextMenuInfo?,
+    ) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        webTabController.onCreateContextMenu(v)
     }
 
-    private fun replaceFragment(fragment: Fragment, tag: String) {
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(contentBinding.frameLayout.id, fragment, tag)
-        fragmentTransaction.commit()
+    override fun onPause() {
+        super.onPause()
+        processingController.onActivityPause()
+        webTabController.onActivityPause()
     }
 
+    override fun onResume() {
+        super.onResume()
+        processingController.onActivityResume()
+        webTabController.onActivityResume()
+    }
 
-    override fun onBackPressed() {
-        val countOpenApp = preferenceHelper.getCountExitApp()
-
-        showDialogExitApp()
+    override fun onDestroy() {
+        super.onDestroy()
+        InterAdsManager.openNativeFull = null
+        openNativeFull = null
+        processingController.release()
+        webTabController.release()
     }
 
     private fun showDialogExitApp() {
         EventBus.getDefault().post(UpdateEvent("hide_ads"))
-        val dialogExitApp = DialogExitApp(this@MainActivity) {
+
+        val dialogExitApp = DialogExitApp(this) {
             preferenceHelper.increaseCountExitApp()
 
             finishAffinity()
@@ -213,111 +223,30 @@ class MainActivity : BaseComposeActivity() {
         }
     }
 
-    private fun showDialogRate(isExit: Boolean) {
-        EventBus.getDefault().post(UpdateEvent("hide_ads"))
-        val ratingDialog = RatingDialog(this)
-        ratingDialog.init(this, object : RatingDialog.OnPress {
-            override fun sendThank() {
-                preferenceHelper.forceRated()
-                ratingDialog.dismiss()
-
-                Toast.makeText(
-                    this@MainActivity,
-                    getString(R.string.string_thank_for_rate),
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                if (isExit) {
-                    finishAffinity()
-
-                    exitProcess(1)
-                }
-
-            }
-
-            override fun rating() {
-                val manager = ReviewManagerFactory.create(this@MainActivity)
-                val request = manager.requestReviewFlow()
-                request.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val reviewInfo = task.result
-                        val flow = manager.launchReviewFlow(this@MainActivity, reviewInfo)
-                        flow.addOnSuccessListener {
-                            preferenceHelper.forceRated()
-                            ratingDialog.dismiss()
-
-                            if (isExit) {
-                                finishAffinity()
-                                exitProcess(1)
-                            }
-
-                        }
-                    } else {
-                        preferenceHelper.forceRated()
-                        ratingDialog.dismiss()
-
-                        if (isExit) {
-                            finishAffinity()
-                            exitProcess(1)
-                        }
-                    }
-                }
-            }
-
-            override fun later() {
-                ratingDialog.dismiss()
-
-                if (isExit) {
-
-                    preferenceHelper.increaseCountExitApp()
-
-                    finishAffinity()
-                    exitProcess(1)
-                } else {
-                    preferenceHelper.increaseCountBackHome()
-                }
-
-            }
-
-        })
-
-        ratingDialog.show()
-
-        ratingDialog.setOnDismissListener {
-            EventBus.getDefault().post(UpdateEvent("show_ads"))
-        }
-    }
-
     private fun loadAd() {
         if (AdsConstant.showBannerAll) {
             bannerAdHelper.setBannerContentView(bannerBinding.frAdsBanner)
             bannerAdHelper.requestAds(BannerAdParam.Request)
             bannerAdHelper.registerAdListener(object : BannerAdCallBack {
-                override fun onAdImpression() {
-                }
-
-                override fun onAdClicked() {
-                }
-
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                }
-
-                override fun onAdFailedToShow(adError: AdError) {
-                }
-
-                override fun onAdLoaded(data: ContentAd) {
-                }
+                override fun onAdImpression() = Unit
+                override fun onAdClicked() = Unit
+                override fun onAdFailedToLoad(loadAdError: LoadAdError) = Unit
+                override fun onAdFailedToShow(adError: AdError) = Unit
+                override fun onAdLoaded(data: ContentAd) = Unit
             })
         }
-        InterAdsManager.requestInter(this, InterAdsManager.INTER_ALL)
 
+        InterAdsManager.requestInter(this, InterAdsManager.INTER_ALL)
     }
 
     companion object {
         private const val OPEN_DOWNLOADED_DELAY_MILLIS = 1000L
 
-        fun newIntent(context: Context): Intent {
-            return Intent(context, MainActivity::class.java)
-        }
+        const val EXTRA_START_DESTINATION = "start_destination"
+
+        fun newIntent(context: Context, startDestination: String? = null): Intent =
+            Intent(context, MainActivity::class.java).apply {
+                startDestination?.let { putExtra(EXTRA_START_DESTINATION, it) }
+            }
     }
 }
