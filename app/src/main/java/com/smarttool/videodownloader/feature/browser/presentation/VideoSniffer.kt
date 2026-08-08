@@ -33,6 +33,19 @@ class VideoSniffer(
     private var lastProbedPageUrl = ""
 
     /**
+     * Confirmed video/manifest content types already resolved this page, keyed by URL
+     * without query string. A page's own script can re-request the same manifest/segment or
+     * ambiguous (no-extension) endpoint repeatedly; this skips re-running
+     * [VideoUtils.getContentTypeByUrl]'s network probe for one we already know is a video.
+     * Only positive results are cached — a probe that came back [ContentType.OTHER] is never
+     * stored, since that could be a transient failure (that function swallows request
+     * exceptions as OTHER) and we'd rather re-probe a handful of extra times than silently
+     * stop detecting a real video. Cleared on navigation in [sniff].
+     */
+    private val contentTypeCache: MutableMap<String, ContentType> = mutableMapOf()
+    private var cachedForPageUrl = ""
+
+    /**
      * Feeds a page request to the detector. Returns the stand-in response that blocks an
      * ad, or null to let the WebView load the request itself.
      */
@@ -60,6 +73,8 @@ class VideoSniffer(
         regularProbes.values.flatten().forEach { it.cancel() }
         regularProbes.clear()
         lastProbedPageUrl = ""
+        contentTypeCache.clear()
+        cachedForPageUrl = ""
     }
 
     private fun sniff(
@@ -67,6 +82,8 @@ class VideoSniffer(
         request: WebResourceRequest?,
         probeEveryNonManifest: Boolean,
     ) {
+        resetContentTypeCacheOnNavigation()
+
         val requestWithCookies = request?.let { resourceRequest ->
             try {
                 CookieUtils.webRequestToHttpWithCookies(resourceRequest)
@@ -75,11 +92,12 @@ class VideoSniffer(
             }
         }
 
-        val contentType = VideoUtils.getContentTypeByUrl(
+        val cacheKey = url.substringBefore("?")
+        val contentType = getCachedContentType(cacheKey) ?: VideoUtils.getContentTypeByUrl(
             url,
             requestWithCookies?.headers,
             okHttpProxyClient,
-        )
+        ).also { putCachedContentType(cacheKey, it) }
 
         val isManifest = contentType == ContentType.M3U8 ||
             contentType == ContentType.MPD ||
@@ -99,6 +117,25 @@ class VideoSniffer(
             }
         } else if (probeEveryNonManifest || contentType == ContentType.MP4) {
             trackRegularProbe(requestWithCookies)
+        }
+    }
+
+    @Synchronized
+    private fun resetContentTypeCacheOnNavigation() {
+        val pageUrl = tabViewModel.uiState.value.tabUrl
+        if (pageUrl != cachedForPageUrl) {
+            contentTypeCache.clear()
+            cachedForPageUrl = pageUrl
+        }
+    }
+
+    @Synchronized
+    private fun getCachedContentType(cacheKey: String): ContentType? = contentTypeCache[cacheKey]
+
+    @Synchronized
+    private fun putCachedContentType(cacheKey: String, contentType: ContentType) {
+        if (contentType != ContentType.OTHER) {
+            contentTypeCache[cacheKey] = contentType
         }
     }
 

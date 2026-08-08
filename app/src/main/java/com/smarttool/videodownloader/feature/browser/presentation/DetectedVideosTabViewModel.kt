@@ -322,56 +322,75 @@ class DetectedVideosTabViewModel(
      * callback that re-ran [setButtonState] whenever either became non-empty; these two
      * helpers replicate that trigger explicitly now that the sets live in immutable state.
      */
+    /**
+     * The transform and the [setButtonState] trigger both need to see the same, up-to-date
+     * set: applying [transform] inside [MutableStateFlow.update]'s closure (rather than
+     * reading [MutableStateFlow.value] once before writing) keeps the read-modify-write
+     * atomic under the CAS retry loop `update` already runs, so two concurrent callers (this
+     * runs from up to a dozen+ threads — WebView's own request threads plus the video-service
+     * pool) can no longer race and silently drop one another's addition/removal.
+     */
     private fun updateM3u8Loading(transform: (Set<String>) -> Set<String>) {
-        val updated = transform(_uiState.value.m3u8Loading)
-        _uiState.update { it.copy(m3u8Loading = updated) }
-        if (updated.isNotEmpty()) setButtonState(DownloadButtonStateCanNotDownload())
+        var resultingSet: Set<String> = emptySet()
+        _uiState.update {
+            val updated = transform(it.m3u8Loading)
+            resultingSet = updated
+            it.copy(m3u8Loading = updated)
+        }
+        if (resultingSet.isNotEmpty()) setButtonState(DownloadButtonStateCanNotDownload())
     }
 
     private fun updateRegularLoading(transform: (Set<String>) -> Set<String>) {
-        val updated = transform(_uiState.value.regularLoading)
-        _uiState.update { it.copy(regularLoading = updated) }
-        if (updated.isNotEmpty()) setButtonState(DownloadButtonStateCanNotDownload())
+        var resultingSet: Set<String> = emptySet()
+        _uiState.update {
+            val updated = transform(it.regularLoading)
+            resultingSet = updated
+            it.copy(regularLoading = updated)
+        }
+        if (resultingSet.isNotEmpty()) setButtonState(DownloadButtonStateCanNotDownload())
     }
 
+    /**
+     * Derives and commits the new button state from whatever [DetectedVideosContract.State]
+     * is actually current at write time. The branch decision used to be computed from a
+     * [MutableStateFlow.value] snapshot taken *before* calling [MutableStateFlow.update],
+     * which let concurrent callers commit a decision based on a state that was already stale
+     * by the time it landed — the button would then flap between Loading/CanNotDownload as
+     * later, fresher decisions got overwritten by earlier, staler ones still in flight.
+     * Computing the decision inside the `update` closure itself removes that race: the CAS
+     * retry loop reruns this block against the real current state on every contended retry.
+     */
     private fun setButtonState(state: DownloadButtonState) {
-        val current = _uiState.value
-        when (state) {
-            is DownloadButtonStateCanDownload -> {
-                _uiState.update { it.copy(downloadButtonState = state) }
-            }
+        _uiState.update { current ->
+            val newButtonState = when (state) {
+                is DownloadButtonStateCanDownload -> state
 
-            is DownloadButtonStateCanNotDownload -> {
-                val detectedSize = current.detectedVideos.size
-                if (detectedSize == 0) {
-                    val impEl = current.regularLoading.find { it.contains(".mp4") }
-                    val newState = if (current.m3u8Loading.isNotEmpty() ||
-                        (current.m3u8Loading.isEmpty() && impEl != null)
-                    ) {
-                        Timber.d("setButtonState(DownloadButtonStateLoading()) in setButtonState (CanNotDownload branch) ")
-                        Timber.d("(CanNotDownload branch) -> ${current.m3u8Loading.isEmpty()} - $impEl")
+                is DownloadButtonStateCanNotDownload -> {
+                    if (current.detectedVideos.isEmpty()) {
+                        val impEl = current.regularLoading.find { it.contains(".mp4") }
+                        if (current.m3u8Loading.isNotEmpty() ||
+                            (current.m3u8Loading.isEmpty() && impEl != null)
+                        ) {
+                            DownloadButtonStateLoading()
+                        } else {
+                            DownloadButtonStateCanNotDownload()
+                        }
+                    } else {
+                        DownloadButtonStateCanDownload(current.detectedVideos.first())
+                    }
+                }
+
+                is DownloadButtonStateLoading -> {
+                    if (current.detectedVideos.isEmpty()) {
                         DownloadButtonStateLoading()
                     } else {
-                        DownloadButtonStateCanNotDownload()
-                    }
-                    _uiState.update { it.copy(downloadButtonState = newState) }
-                } else {
-                    _uiState.update {
-                        it.copy(downloadButtonState = DownloadButtonStateCanDownload(current.detectedVideos.first()))
+                        DownloadButtonStateCanDownload(current.detectedVideos.first())
                     }
                 }
-            }
 
-            is DownloadButtonStateLoading -> {
-                val list = current.detectedVideos
-                val newState = if (list.isEmpty()) {
-                    Timber.d("setButtonState(DownloadButtonStateLoading()) in setButtonState (Loading branch)")
-                    DownloadButtonStateLoading()
-                } else {
-                    DownloadButtonStateCanDownload(list.first())
-                }
-                _uiState.update { it.copy(downloadButtonState = newState) }
+                else -> state
             }
+            current.copy(downloadButtonState = newButtonState)
         }
     }
 
