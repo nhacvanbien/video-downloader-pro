@@ -1,10 +1,13 @@
 package com.smarttool.videodownloader.feature.browser.presentation
 
-import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.feature.browser.domain.usecase.GetBrowserSettingsUseCase
 import com.smarttool.videodownloader.feature.browser.domain.usecase.SetShowVideoAlertUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -21,22 +24,25 @@ class BrowserSettingsViewModel(
     private val setShowVideoAlert: SetShowVideoAlertUseCase,
 ) : ViewModel() {
 
-    val isLockPortrait = ObservableBoolean(false)
-
-    private val isShowVideoAlert = ObservableBoolean(true)
+    private val _uiState = MutableStateFlow(BrowserSettingsContract.State())
+    val uiState: StateFlow<BrowserSettingsContract.State> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             val settings = getBrowserSettings()
-            isShowVideoAlert.set(settings.showVideoAlert)
-            isLockPortrait.set(settings.lockPortrait)
+            _uiState.value = BrowserSettingsContract.State(
+                lockPortrait = settings.lockPortrait,
+                showVideoAlert = settings.showVideoAlert,
+            )
         }
     }
 
-    fun getVideoAlertState(): ObservableBoolean = isShowVideoAlert
-
-    fun setShowVideoAlertOff() {
-        isShowVideoAlert.set(false)
-        viewModelScope.launch { setShowVideoAlert(false) }
+    fun onEvent(event: BrowserSettingsContract.Event) {
+        when (event) {
+            BrowserSettingsContract.Event.DismissVideoAlert -> {
+                _uiState.update { it.copy(showVideoAlert = false) }
+                viewModelScope.launch { setShowVideoAlert(false) }
+            }
+        }
     }
 }

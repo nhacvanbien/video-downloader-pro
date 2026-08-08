@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,23 +66,25 @@ fun LibraryRoute(
         state = state,
         items = items,
         showAd = if (isPrivate) items.isNotEmpty() else true,
-        onFilterChange = viewModel::onFilterChange,
-        onSearchChange = viewModel::onSearchChange,
-        onSearchVisibleChange = viewModel::setSearchVisible,
-        onOpenSort = { viewModel.setSortSheetVisible(true) },
+        onFilterChange = { viewModel.onEvent(LibraryContract.Event.FilterChange(it)) },
+        onSearchChange = { viewModel.onEvent(LibraryContract.Event.SearchChange(it)) },
+        onSearchVisibleChange = { viewModel.onEvent(LibraryContract.Event.SetSearchVisible(it)) },
+        onOpenSort = { viewModel.onEvent(LibraryContract.Event.SetSortSheetVisible(true)) },
         onItemClick = onOpenMedia,
         onItemMenu = { menuTarget = it },
-        onToggleSelection = viewModel::toggleSelection,
+        onToggleSelection = { viewModel.onEvent(LibraryContract.Event.ToggleSelection(it)) },
         onItemLongClick = { item ->
-            viewModel.setSelectionMode(true)
-            viewModel.toggleSelection(item.mId)
+            viewModel.onEvent(LibraryContract.Event.SetSelectionMode(true))
+            viewModel.onEvent(LibraryContract.Event.ToggleSelection(item.mId))
         },
         onBack = onBack,
         selectionActions = SelectionActions(
-            onSelectAll = viewModel::selectAll,
-            onDelete = viewModel::deleteSelected,
-            onTogglePrivate = { viewModel.moveSelectedToPrivate(!isPrivate) },
-            onCancel = viewModel::clearSelection,
+            onSelectAll = { viewModel.onEvent(LibraryContract.Event.SelectAll) },
+            onDelete = { viewModel.onEvent(LibraryContract.Event.DeleteSelected) },
+            onTogglePrivate = {
+                viewModel.onEvent(LibraryContract.Event.MoveSelectedToPrivate(!isPrivate))
+            },
+            onCancel = { viewModel.onEvent(LibraryContract.Event.ClearSelection) },
             privateActionIconRes = R.drawable.ic_security,
         ),
         trailingAction = {
@@ -93,11 +96,25 @@ fun LibraryRoute(
         },
     )
 
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is LibraryContract.Effect.RenameFailed -> {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.string_invalid_data),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
+        }
+    }
+
     if (state.sortSheetVisible) {
         SortSheet(
             selected = state.query.sort,
-            onSelect = viewModel::onSortChange,
-            onDismiss = { viewModel.setSortSheetVisible(false) },
+            onSelect = { viewModel.onEvent(LibraryContract.Event.SortChange(it)) },
+            onDismiss = { viewModel.onEvent(LibraryContract.Event.SetSortSheetVisible(false)) },
         )
     }
 
@@ -112,13 +129,7 @@ fun LibraryRoute(
             onRename = {
                 closeSheetThen {
                     DialogRename(context, target.fileName) { newName ->
-                        viewModel.rename(context, target, newName) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.string_invalid_data),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        }
+                        viewModel.onEvent(LibraryContract.Event.Rename(context, target, newName))
                     }.show()
                 }
             },
@@ -127,12 +138,16 @@ fun LibraryRoute(
             },
             onTogglePrivate = {
                 closeSheetThen {
-                    viewModel.toggleSelection(target.mId)
-                    viewModel.moveSelectedToPrivate(!isPrivate)
+                    viewModel.onEvent(LibraryContract.Event.ToggleSelection(target.mId))
+                    viewModel.onEvent(LibraryContract.Event.MoveSelectedToPrivate(!isPrivate))
                 }
             },
             onDelete = {
-                closeSheetThen { DialogConfirmDelete(context) { viewModel.delete(target) }.show() }
+                closeSheetThen {
+                    DialogConfirmDelete(context) {
+                        viewModel.onEvent(LibraryContract.Event.Delete(target))
+                    }.show()
+                }
             },
             onDismiss = { menuTarget = null },
         )

@@ -20,22 +20,32 @@ class SecurityViewModel(
     private val resetPin: ResetPinUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SecurityUiState())
-    val uiState: StateFlow<SecurityUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(SecurityContract.State())
+    val uiState: StateFlow<SecurityContract.State> = _uiState.asStateFlow()
 
     /** Emitted once [confirm] has finished reading from, or writing to, storage. */
-    private val _results = Channel<SecurityResult>(Channel.BUFFERED)
-    val results: Flow<SecurityResult> = _results.receiveAsFlow()
+    private val _effect = Channel<SecurityContract.Effect>(Channel.BUFFERED)
+    val effect: Flow<SecurityContract.Effect> = _effect.receiveAsFlow()
 
-    fun onAnswerChange(answer: String) {
+    fun onEvent(event: SecurityContract.Event) {
+        when (event) {
+            is SecurityContract.Event.AnswerChange -> onAnswerChange(event.answer)
+            is SecurityContract.Event.QuestionSelected -> onQuestionSelected(event.index)
+            is SecurityContract.Event.SetQuestionPickerVisible ->
+                setQuestionPickerVisible(event.visible)
+            is SecurityContract.Event.Confirm -> confirm(event.isRecovery, event.pendingPin)
+        }
+    }
+
+    private fun onAnswerChange(answer: String) {
         _uiState.update { it.copy(answer = answer) }
     }
 
-    fun onQuestionSelected(index: Int) {
+    private fun onQuestionSelected(index: Int) {
         _uiState.update { it.copy(questionIndex = index, showQuestionPicker = false) }
     }
 
-    fun setQuestionPickerVisible(visible: Boolean) {
+    private fun setQuestionPickerVisible(visible: Boolean) {
         _uiState.update { it.copy(showQuestionPicker = visible) }
     }
 
@@ -43,27 +53,27 @@ class SecurityViewModel(
      * @param isRecovery true when the user is answering the question to recover a
      *   forgotten PIN, false when they are setting the question up for a new PIN.
      */
-    fun confirm(isRecovery: Boolean, pendingPin: String) {
+    private fun confirm(isRecovery: Boolean, pendingPin: String) {
         val state = _uiState.value
         val answer = state.answer.trim()
 
         if (answer.isEmpty()) {
-            _results.trySend(SecurityResult.EmptyAnswer)
+            _effect.trySend(SecurityContract.Effect.EmptyAnswer)
             return
         }
 
         viewModelScope.launch {
             if (!isRecovery) {
                 saveSecurityQuestion(pendingPin, state.questionIndex, answer)
-                _results.send(SecurityResult.Saved)
+                _effect.send(SecurityContract.Effect.Saved)
                 return@launch
             }
 
             if (verifySecurityAnswer(state.questionIndex, answer)) {
                 resetPin()
-                _results.send(SecurityResult.RecoveryCorrect)
+                _effect.send(SecurityContract.Effect.RecoveryCorrect)
             } else {
-                _results.send(SecurityResult.RecoveryIncorrect)
+                _effect.send(SecurityContract.Effect.RecoveryIncorrect)
             }
         }
     }

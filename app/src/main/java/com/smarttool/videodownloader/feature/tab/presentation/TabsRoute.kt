@@ -1,6 +1,7 @@
 package com.smarttool.videodownloader.feature.tab.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
@@ -15,21 +16,30 @@ fun TabsRoute(
     val viewModel: TabsViewModel = koinViewModel()
     val tabs by viewModel.tabs.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is TabsContract.Effect.TabOpened -> onOpenUrl(effect.tab.url)
+                is TabsContract.Effect.TabCreated -> onOpenUrl(effect.tab.url)
+            }
+        }
+    }
+
     TabsScreen(
         tabs = tabs,
         onOpenTab = { tab ->
             showInterstitial {
                 if (tab.url.isNotEmpty()) {
-                    viewModel.onOpenTab(tab) { onOpenUrl(tab.url) }
+                    viewModel.onEvent(TabsContract.Event.OpenTab(tab))
                 }
             }
         },
-        onDeleteTab = viewModel::onDeleteTab,
-        onCloseAll = viewModel::onCloseAll,
+        onDeleteTab = { viewModel.onEvent(TabsContract.Event.DeleteTab(it)) },
+        onCloseAll = { viewModel.onEvent(TabsContract.Event.CloseAll) },
         onNewTab = {
-            viewModel.onCreateTab(WebTabFactory.createTabModelFromInput(DEFAULT_TAB_URL)) {
-                onOpenUrl(DEFAULT_TAB_URL)
-            }
+            viewModel.onEvent(
+                TabsContract.Event.CreateTab(WebTabFactory.createTabModelFromInput(DEFAULT_TAB_URL)),
+            )
         },
     )
 }

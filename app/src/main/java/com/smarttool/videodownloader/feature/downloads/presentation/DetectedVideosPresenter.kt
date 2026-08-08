@@ -10,6 +10,7 @@ import com.smarttool.videodownloader.core.file.FileNameCleaner
 import com.smarttool.videodownloader.core.ui.dialogs.DialogRename
 import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
+import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosContract
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosTabViewModel
 import com.smarttool.videodownloader.feature.downloads.domain.model.DownloadTabListener
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
@@ -61,9 +62,7 @@ class DetectedVideosPresenter(
 
     fun rename(video: DetectedVideoUi) {
         DialogRename(activity, video.title) { newName ->
-            val titles = detector.formatsTitles.get()?.toMutableMap() ?: mutableMapOf()
-            titles[video.id] = newName
-            detector.formatsTitles.set(titles)
+            detector.onEvent(DetectedVideosContract.Event.RenameTitle(video.id, newName))
             refresh()
         }.show()
     }
@@ -93,7 +92,7 @@ class DetectedVideosPresenter(
     }
 
     override fun onPreviewVideo(videoInfo: VideoInfo, format: String, isForce: Boolean) {
-        val title = detector.formatsTitles.get()?.get(videoInfo.id).orEmpty()
+        val title = detector.uiState.value.formatTitles[videoInfo.id].orEmpty()
         val currFormat = videoInfo.formats.formats.filter {
             it.format?.contains(format) ?: false
         }
@@ -115,31 +114,27 @@ class DetectedVideosPresenter(
             ),
         )
 
-        processingViewModel.start(info)
+        processingViewModel.onEvent(ProcessingContract.Event.Start(info))
         isSheetVisible = false
 
         if (announceDownloadStart) toast(R.string.download_started)
     }
 
     override fun onSelectFormat(videoInfo: VideoInfo, format: String) {
-        val formats = detector.selectedFormats.get()?.toMutableMap() ?: mutableMapOf()
-        formats[videoInfo.id] = format
-        detector.selectedFormats.set(formats)
+        detector.onEvent(DetectedVideosContract.Event.SelectFormat(videoInfo.id, format))
     }
 
     /** Rebuilds the sheet model from the detector's current list and the user's edits. */
     private fun refresh() {
-        val titles = detector.formatsTitles.get().orEmpty()
-        val formats = detector.selectedFormats.get().orEmpty()
+        val state = detector.uiState.value
 
-        videos = detector.detectedVideosList.get()
-            .orEmpty()
+        videos = state.detectedVideos
             .reversed()
-            .map { mapper(it, titles, formats) }
+            .map { mapper(it, state.formatTitles, state.selectedFormats) }
     }
 
     private fun findVideoInfo(id: String): VideoInfo? =
-        detector.detectedVideosList.get()?.firstOrNull { it.id == id }
+        detector.uiState.value.detectedVideos.firstOrNull { it.id == id }
 
     private fun toast(messageRes: Int) {
         Toast.makeText(activity, activity.getString(messageRes), Toast.LENGTH_SHORT).show()

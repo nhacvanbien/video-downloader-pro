@@ -34,7 +34,7 @@ private val RowSubtitleColor = Color(0xFFBFBFBF)
 
 @Composable
 fun SettingsScreen(
-    state: SettingsUiState,
+    state: SettingsContract.State,
     onLanguageClick: () -> Unit,
     onRateClick: () -> Unit,
     onShareClick: () -> Unit,

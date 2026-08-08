@@ -53,7 +53,7 @@ import com.smarttool.videodownloader.feature.library.domain.model.MediaFilter
 @Composable
 fun LibraryScreen(
     title: String,
-    state: LibraryUiState,
+    state: LibraryContract.State,
     items: List<VideoTaskItem>,
     showAd: Boolean,
     onFilterChange: (MediaFilter) -> Unit,
@@ -165,7 +165,7 @@ fun LibraryScreen(
 @Composable
 private fun LibraryToolbar(
     title: String,
-    state: LibraryUiState,
+    state: LibraryContract.State,
     onSearchChange: (String) -> Unit,
     onSearchVisibleChange: (Boolean) -> Unit,
     onBack: (() -> Unit)?,

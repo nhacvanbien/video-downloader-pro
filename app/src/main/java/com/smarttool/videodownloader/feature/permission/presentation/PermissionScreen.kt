@@ -27,25 +27,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
 import com.smarttool.videodownloader.core.ui.components.ScreenGradient
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
-import com.smarttool.videodownloader.core.ads.AdsConstant
-
-data class PermissionUiState(
-    val storageGranted: Boolean = false,
-    val notificationGranted: Boolean = false,
-    val showNotificationRow: Boolean = true,
-) {
-    /** The skip button becomes "Continue" only once everything asked for is granted. */
-    val allGranted: Boolean get() = storageGranted && notificationGranted
-}
 
 @Composable
 fun PermissionScreen(
-    state: PermissionUiState,
+    state: PermissionContract.State,
     onSkip: () -> Unit,
     onRequestStorage: () -> Unit,
     onRequestNotification: () -> Unit,

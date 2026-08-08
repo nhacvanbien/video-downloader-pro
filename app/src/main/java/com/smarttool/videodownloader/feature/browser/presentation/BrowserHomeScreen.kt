@@ -47,7 +47,7 @@ import com.smarttool.videodownloader.feature.browser.domain.model.PopularSite
 
 @Composable
 fun BrowserHomeScreen(
-    state: BrowserHomeUiState,
+    state: BrowserHomeContract.State,
     sites: List<PopularSite>,
     onQueryChange: (String) -> Unit,
     onSubmitQuery: () -> Unit,

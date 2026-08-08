@@ -1,6 +1,7 @@
 package com.smarttool.videodownloader.feature.browser.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
@@ -22,19 +23,29 @@ fun BrowserHomeRoute(
     val viewModel: BrowserHomeViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is BrowserHomeContract.Effect.TabReady -> onOpenUrl(effect.tab.url)
+            }
+        }
+    }
+
     val openTab: (String) -> Unit = { input ->
-        viewModel.openTab(WebTabFactory.createTabModelFromInput(input)) { onOpenUrl(input) }
+        viewModel.onEvent(
+            BrowserHomeContract.Event.OpenTab(WebTabFactory.createTabModelFromInput(input)),
+        )
     }
 
     BrowserHomeScreen(
         state = state,
         sites = viewModel.sites,
-        onQueryChange = viewModel::onQueryChange,
+        onQueryChange = { viewModel.onEvent(BrowserHomeContract.Event.QueryChange(it)) },
         onSubmitQuery = {
             if (state.query.isNotEmpty()) {
                 showInterstitial {
                     openTab(state.query)
-                    viewModel.clearQuery()
+                    viewModel.onEvent(BrowserHomeContract.Event.ClearQuery)
                 }
             }
         },

@@ -36,7 +36,7 @@ fun SettingsRoute(onOpenLanguage: () -> Unit) {
     // Keyed on resume, not on first composition: coming back from the share chooser or
     // the policy page has to lift the app-resume suppression the click applied.
     LifecycleResumeEffect(Unit) {
-        viewModel.refresh()
+        viewModel.onEvent(SettingsContract.Event.Refresh)
         VideoDownloaderApplication.instance.appResumeAdHelper.setEnableAppResumeOnScreen()
         onPauseOrDispose { }
     }

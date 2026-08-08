@@ -18,8 +18,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.databinding.Observable
-import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat.setAudioMuted
 import com.smarttool.videodownloader.android.R
@@ -33,11 +31,12 @@ import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanNotDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
+import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosContract
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosTabViewModel
 import com.smarttool.videodownloader.feature.browser.presentation.VideoSniffer
+import com.smarttool.videodownloader.feature.browser.presentation.WebTabPipelineContract
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import kotlinx.coroutines.Dispatchers
@@ -136,7 +135,7 @@ class ProcessingController(
         observeDetectionState()
         observeLoadPageEvent()
 
-        tabViewModel.loadPage(currentUrl)
+        tabViewModel.onEvent(WebTabPipelineContract.Event.LoadPage(currentUrl))
     }
 
     fun release() {
@@ -145,7 +144,7 @@ class ProcessingController(
 
         // Probes are stopped before the WebView goes away; the rest of the detector's
         // teardown happens in its `onCleared`, when `viewModels.clear()` runs below.
-        detector.cancelAllCheckJobs()
+        detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
         sniffer.cancelPendingProbes()
         detected = null
 
@@ -170,28 +169,34 @@ class ProcessingController(
     // ------------------------------------------------------------------ observers
 
     private fun observeDetectionState() {
-        detector.downloadButtonState.addOnPropertyChangedCallback(
-            object : OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    uiState = uiState.copy(
-                        downloadButtonState = when (detector.downloadButtonState.get()) {
-                            is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
-                            is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
-                            else -> DownloadButtonUiState.Disabled
-                        },
-                    )
-                }
-            },
-        )
-
-        detector.showDetectedVideosEvent.observe(activity) {
-            detector.detectedVideosList.get()?.firstOrNull() ?: return@observe
-
-            if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
+        activity.lifecycleScope.launch {
+            detector.uiState.collect { state ->
+                uiState = uiState.copy(
+                    downloadButtonState = when (state.downloadButtonState) {
+                        is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
+                        is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
+                        else -> DownloadButtonUiState.Disabled
+                    },
+                )
+            }
         }
 
-        detector.videoPushedEvent.observe(activity) {
-            toast(R.string.string_video_found)
+        activity.lifecycleScope.launch {
+            detector.effect.collect { effect ->
+                when (effect) {
+                    DetectedVideosContract.Effect.ShowDetectedVideos -> {
+                        if (detector.uiState.value.detectedVideos.isEmpty()) return@collect
+
+                        if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
+                    }
+
+                    DetectedVideosContract.Effect.VideoPushed -> toast(R.string.string_video_found)
+
+                    // Never surfaced today — carried over unchanged from the pre-Contract
+                    // `loginRequiredEvent`, which also had no observer anywhere.
+                    is DetectedVideosContract.Effect.LoginRequired -> Unit
+                }
+            }
         }
     }
 
@@ -201,10 +206,14 @@ class ProcessingController(
      * all, and this controller owns the only one there is.
      */
     private fun observeLoadPageEvent() {
-        tabViewModel.loadPageEvent.observe(activity) { tab ->
-            if (tab.getUrl().startsWith("http")) {
-                webView?.stopLoading()
-                webView?.loadUrl(tab.getUrl())
+        activity.lifecycleScope.launch {
+            tabViewModel.effect.collect { effect ->
+                if (effect is WebTabPipelineContract.Effect.LoadPage &&
+                    effect.tab.getUrl().startsWith("http")
+                ) {
+                    webView?.stopLoading()
+                    webView?.loadUrl(effect.tab.getUrl())
+                }
             }
         }
     }
@@ -217,11 +226,11 @@ class ProcessingController(
 
         // Anything that is not an http(s) link cannot be probed, so reset the button.
         if (url.isBlank() || !url.startsWith("http")) {
-            detector.downloadButtonState.set(DownloadButtonStateCanNotDownload())
+            detector.onEvent(DetectedVideosContract.Event.MarkCanNotDownload)
             return
         }
 
-        tabViewModel.loadPage(url)
+        tabViewModel.onEvent(WebTabPipelineContract.Event.LoadPage(url))
     }
 
     fun pasteFromClipboard() {
@@ -247,19 +256,19 @@ class ProcessingController(
     }
 
     fun requestDetectedVideos() {
-        detector.showVideoInfo()
+        detector.onEvent(DetectedVideosContract.Event.ShowVideoInfo)
     }
 
     fun onPauseResume(info: ProgressInfo) {
         if (info.downloadStatus == VideoTaskState.PAUSE) {
-            processingViewModel.resume(info)
+            processingViewModel.onEvent(ProcessingContract.Event.Resume(info))
         } else {
-            processingViewModel.pause(info)
+            processingViewModel.onEvent(ProcessingContract.Event.Pause(info))
         }
     }
 
     fun cancel(info: ProgressInfo) {
-        processingViewModel.cancel(info, removeFile = true)
+        processingViewModel.onEvent(ProcessingContract.Event.Cancel(info, removeFile = true))
     }
 
     // ------------------------------------------------------------------ web view
@@ -276,13 +285,15 @@ class ProcessingController(
     private val webViewClient = object : WebViewClient() {
 
         override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
-            val title = tabViewModel.currentTitle.get()
+            val title = tabViewModel.uiState.value.currentTitle
             val userAgent = view?.settings?.userAgentString ?: BrowserUserAgent.MOBILE
 
             if (url != null) {
                 activity.lifecycleScope.launch(Dispatchers.IO) {
-                    detector.onStartPage(url, userAgent)
-                    tabViewModel.onUpdateVisitedHistory(url, title, userAgent)
+                    detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent))
+                    tabViewModel.onEvent(
+                        WebTabPipelineContract.Event.UpdateVisitedHistory(url, title, userAgent),
+                    )
                 }
             }
 
@@ -307,7 +318,7 @@ class ProcessingController(
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
-            tabViewModel.onStartPage(url, view.title)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.StartPage(url, view.title))
         }
 
         override fun shouldOverrideUrlLoading(
@@ -318,8 +329,8 @@ class ProcessingController(
             val isAd = tabViewModel.isAd(url)
 
             return if (url.startsWith("http") && request.isForMainFrame && !isAd) {
-                if (!tabViewModel.isTabInputFocused.get()) {
-                    tabViewModel.setTabTextInput(url)
+                if (!tabViewModel.uiState.value.isTabInputFocused) {
+                    tabViewModel.onEvent(WebTabPipelineContract.Event.SetTabTextInput(url))
                 }
                 false
             } else {
@@ -329,7 +340,7 @@ class ProcessingController(
 
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
-            tabViewModel.finishPage(url)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.FinishPage(url))
         }
 
         override fun onRenderProcessGone(
@@ -372,12 +383,16 @@ class ProcessingController(
             val transport = resultMsg!!.obj as WebView.WebViewTransport
             transport.webView = WebView(view.context)
 
-            tabViewModel.openPageEvent.value = WebTab(
-                webview = transport.webView,
-                resultMsg = resultMsg,
-                url = "url",
-                title = view.title,
-                iconBytes = null,
+            tabViewModel.onEvent(
+                WebTabPipelineContract.Event.NotifyPageOpened(
+                    WebTab(
+                        webview = transport.webView,
+                        resultMsg = resultMsg,
+                        url = "url",
+                        title = view.title,
+                        iconBytes = null,
+                    ),
+                ),
             )
             return true
         }
@@ -387,8 +402,7 @@ class ProcessingController(
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
 
-            tabViewModel.setProgress(newProgress)
-            tabViewModel.isShowProgress.set(newProgress != 100)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.SetProgress(newProgress))
         }
     }
 

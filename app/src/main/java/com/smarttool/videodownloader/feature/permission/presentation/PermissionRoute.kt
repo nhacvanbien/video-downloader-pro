@@ -30,7 +30,11 @@ fun PermissionRoute(onContinue: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.completed.collect { onContinue() }
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is PermissionContract.Effect.Completed -> onContinue()
+            }
+        }
     }
 
     val showGoToSettings = {
@@ -57,14 +61,14 @@ fun PermissionRoute(onContinue: () -> Unit) {
     val requestNotification = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
-        viewModel.refreshGrants()
+        viewModel.onEvent(PermissionContract.Event.RefreshGrants)
         if (!granted) showGoToSettings()
     }
 
     val requestMediaVideo = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
-        viewModel.refreshGrants()
+        viewModel.onEvent(PermissionContract.Event.RefreshGrants)
         if (!granted) showGoToSettings()
     }
 
@@ -78,21 +82,21 @@ fun PermissionRoute(onContinue: () -> Unit) {
     val requestLegacyStorage = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { results ->
-        viewModel.refreshGrants()
+        viewModel.onEvent(PermissionContract.Event.RefreshGrants)
         if (results.values.any { !it }) showGoToSettings()
     }
 
     // Also re-runs after the system settings round trip, which is the only way a grant
     // can change without one of the launchers above reporting it.
     LifecycleResumeEffect(Unit) {
-        viewModel.refreshGrants()
+        viewModel.onEvent(PermissionContract.Event.RefreshGrants)
         VideoDownloaderApplication.instance.appResumeAdHelper.setEnableAppResumeOnScreen()
         onPauseOrDispose { }
     }
 
     PermissionScreen(
         state = state,
-        onSkip = viewModel::complete,
+        onSkip = { viewModel.onEvent(PermissionContract.Event.Complete) },
         onRequestStorage = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 requestMediaImages.launch(Manifest.permission.READ_MEDIA_IMAGES)
@@ -110,6 +114,6 @@ fun PermissionRoute(onContinue: () -> Unit) {
                 requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         },
-        onContinue = viewModel::complete,
+        onContinue = { viewModel.onEvent(PermissionContract.Event.Complete) },
     )
 }

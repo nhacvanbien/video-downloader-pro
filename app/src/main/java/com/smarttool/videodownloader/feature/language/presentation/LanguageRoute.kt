@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,7 +18,6 @@ import com.smarttool.videodownloader.feature.language.domain.model.AppLanguage
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetLocalizedStringUseCase
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetSystemLanguageUseCase
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -42,7 +40,6 @@ fun LanguageRoute(
 
     val context = LocalContext.current
     val activity = context.findComponentActivity()
-    val scope = rememberCoroutineScope()
 
     val titleRes = if (fromSplash && AdsConstant.newUILfo) {
         R.string.string_select_languages
@@ -58,7 +55,7 @@ fun LanguageRoute(
     var showLoadingOverlay by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.load(initialCode, preselect = !fromSplash)
+        viewModel.onEvent(LanguageContract.Event.Load(initialCode, preselect = !fromSplash))
 
         if (!fromSplash) return@LaunchedEffect
 
@@ -68,6 +65,27 @@ fun LanguageRoute(
         showLoadingOverlay = true
         delay(LOADING_OVERLAY_MILLIS)
         showLoadingOverlay = false
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is LanguageContract.Effect.Confirmed -> {
+                    activity.setLocale(effect.language.code)
+                    SystemUtil.setPreLanguage(context, effect.language.code)
+
+                    if (fromSplash) onApplied(effect.language) else onBack()
+                }
+
+                LanguageContract.Effect.ConfirmFailed -> {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.string_please_select_language),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
+        }
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -84,26 +102,11 @@ fun LanguageRoute(
         showLoadingOverlay = showLoadingOverlay,
         headerTitle = headerTitle,
         onSelect = { code ->
-            viewModel.select(code)
+            viewModel.onEvent(LanguageContract.Event.Select(code))
             if (fromSplash) headerTitle = localizedString(code, titleRes)
         },
         onConfirm = {
-            scope.launch {
-                val selected = viewModel.confirm(markStartShown = fromSplash)
-
-                if (selected == null) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.string_please_select_language),
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                } else {
-                    activity.setLocale(selected.code)
-                    SystemUtil.setPreLanguage(context, selected.code)
-
-                    if (fromSplash) onApplied(selected) else onBack()
-                }
-            }
+            viewModel.onEvent(LanguageContract.Event.Confirm(markStartShown = fromSplash))
         },
         onBack = onBack,
     )

@@ -5,6 +5,7 @@ import com.smarttool.videodownloader.feature.tab.domain.TabsRepository
 import com.smarttool.videodownloader.feature.tab.domain.usecase.ClearTabsUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.DeleteTabUseCase
+import com.smarttool.videodownloader.feature.tab.domain.usecase.GetSelectedTabUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.OpenTabUseCase
 import com.smarttool.videodownloader.feature.tab.presentation.TabsViewModel
@@ -18,5 +19,6 @@ val tabModule = module {
     factory { ClearTabsUseCase(get()) }
     factory { OpenTabUseCase(get()) }
     factory { CreateTabUseCase(get()) }
+    factory { GetSelectedTabUseCase(get()) }
     viewModel { TabsViewModel(get(), get(), get(), get(), get()) }
 }

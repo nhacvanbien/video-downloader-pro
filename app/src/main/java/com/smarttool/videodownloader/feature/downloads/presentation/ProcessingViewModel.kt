@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.core.coroutines.AppScope
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
-import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.CancelDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ObserveActiveDownloadsUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.PauseDownloadUseCase
@@ -39,23 +38,15 @@ class ProcessingViewModel(
     val downloads: StateFlow<List<ProgressInfo>> = observeActiveDownloads()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun start(videoInfo: VideoInfo) {
-        appScope.launch { startDownload(videoInfo) }
-    }
+    fun onEvent(event: ProcessingContract.Event) {
+        when (event) {
+            is ProcessingContract.Event.Start -> appScope.launch { startDownload(event.videoInfo) }
+            is ProcessingContract.Event.Pause -> appScope.launch { pauseDownload(event.progressInfo) }
+            is ProcessingContract.Event.Resume -> appScope.launch { resumeDownload(event.progressInfo) }
+            is ProcessingContract.Event.Cancel ->
+                appScope.launch { cancelDownload(event.progressInfo, event.removeFile) }
 
-    fun pause(progressInfo: ProgressInfo) {
-        appScope.launch { pauseDownload(progressInfo) }
-    }
-
-    fun resume(progressInfo: ProgressInfo) {
-        appScope.launch { resumeDownload(progressInfo) }
-    }
-
-    fun cancel(progressInfo: ProgressInfo, removeFile: Boolean) {
-        appScope.launch { cancelDownload(progressInfo, removeFile) }
-    }
-
-    fun stopAndSave(progressInfo: ProgressInfo) {
-        stopAndSaveDownload(progressInfo)
+            is ProcessingContract.Event.StopAndSave -> stopAndSaveDownload(event.progressInfo)
+        }
     }
 }

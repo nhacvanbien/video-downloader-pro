@@ -35,7 +35,9 @@ fun MediaRoute(
     val context = LocalContext.current
     val activity = context.findComponentActivity()
 
-    LaunchedEffect(url) { viewModel.load(title = title, showMoreAction = isDownloaded) }
+    LaunchedEffect(url) {
+        viewModel.onEvent(MediaContract.Event.Load(title = title, showMoreAction = isDownloaded))
+    }
 
     val headers = remember(headersJson) { parseHeaders(headersJson) }
 
@@ -49,7 +51,7 @@ fun MediaRoute(
             speed = settings.speed,
             fillMode = settings.fillMode,
             looping = { viewModel.uiState.value.looping },
-            onPlayingChanged = viewModel::onPlaybackStateChanged,
+            onPlayingChanged = { viewModel.onEvent(MediaContract.Event.PlaybackStateChanged(it)) },
         )
     }
 
@@ -63,11 +65,26 @@ fun MediaRoute(
 
     LaunchedEffect(holder) {
         while (true) {
-            viewModel.onProgress(
-                positionMs = holder.player.currentPosition,
-                durationMs = holder.player.duration.coerceAtLeast(0),
+            viewModel.onEvent(
+                MediaContract.Event.Progress(
+                    positionMs = holder.player.currentPosition,
+                    durationMs = holder.player.duration.coerceAtLeast(0),
+                ),
             )
             delay(PROGRESS_INTERVAL_MILLIS)
+        }
+    }
+
+    // Speed/fill-mode changes are one-shot player mutations, not re-render-driven state —
+    // collecting them as effects (rather than reacting to uiState) keeps the initial
+    // Load-driven state set and unrelated recompositions from re-applying them.
+    LaunchedEffect(holder) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is MediaContract.Effect.SpeedChanged -> holder.player.setPlaybackSpeed(effect.speed)
+                is MediaContract.Effect.LoopingChanged -> Unit // read live via the `looping` lambda above
+                is MediaContract.Effect.FillModeChanged -> holder.setFillMode(effect.fillMode)
+            }
         }
     }
 
@@ -94,9 +111,9 @@ fun MediaRoute(
         onMore = { /* detail sheet is opened from the library screens */ },
         onPlayPause = holder::togglePlayback,
         onSeek = { holder.player.seekTo(it) },
-        onCycleSpeed = { holder.player.setPlaybackSpeed(viewModel.cycleSpeed()) },
-        onToggleLoop = { viewModel.toggleLooping() },
-        onToggleFill = { holder.setFillMode(viewModel.toggleFillMode()) },
+        onCycleSpeed = { viewModel.onEvent(MediaContract.Event.CycleSpeed) },
+        onToggleLoop = { viewModel.onEvent(MediaContract.Event.ToggleLooping) },
+        onToggleFill = { viewModel.onEvent(MediaContract.Event.ToggleFillMode) },
     )
 }
 

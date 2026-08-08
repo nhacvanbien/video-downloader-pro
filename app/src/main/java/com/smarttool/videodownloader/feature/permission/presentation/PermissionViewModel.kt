@@ -24,17 +24,24 @@ class PermissionViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
-        PermissionUiState(
+        PermissionContract.State(
             showNotificationRow = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU,
         ),
     )
-    val uiState: StateFlow<PermissionUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<PermissionContract.State> = _uiState.asStateFlow()
 
-    private val _completed = Channel<Unit>(Channel.BUFFERED)
-    val completed: Flow<Unit> = _completed.receiveAsFlow()
+    private val _effect = Channel<PermissionContract.Effect>(Channel.BUFFERED)
+    val effect: Flow<PermissionContract.Effect> = _effect.receiveAsFlow()
+
+    fun onEvent(event: PermissionContract.Event) {
+        when (event) {
+            is PermissionContract.Event.RefreshGrants -> refreshGrants()
+            is PermissionContract.Event.Complete -> complete()
+        }
+    }
 
     /** Re-read after every launcher result and on resume, the only ways a grant changes. */
-    fun refreshGrants() {
+    private fun refreshGrants() {
         _uiState.update {
             it.copy(
                 storageGranted = checker.hasStorage(),
@@ -43,10 +50,10 @@ class PermissionViewModel(
         }
     }
 
-    fun complete() {
+    private fun complete() {
         viewModelScope.launch {
             completePermissionStep()
-            _completed.send(Unit)
+            _effect.send(PermissionContract.Effect.Completed)
         }
     }
 }

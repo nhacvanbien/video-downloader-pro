@@ -2,7 +2,6 @@ package com.smarttool.videodownloader.feature.history.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
 import com.smarttool.videodownloader.feature.history.domain.usecase.AddBookmarkUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.ClearHistoryUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.DeleteHistoryEntryUseCase
@@ -16,15 +15,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
-enum class HistoryMode { HISTORY, BOOKMARK }
-
-data class HistoryUiState(
-    val mode: HistoryMode = HistoryMode.HISTORY,
-    val entries: List<HistoryEntry> = emptyList(),
-    val searchQuery: String = "",
-    val isSearchActive: Boolean = false,
-)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HistoryViewModel(
@@ -46,9 +36,9 @@ class HistoryViewModel(
         }
     }
 
-    val uiState: StateFlow<HistoryUiState> =
+    val uiState: StateFlow<HistoryContract.State> =
         combine(entries, searchQuery, isSearchActive) { entries, query, searchActive ->
-            HistoryUiState(
+            HistoryContract.State(
                 mode = mode,
                 entries = entries,
                 searchQuery = query,
@@ -57,27 +47,22 @@ class HistoryViewModel(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = HistoryUiState(mode = mode),
+            initialValue = HistoryContract.State(mode = mode),
         )
 
-    fun onSearchQueryChange(query: String) {
-        searchQuery.value = query
-    }
-
-    fun onSearchActiveChange(active: Boolean) {
-        isSearchActive.value = active
-        if (!active) searchQuery.value = ""
-    }
-
-    fun onDeleteEntry(entry: HistoryEntry) {
-        viewModelScope.launch { deleteEntry(entry) }
-    }
-
-    fun onClearHistory() {
-        viewModelScope.launch { clearHistory() }
-    }
-
-    fun onAddBookmark(name: String, url: String) {
-        viewModelScope.launch { addBookmark(name, url) }
+    fun onEvent(event: HistoryContract.Event) {
+        when (event) {
+            is HistoryContract.Event.SearchQueryChange -> searchQuery.value = event.query
+            is HistoryContract.Event.SearchActiveChange -> {
+                isSearchActive.value = event.active
+                if (!event.active) searchQuery.value = ""
+            }
+            is HistoryContract.Event.DeleteEntry ->
+                viewModelScope.launch { deleteEntry(event.entry) }
+            is HistoryContract.Event.ClearHistory ->
+                viewModelScope.launch { clearHistory() }
+            is HistoryContract.Event.AddBookmark ->
+                viewModelScope.launch { addBookmark(event.name, event.url) }
+        }
     }
 }

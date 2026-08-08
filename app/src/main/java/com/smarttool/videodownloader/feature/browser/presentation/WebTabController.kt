@@ -30,8 +30,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.databinding.Observable
-import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.ads.admob.data.ContentAd
@@ -59,6 +57,7 @@ import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.network.entity.HistoryItem
+import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
 import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
@@ -71,9 +70,11 @@ import com.smarttool.videodownloader.feature.downloads.presentation.DownloadButt
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingViewModel
 import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
 import com.smarttool.videodownloader.feature.history.domain.usecase.SaveHistoryEntryUseCase
-import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
-import com.smarttool.videodownloader.feature.tab.presentation.TabModelViewModel
+import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
+import com.smarttool.videodownloader.feature.tab.domain.usecase.GetSelectedTabUseCase
+import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
+import com.smarttool.videodownloader.feature.tab.domain.usecase.OpenTabUseCase
 import com.vimalcvs.materialrating.DialogManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -118,10 +119,8 @@ class WebTabController(
     private var viewModels = ScopedViewModelStore()
 
     private lateinit var tabViewModel: WebTabViewModel
-    private lateinit var privateVideoViewModel: PrivateVideoViewModel
     private lateinit var settingsViewModel: BrowserSettingsViewModel
     private lateinit var detector: DetectedVideosTabViewModel
-    private lateinit var tabModelViewModel: TabModelViewModel
     private lateinit var processingViewModel: ProcessingViewModel
     private lateinit var sniffer: VideoSniffer
 
@@ -139,6 +138,11 @@ class WebTabController(
     private val okHttpProxyClient: OkHttpProxyClient by inject()
     private val detectedVideoUiMapper: DetectedVideoUiMapper by inject()
     private val sanitizeFileName: SanitizeFileNameUseCase by inject()
+    private val videoTaskItemRepository: VideoTaskItemRepository by inject()
+    private val observeTabs: ObserveTabsUseCase by inject()
+    private val createTab: CreateTabUseCase by inject()
+    private val getSelectedTab: GetSelectedTabUseCase by inject()
+    private val openTab: OpenTabUseCase by inject()
 
     /** Set by the route composable so the controller can drive navigation. */
     var onOpenTabs: () -> Unit = {}
@@ -184,10 +188,8 @@ class WebTabController(
 
         viewModels = ScopedViewModelStore()
         tabViewModel = viewModels.get()
-        privateVideoViewModel = viewModels.get()
         settingsViewModel = viewModels.get()
         detector = viewModels.get()
-        tabModelViewModel = viewModels.get()
         processingViewModel = viewModels.get()
 
         sniffer = VideoSniffer(detector, tabViewModel, okHttpProxyClient)
@@ -220,7 +222,7 @@ class WebTabController(
         configureWebView()
         activity.registerForContextMenu(webTab.getWebView())
 
-        tabViewModel.loadPage(webTab.getUrl())
+        tabViewModel.onEvent(WebTabPipelineContract.Event.LoadPage(webTab.getUrl()))
     }
 
     fun release() {
@@ -229,7 +231,7 @@ class WebTabController(
 
         // Probes are stopped before the WebView goes away; the rest of the detector's
         // teardown happens in its `onCleared`, when `viewModels.clear()` runs below.
-        detector.cancelAllCheckJobs()
+        detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
         sniffer.cancelPendingProbes()
 
         webTab.getWebView()?.let { webView ->
@@ -259,10 +261,8 @@ class WebTabController(
     private fun ensureSelectedTabModel() {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                if (tabModelViewModel.getSelectedTabModel() == null) {
-                    tabModelViewModel.insertTabModel(
-                        TabModel(url = webTab.getUrl(), isSelected = true),
-                    )
+                if (getSelectedTab() == null) {
+                    createTab(TabModel(url = webTab.getUrl(), isSelected = true))
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to insert initial tab model")
@@ -271,72 +271,69 @@ class WebTabController(
     }
 
     private fun observeDetectionState() {
-        detector.downloadButtonState.addOnPropertyChangedCallback(
-            object : OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    uiState = uiState.copy(
-                        downloadButtonState =
-                            when (detector.downloadButtonState.get()) {
-                                is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
-                                is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
-                                else -> DownloadButtonUiState.Disabled
-                            },
-                    )
-                }
-            },
-        )
-
-        detector.showDetectedVideosEvent.observe(activity) {
-            detector.detectedVideosList.get()?.firstOrNull() ?: return@observe
-
-            if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
-        }
-
-        detector.videoPushedEvent.observe(activity) { onVideoPushed() }
-    }
-
-    private fun observeTabState() {
-        tabModelViewModel.queryAllTabModel().observe(activity) {
-            uiState = uiState.copy(tabCount = it.size)
-        }
-
-        // The event only carries the URL to load. It must not replace [webTab]:
-        // `WebTabViewModel.loadPage` builds a tab with no WebView at all, and this
-        // controller owns the only one there is.
-        tabViewModel.loadPageEvent.observe(activity) { tab ->
-            if (tab.getUrl().startsWith("http")) {
-                webTab.setUrl(tab.getUrl())
-                webTab.getWebView()?.stopLoading()
-                webTab.getWebView()?.loadUrl(tab.getUrl())
+        activity.lifecycleScope.launch {
+            detector.uiState.collect { state ->
+                uiState = uiState.copy(
+                    downloadButtonState =
+                        when (state.downloadButtonState) {
+                            is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
+                            is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
+                            else -> DownloadButtonUiState.Disabled
+                        },
+                )
             }
         }
 
-        tabViewModel.tabUrl.addOnPropertyChangedCallback(
-            object : OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    uiState = uiState.copy(url = tabViewModel.tabUrl.get().orEmpty())
-                }
-            },
-        )
+        activity.lifecycleScope.launch {
+            detector.effect.collect { effect ->
+                when (effect) {
+                    DetectedVideosContract.Effect.ShowDetectedVideos -> {
+                        if (detector.uiState.value.detectedVideos.isEmpty()) return@collect
 
-        tabViewModel.progress.addOnPropertyChangedCallback(
-            object : OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    val progress = tabViewModel.progress.get()
-                    uiState = uiState.copy(progress = progress, showProgress = progress != 100)
-                }
-            },
-        )
+                        if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
+                    }
 
-        tabViewModel.isShowProgress.addOnPropertyChangedCallback(
-            object : OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    val loading = tabViewModel.isShowProgress.get()
-                    uiState = uiState.copy(isLoadingPage = loading)
-                    isReload = !loading
+                    DetectedVideosContract.Effect.VideoPushed -> onVideoPushed()
+
+                    // Never surfaced today — carried over unchanged from the pre-Contract
+                    // `loginRequiredEvent`, which also had no observer anywhere.
+                    is DetectedVideosContract.Effect.LoginRequired -> Unit
                 }
-            },
-        )
+            }
+        }
+    }
+
+    private fun observeTabState() {
+        activity.lifecycleScope.launch {
+            observeTabs().collect { uiState = uiState.copy(tabCount = it.size) }
+        }
+
+        activity.lifecycleScope.launch {
+            // The effect only carries the URL to load. It must not replace [webTab]:
+            // `WebTabViewModel.loadPage` builds a tab with no WebView at all, and this
+            // controller owns the only one there is.
+            tabViewModel.effect.collect { effect ->
+                if (effect is WebTabPipelineContract.Effect.LoadPage &&
+                    effect.tab.getUrl().startsWith("http")
+                ) {
+                    webTab.setUrl(effect.tab.getUrl())
+                    webTab.getWebView()?.stopLoading()
+                    webTab.getWebView()?.loadUrl(effect.tab.getUrl())
+                }
+            }
+        }
+
+        activity.lifecycleScope.launch {
+            tabViewModel.uiState.collect { state ->
+                uiState = uiState.copy(
+                    url = state.tabUrl,
+                    progress = state.progress,
+                    showProgress = state.progress != 100,
+                    isLoadingPage = state.isShowProgress,
+                )
+                isReload = !state.isShowProgress
+            }
+        }
     }
 
     /**
@@ -373,8 +370,8 @@ class WebTabController(
         val url = uiState.url
         if (url.isEmpty()) return
 
-        detector.cancelAllCheckJobs()
-        tabViewModel.openPage(url)
+        detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
+        tabViewModel.onEvent(WebTabPipelineContract.Event.OpenPage(url))
     }
 
     fun onUrlChange(url: String) {
@@ -382,7 +379,7 @@ class WebTabController(
     }
 
     fun closeTab() {
-        detector.cancelAllCheckJobs()
+        detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
         onCloseBrowser()
     }
 
@@ -391,7 +388,7 @@ class WebTabController(
     }
 
     fun requestDetectedVideos() {
-        detector.showVideoInfo()
+        detector.onEvent(DetectedVideosContract.Event.ShowVideoInfo)
     }
 
     fun share() {
@@ -422,8 +419,8 @@ class WebTabController(
 
         if (webView.canGoBack()) {
             webView.goBack()
-            tabViewModel.onGoBack(webView)
-            detector.cancelAllCheckJobs()
+            tabViewModel.onEvent(WebTabPipelineContract.Event.GoBack(webView))
+            detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
             refreshNavState()
         } else {
             canGoCounter = if (canGoCounter >= 1) 0 else canGoCounter + 1
@@ -435,8 +432,8 @@ class WebTabController(
 
         if (webView.canGoForward()) {
             webView.goForward()
-            tabViewModel.onGoForward(webView)
-            detector.cancelAllCheckJobs()
+            tabViewModel.onEvent(WebTabPipelineContract.Event.GoForward(webView))
+            detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
             refreshNavState()
         }
     }
@@ -447,7 +444,7 @@ class WebTabController(
      */
     fun reloadPage() {
         if (!isReload) {
-            tabViewModel.onPageStop(webTab.getWebView())
+            tabViewModel.onEvent(WebTabPipelineContract.Event.PageStop(webTab.getWebView()))
             return
         }
 
@@ -460,7 +457,7 @@ class WebTabController(
         }
 
         val userAgent = webTab.getWebView()?.settings?.userAgentString
-            ?: tabViewModel.userAgent.get()
+            ?: tabViewModel.uiState.value.userAgent.ifEmpty { null }
             ?: BrowserUserAgent.MOBILE
 
         if (url == null) return
@@ -468,14 +465,14 @@ class WebTabController(
         detector.viewModelScope.launch(
             detector.executorReload,
         ) {
-            detector.onStartPage(url, userAgent)
+            detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent))
         }
 
         if (url.contains("www.facebook") && urlWasChange) {
-            tabViewModel.openPage(url)
-            tabViewModel.closeTab(webTab)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.OpenPage(url))
+            tabViewModel.onEvent(WebTabPipelineContract.Event.CloseTab(webTab))
         } else {
-            tabViewModel.onPageReload(webTab.getWebView())
+            tabViewModel.onEvent(WebTabPipelineContract.Event.PageReload(webTab.getWebView()))
         }
     }
 
@@ -498,33 +495,33 @@ class WebTabController(
         toast(R.string.string_video_found)
 
         val isDownloadsVisible = true
-        val isCond = !tabViewModel.isDownloadDialogShown.get() && !isDownloadsVisible
+        val isCond = !tabViewModel.uiState.value.isDownloadDialogShown && !isDownloadsVisible
 
-        if (settingsViewModel.getVideoAlertState().get() && isCond) {
+        if (settingsViewModel.uiState.value.showVideoAlert && isCond) {
             showAlertVideoFound()
         }
     }
 
     private fun showAlertVideoFound() {
-        if (tabViewModel.isDownloadDialogShown.get()) return
+        if (tabViewModel.uiState.value.isDownloadDialogShown) return
 
-        tabViewModel.isDownloadDialogShown.set(true)
+        tabViewModel.onEvent(WebTabPipelineContract.Event.SetDownloadDialogShown(true))
 
         videoAlert = MaterialAlertDialogBuilder(activity).setTitle(R.string.string_video_found)
 
         videoAlert?.setOnDismissListener { videoAlert = null }
         videoAlert?.setMessage(R.string.whatshould)
             ?.setPositiveButton(R.string.view) { dialog, _ ->
-                tabViewModel.isDownloadDialogShown.set(false)
+                tabViewModel.onEvent(WebTabPipelineContract.Event.SetDownloadDialogShown(false))
                 dialog.dismiss()
             }
             ?.setNeutralButton(R.string.dontshow) { dialog, _ ->
-                settingsViewModel.setShowVideoAlertOff()
-                tabViewModel.isDownloadDialogShown.set(false)
+                settingsViewModel.onEvent(BrowserSettingsContract.Event.DismissVideoAlert)
+                tabViewModel.onEvent(WebTabPipelineContract.Event.SetDownloadDialogShown(false))
                 dialog.dismiss()
             }
             ?.setNegativeButton(R.string.string_cancel) { dialog, _ ->
-                tabViewModel.isDownloadDialogShown.set(false)
+                tabViewModel.onEvent(WebTabPipelineContract.Event.SetDownloadDialogShown(false))
                 dialog.dismiss()
             }
             ?.show()
@@ -562,7 +559,7 @@ class WebTabController(
 
         override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
             val viewTitle = view?.title
-            val title = tabViewModel.currentTitle.get()
+            val title = tabViewModel.uiState.value.currentTitle
             val userAgent = view?.settings?.userAgentString ?: BrowserUserAgent.MOBILE
 
             if (url != null && lastSavedHistoryUrl != url) {
@@ -581,22 +578,18 @@ class WebTabController(
 
                         saveUrlToHistory(url, icon, viewTitle ?: title)
 
-                        detector.onStartPage(url, userAgent)
-                        tabViewModel.onUpdateVisitedHistory(url, title, userAgent)
+                        detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent))
+                        tabViewModel.onEvent(
+                            WebTabPipelineContract.Event.UpdateVisitedHistory(url, title, userAgent),
+                        )
 
-                        val tabModel = tabModelViewModel.getSelectedTabModel()
+                        val tabModel = getSelectedTab()
                         if (tabModel == null) {
-                            tabModelViewModel.insertTabModel(
-                                TabModel(url = url, isSelected = true, favicon = outputFavicon),
-                            )
+                            createTab(TabModel(url = url, isSelected = true, favicon = outputFavicon))
                         } else {
                             tabModel.url = url
-                            tabModelViewModel.updateInfoTabModel(
-                                tabModel.id,
-                                url,
-                                outputFavicon,
-                                tabModel.isSelected,
-                            )
+                            tabModel.favicon = outputFavicon
+                            openTab(tabModel)
                         }
                     } catch (e: Exception) {
                         Timber.w(e, "Failed to update tab favicon")
@@ -631,26 +624,20 @@ class WebTabController(
 
             activity.lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    val selected = tabModelViewModel.getSelectedTabModel()
+                    val selected = getSelectedTab()
                     if (selected == null) {
-                        tabModelViewModel.insertTabModel(
-                            TabModel(url = url, isSelected = true, favicon = outputFavicon),
-                        )
+                        createTab(TabModel(url = url, isSelected = true, favicon = outputFavicon))
                     } else {
                         selected.url = url
-                        tabModelViewModel.updateInfoTabModel(
-                            selected.id,
-                            url,
-                            outputFavicon,
-                            selected.isSelected,
-                        )
+                        selected.favicon = outputFavicon
+                        openTab(selected)
                     }
                 } catch (e: Exception) {
                     Timber.w(e, "Failed to update selected tab favicon")
                 }
             }
 
-            tabViewModel.onStartPage(url, view.title)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.StartPage(url, view.title))
         }
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -658,8 +645,8 @@ class WebTabController(
             val isAd = tabViewModel.isAd(url)
 
             return if (url.startsWith("http") && request.isForMainFrame && !isAd) {
-                if (!tabViewModel.isTabInputFocused.get()) {
-                    tabViewModel.setTabTextInput(url)
+                if (!tabViewModel.uiState.value.isTabInputFocused) {
+                    tabViewModel.onEvent(WebTabPipelineContract.Event.SetTabTextInput(url))
                 }
                 // Trả về false: Tiếp tục tải trang ngay trong WebView hiện tại
                 false
@@ -676,7 +663,7 @@ class WebTabController(
         override fun onPageFinished(view: WebView, url: String) {
             refreshNavState()
             super.onPageFinished(view, url)
-            tabViewModel.finishPage(url)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.FinishPage(url))
 
             injectDownloadButton()
         }
@@ -711,12 +698,16 @@ class WebTabController(
             val transport = resultMsg!!.obj as WebView.WebViewTransport
             transport.webView = WebView(view.context)
 
-            tabViewModel.openPageEvent.value = WebTab(
-                webview = transport.webView,
-                resultMsg = resultMsg,
-                url = "url",
-                title = view.title,
-                iconBytes = null,
+            tabViewModel.onEvent(
+                WebTabPipelineContract.Event.NotifyPageOpened(
+                    WebTab(
+                        webview = transport.webView,
+                        resultMsg = resultMsg,
+                        url = "url",
+                        title = view.title,
+                        iconBytes = null,
+                    ),
+                ),
             )
             return true
         }
@@ -726,8 +717,7 @@ class WebTabController(
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
 
-            tabViewModel.setProgress(newProgress)
-            tabViewModel.isShowProgress.set(newProgress != 100)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.SetProgress(newProgress))
         }
 
         override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
@@ -752,7 +742,7 @@ class WebTabController(
             activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
             uiState = uiState.copy(isFullscreen = false)
-            activity.requestedOrientation = if (settingsViewModel.isLockPortrait.get()) {
+            activity.requestedOrientation = if (settingsViewModel.uiState.value.lockPortrait) {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             } else {
                 ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -944,7 +934,7 @@ class WebTabController(
         fileSize: Long,
         sourceUrl: String,
     ) {
-        privateVideoViewModel.insertVideoTaskItem(
+        videoTaskItemRepository.insertVideoTaskItem(
             VideoTaskItem(
                 mId = outputFile.absolutePath.hashCode().toString(),
                 fileName = fileName,

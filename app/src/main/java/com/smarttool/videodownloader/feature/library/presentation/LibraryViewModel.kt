@@ -14,11 +14,14 @@ import com.smarttool.videodownloader.feature.library.domain.usecase.RenameMediaU
 import com.smarttool.videodownloader.feature.library.domain.usecase.SetMediaPrivateUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.SetSortTypeUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -39,8 +42,11 @@ class LibraryViewModel(
     private val setSortType: SetSortTypeUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(LibraryUiState())
-    val uiState: StateFlow<LibraryUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(LibraryContract.State())
+    val uiState: StateFlow<LibraryContract.State> = _uiState.asStateFlow()
+
+    private val _effect = Channel<LibraryContract.Effect>(Channel.BUFFERED)
+    val effect: Flow<LibraryContract.Effect> = _effect.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -55,16 +61,34 @@ class LibraryViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun onFilterChange(filter: MediaFilter) {
+    fun onEvent(event: LibraryContract.Event) {
+        when (event) {
+            is LibraryContract.Event.FilterChange -> onFilterChange(event.filter)
+            is LibraryContract.Event.SearchChange -> onSearchChange(event.search)
+            is LibraryContract.Event.SetSearchVisible -> setSearchVisible(event.visible)
+            is LibraryContract.Event.SortChange -> onSortChange(event.sort)
+            is LibraryContract.Event.SetSortSheetVisible -> setSortSheetVisible(event.visible)
+            is LibraryContract.Event.SetSelectionMode -> setSelectionMode(event.enabled)
+            is LibraryContract.Event.ToggleSelection -> toggleSelection(event.id)
+            is LibraryContract.Event.SelectAll -> selectAll()
+            is LibraryContract.Event.ClearSelection -> clearSelection()
+            is LibraryContract.Event.DeleteSelected -> deleteSelected()
+            is LibraryContract.Event.Delete -> delete(event.item)
+            is LibraryContract.Event.Rename -> rename(event.context, event.item, event.newName)
+            is LibraryContract.Event.MoveSelectedToPrivate -> moveSelectedToPrivate(event.makePrivate)
+        }
+    }
+
+    private fun onFilterChange(filter: MediaFilter) {
         _uiState.update { it.copy(query = it.query.copy(filter = filter)) }
         clearSelection()
     }
 
-    fun onSearchChange(search: String) {
+    private fun onSearchChange(search: String) {
         _uiState.update { it.copy(query = it.query.copy(search = search)) }
     }
 
-    fun setSearchVisible(visible: Boolean) {
+    private fun setSearchVisible(visible: Boolean) {
         _uiState.update {
             it.copy(
                 searchVisible = visible,
@@ -73,22 +97,22 @@ class LibraryViewModel(
         }
     }
 
-    fun onSortChange(sort: SortState) {
+    private fun onSortChange(sort: SortState) {
         _uiState.update { it.copy(query = it.query.copy(sort = sort), sortSheetVisible = false) }
         viewModelScope.launch { setSortType(sort.value) }
     }
 
-    fun setSortSheetVisible(visible: Boolean) {
+    private fun setSortSheetVisible(visible: Boolean) {
         _uiState.update { it.copy(sortSheetVisible = visible) }
     }
 
-    fun setSelectionMode(enabled: Boolean) {
+    private fun setSelectionMode(enabled: Boolean) {
         _uiState.update {
             it.copy(selectionMode = enabled, selectedIds = if (enabled) it.selectedIds else emptySet())
         }
     }
 
-    fun toggleSelection(id: String) {
+    private fun toggleSelection(id: String) {
         _uiState.update { state ->
             val selected = if (id in state.selectedIds) {
                 state.selectedIds - id
@@ -99,15 +123,15 @@ class LibraryViewModel(
         }
     }
 
-    fun selectAll() {
+    private fun selectAll() {
         _uiState.update { it.copy(selectedIds = items.value.map { item -> item.mId }.toSet()) }
     }
 
-    fun clearSelection() {
+    private fun clearSelection() {
         _uiState.update { it.copy(selectionMode = false, selectedIds = emptySet()) }
     }
 
-    fun deleteSelected() {
+    private fun deleteSelected() {
         val ids = _uiState.value.selectedIds
         val targets = items.value.filter { it.mId in ids }
 
@@ -117,19 +141,21 @@ class LibraryViewModel(
         }
     }
 
-    fun delete(item: VideoTaskItem) {
+    private fun delete(item: VideoTaskItem) {
         viewModelScope.launch { deleteMedia(item) }
     }
 
-    fun rename(context: Context, item: VideoTaskItem, newName: String, onFailure: () -> Unit) {
+    private fun rename(context: Context, item: VideoTaskItem, newName: String) {
         viewModelScope.launch {
             val isImage = item.mimeType.startsWith("image")
-            if (!renameMedia(context, item, newName, isImage)) onFailure()
+            if (!renameMedia(context, item, newName, isImage)) {
+                _effect.send(LibraryContract.Effect.RenameFailed)
+            }
         }
     }
 
     /** Moves the selected items into, or out of, the PIN-protected area. */
-    fun moveSelectedToPrivate(makePrivate: Boolean) {
+    private fun moveSelectedToPrivate(makePrivate: Boolean) {
         val ids = _uiState.value.selectedIds
 
         viewModelScope.launch {

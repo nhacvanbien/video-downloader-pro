@@ -36,19 +36,20 @@ fun SecurityRoute(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.results.collect { result ->
-            when (result) {
-                SecurityResult.EmptyAnswer -> toast(R.string.string_please_enter_your_answer)
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                SecurityContract.Effect.EmptyAnswer ->
+                    toast(R.string.string_please_enter_your_answer)
 
-                SecurityResult.RecoveryIncorrect ->
+                SecurityContract.Effect.RecoveryIncorrect ->
                     toast(R.string.string_incorrect_security_question)
 
-                SecurityResult.RecoveryCorrect -> {
+                SecurityContract.Effect.RecoveryCorrect -> {
                     toast(R.string.string_correct_security_question)
                     onRecovered()
                 }
 
-                SecurityResult.Saved -> showSuccessDialog = true
+                SecurityContract.Effect.Saved -> showSuccessDialog = true
             }
         }
     }
@@ -56,17 +57,23 @@ fun SecurityRoute(
     SecurityScreen(
         questionIndex = state.questionIndex,
         answer = state.answer,
-        onAnswerChange = viewModel::onAnswerChange,
-        onPickQuestion = { viewModel.setQuestionPickerVisible(true) },
-        onConfirm = { viewModel.confirm(isRecovery, pendingPin) },
+        onAnswerChange = { viewModel.onEvent(SecurityContract.Event.AnswerChange(it)) },
+        onPickQuestion = {
+            viewModel.onEvent(SecurityContract.Event.SetQuestionPickerVisible(true))
+        },
+        onConfirm = {
+            viewModel.onEvent(SecurityContract.Event.Confirm(isRecovery, pendingPin))
+        },
         onBack = onBack,
     )
 
     if (state.showQuestionPicker) {
         SecurityQuestionPickerDialog(
             selectedIndex = state.questionIndex,
-            onSelect = viewModel::onQuestionSelected,
-            onDismiss = { viewModel.setQuestionPickerVisible(false) },
+            onSelect = { viewModel.onEvent(SecurityContract.Event.QuestionSelected(it)) },
+            onDismiss = {
+                viewModel.onEvent(SecurityContract.Event.SetQuestionPickerVisible(false))
+            },
         )
     }
 

@@ -25,7 +25,11 @@ fun IntroRoute(onFinish: (showPermission: Boolean) -> Unit) {
     LaunchedEffect(Unit) { AdsConstant.requestNativePermission(activity) }
 
     LaunchedEffect(Unit) {
-        viewModel.finished.collect { showPermission -> onFinish(showPermission) }
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is IntroContract.Effect.Finished -> onFinish(effect.showPermission)
+            }
+        }
     }
 
     // Onboarding auto-advances to the last page if the user idles, matching the
@@ -46,7 +50,7 @@ fun IntroRoute(onFinish: (showPermission: Boolean) -> Unit) {
                 )
             }
         },
-        onFinish = viewModel::finish,
+        onFinish = { viewModel.onEvent(IntroContract.Event.Finish) },
     )
 }
 

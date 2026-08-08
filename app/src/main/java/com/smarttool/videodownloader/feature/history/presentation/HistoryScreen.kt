@@ -58,7 +58,7 @@ private val ScreenBackground = Brush.verticalGradient(
 
 @Composable
 fun HistoryScreen(
-    state: HistoryUiState,
+    state: HistoryContract.State,
     onBack: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearchActiveChange: (Boolean) -> Unit,
@@ -146,7 +146,7 @@ fun HistoryScreen(
 
 @Composable
 private fun HistoryTopBar(
-    state: HistoryUiState,
+    state: HistoryContract.State,
     isBookmarkMode: Boolean,
     onBack: () -> Unit,
     onSearchQueryChange: (String) -> Unit,

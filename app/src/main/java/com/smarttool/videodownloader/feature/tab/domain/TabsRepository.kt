@@ -14,4 +14,6 @@ interface TabsRepository {
 
     /** Marks [id] as the active tab, unselecting every other one. */
     suspend fun selectTab(id: String, url: String, favicon: ByteArray?)
+
+    suspend fun getSelectedTab(): TabModel?
 }

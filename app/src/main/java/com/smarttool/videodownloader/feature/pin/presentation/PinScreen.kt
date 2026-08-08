@@ -43,7 +43,7 @@ internal const val BACKSPACE_KEY = "⌫"
 
 @Composable
 fun PinScreen(
-    state: PinUiState,
+    state: PinContract.State,
     onDigit: (String) -> Unit,
     onBackspace: () -> Unit,
     onForgotPin: () -> Unit,

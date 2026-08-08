@@ -25,15 +25,6 @@ const val DB_VERSION = 1
 )
 @TypeConverters(FormatsConverter::class, DownloadUrlsConverter::class)
 abstract class AppDatabase : RoomDatabase() {
-
-//    abstract fun configDao(): ConfigDao
-//
-//    abstract fun videoDao(): VideoDao
-//
-//    abstract fun progressDao(): ProgressDao
-//
-//    abstract fun pageDao(): PageDao
-
     abstract fun historyDao(): HistoryDao
 
     abstract fun tabModelDao(): TabModelDao

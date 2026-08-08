@@ -7,9 +7,12 @@ import com.smarttool.videodownloader.feature.browser.domain.usecase.GetPopularSi
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -21,8 +24,11 @@ class BrowserHomeViewModel(
 
     val sites: List<PopularSite> = getPopularSites()
 
-    private val _uiState = MutableStateFlow(BrowserHomeUiState())
-    val uiState: StateFlow<BrowserHomeUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(BrowserHomeContract.State())
+    val uiState: StateFlow<BrowserHomeContract.State> = _uiState.asStateFlow()
+
+    private val _effect = Channel<BrowserHomeContract.Effect>(Channel.BUFFERED)
+    val effect: Flow<BrowserHomeContract.Effect> = _effect.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -32,19 +38,27 @@ class BrowserHomeViewModel(
         }
     }
 
-    fun onQueryChange(query: String) {
+    fun onEvent(event: BrowserHomeContract.Event) {
+        when (event) {
+            is BrowserHomeContract.Event.QueryChange -> onQueryChange(event.query)
+            is BrowserHomeContract.Event.ClearQuery -> clearQuery()
+            is BrowserHomeContract.Event.OpenTab -> openTab(event.tab)
+        }
+    }
+
+    private fun onQueryChange(query: String) {
         _uiState.update { it.copy(query = query) }
     }
 
-    fun clearQuery() {
+    private fun clearQuery() {
         _uiState.update { it.copy(query = "") }
     }
 
-    /** Persists the new tab, then reports back so the host can open the web view. */
-    fun openTab(tab: TabModel, onReady: () -> Unit) {
+    /** Persists the new tab, then signals the host to open the web view. */
+    private fun openTab(tab: TabModel) {
         viewModelScope.launch {
             createTab(tab)
-            onReady()
+            _effect.send(BrowserHomeContract.Effect.TabReady(tab))
         }
     }
 }

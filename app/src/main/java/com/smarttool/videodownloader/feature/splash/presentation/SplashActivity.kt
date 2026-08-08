@@ -38,7 +38,7 @@ import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.core.ui.widget.CustomSeekbarSplash
 import com.smarttool.videodownloader.core.ui.widget.ProgressCallback
 import com.smarttool.videodownloader.core.withAppLocale
-import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
+import com.smarttool.videodownloader.feature.library.domain.usecase.PruneMissingFilesUseCase
 import com.smarttool.videodownloader.feature.onboarding.domain.model.AppEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -46,13 +46,14 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import timber.log.Timber
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 
 class SplashActivity : AppCompatActivity() {
     private val splashViewModel: SplashViewModel by koinViewModel()
 
-    private val privateVideoViewModel: PrivateVideoViewModel by koinViewModel()
+    private val pruneMissingFiles: PruneMissingFilesUseCase by inject()
     private lateinit var inAppUpdate: InAppUpdate
 
     private val interRequestCompleteFlow = MutableStateFlow(false)
@@ -190,7 +191,7 @@ class SplashActivity : AppCompatActivity() {
 
     private fun initFlow() {
         lifecycleScope.launch {
-            privateVideoViewModel.matchAndRemoveDeletedFiles()
+            pruneMissingFiles()
         }
 
         consentManager.initReleaseConsent(

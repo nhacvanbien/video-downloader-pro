@@ -19,12 +19,12 @@ class SplashViewModel(
     private val isStartLanguageShown: IsStartLanguageShownUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SplashUiState())
-    val uiState: StateFlow<SplashUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(SplashContract.State())
+    val uiState: StateFlow<SplashContract.State> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _uiState.value = SplashUiState(
+            _uiState.value = SplashContract.State(
                 loaded = true,
                 entryPoint = getAppEntryPoint(),
                 startLanguageShown = isStartLanguageShown(),
@@ -33,5 +33,5 @@ class SplashViewModel(
     }
 
     /** Suspends until the flags are in, so callers never route on the defaults. */
-    suspend fun awaitLoaded(): SplashUiState = uiState.first { it.loaded }
+    suspend fun awaitLoaded(): SplashContract.State = uiState.first { it.loaded }
 }

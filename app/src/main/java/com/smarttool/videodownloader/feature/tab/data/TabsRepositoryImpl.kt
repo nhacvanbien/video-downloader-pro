@@ -25,4 +25,6 @@ class TabsRepositoryImpl(
 
     override suspend fun selectTab(id: String, url: String, favicon: ByteArray?) =
         tabModelRepository.updateInfoTabModel(id, url, favicon, true)
+
+    override suspend fun getSelectedTab(): TabModel? = tabModelRepository.getSelectedTabModel()
 }

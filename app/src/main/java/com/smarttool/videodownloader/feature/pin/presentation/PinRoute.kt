@@ -11,7 +11,7 @@ import org.koin.androidx.compose.koinViewModel
 
 /**
  * PIN entry. The same screen sets a new PIN, changes one, and unlocks the private
- * area; [isChangingPin] plus the emitted [PinEvent] decide which.
+ * area; [isChangingPin] plus the emitted [PinContract.Effect] decide which.
  */
 @Composable
 fun PinRoute(
@@ -24,18 +24,20 @@ fun PinRoute(
     val viewModel: PinViewModel = koinViewModel()
     val context = LocalContext.current
 
-    LaunchedEffect(isChangingPin) { viewModel.start(changingPin = isChangingPin) }
+    LaunchedEffect(isChangingPin) {
+        viewModel.onEvent(PinContract.Event.Start(changingPin = isChangingPin))
+    }
 
     LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                PinEvent.Unlocked -> onUnlocked()
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                PinContract.Effect.Unlocked -> onUnlocked()
 
-                is PinEvent.PinChosen -> onPinChosen(event.pin)
+                is PinContract.Effect.PinChosen -> onPinChosen(effect.pin)
 
-                PinEvent.PinChanged -> onBack()
+                PinContract.Effect.PinChanged -> onBack()
 
-                PinEvent.ConfirmMismatch -> Toast.makeText(
+                PinContract.Effect.ConfirmMismatch -> Toast.makeText(
                     context,
                     context.getString(R.string.string_password_does_not_match),
                     Toast.LENGTH_SHORT,
@@ -48,8 +50,8 @@ fun PinRoute(
 
     PinScreen(
         state = state,
-        onDigit = viewModel::append,
-        onBackspace = viewModel::backspace,
+        onDigit = { viewModel.onEvent(PinContract.Event.Digit(it)) },
+        onBackspace = { viewModel.onEvent(PinContract.Event.Backspace) },
         onForgotPin = onOpenRecovery,
         onBack = onBack,
     )

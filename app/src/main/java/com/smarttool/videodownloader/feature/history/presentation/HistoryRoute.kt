@@ -42,8 +42,8 @@ fun HistoryRoute(
     HistoryScreen(
         state = state,
         onBack = leave,
-        onSearchQueryChange = viewModel::onSearchQueryChange,
-        onSearchActiveChange = viewModel::onSearchActiveChange,
+        onSearchQueryChange = { viewModel.onEvent(HistoryContract.Event.SearchQueryChange(it)) },
+        onSearchActiveChange = { viewModel.onEvent(HistoryContract.Event.SearchActiveChange(it)) },
         onEntryClick = { entry ->
             // The tab has to exist before the browser opens, or it reads back null and
             // creates a duplicate for the same page.
@@ -55,11 +55,15 @@ fun HistoryRoute(
             onOpenUrl(entry.url)
         },
         onDeleteEntry = { entry ->
-            DialogConfirmDelete(context) { viewModel.onDeleteEntry(entry) }.show()
+            DialogConfirmDelete(context) {
+                viewModel.onEvent(HistoryContract.Event.DeleteEntry(entry))
+            }.show()
         },
-        onClearHistory = viewModel::onClearHistory,
+        onClearHistory = { viewModel.onEvent(HistoryContract.Event.ClearHistory) },
         onAddBookmark = {
-            DialogAddBookmark(context) { name, url -> viewModel.onAddBookmark(name, url) }.show()
+            DialogAddBookmark(context) { name, url ->
+                viewModel.onEvent(HistoryContract.Event.AddBookmark(name, url))
+            }.show()
         },
         adSlot = {
             NativeAdContainer(

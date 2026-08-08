@@ -26,20 +26,20 @@ fun SelectVideoRoute(onBack: () -> Unit) {
     val items by viewModel.items.collectAsStateWithLifecycle()
 
     // This screen exists only to select, so selection mode is always on.
-    LaunchedEffect(Unit) { viewModel.setSelectionMode(true) }
+    LaunchedEffect(Unit) { viewModel.onEvent(LibraryContract.Event.SetSelectionMode(true)) }
 
     LibraryScreen(
         title = stringResource(R.string.string_add_to_private),
         state = state,
         items = items,
         showAd = false,
-        onFilterChange = viewModel::onFilterChange,
-        onSearchChange = viewModel::onSearchChange,
-        onSearchVisibleChange = viewModel::setSearchVisible,
-        onOpenSort = { viewModel.setSortSheetVisible(true) },
-        onItemClick = { viewModel.toggleSelection(it.mId) },
-        onItemMenu = { viewModel.toggleSelection(it.mId) },
-        onToggleSelection = viewModel::toggleSelection,
+        onFilterChange = { viewModel.onEvent(LibraryContract.Event.FilterChange(it)) },
+        onSearchChange = { viewModel.onEvent(LibraryContract.Event.SearchChange(it)) },
+        onSearchVisibleChange = { viewModel.onEvent(LibraryContract.Event.SetSearchVisible(it)) },
+        onOpenSort = { viewModel.onEvent(LibraryContract.Event.SetSortSheetVisible(true)) },
+        onItemClick = { viewModel.onEvent(LibraryContract.Event.ToggleSelection(it.mId)) },
+        onItemMenu = { viewModel.onEvent(LibraryContract.Event.ToggleSelection(it.mId)) },
+        onToggleSelection = { viewModel.onEvent(LibraryContract.Event.ToggleSelection(it)) },
         onBack = onBack,
         trailingAction = {
             if (state.selectedIds.isNotEmpty()) {
@@ -47,7 +47,7 @@ fun SelectVideoRoute(onBack: () -> Unit) {
                     painter = painterResource(R.drawable.ic_check),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp).clickable {
-                        viewModel.moveSelectedToPrivate(true)
+                        viewModel.onEvent(LibraryContract.Event.MoveSelectedToPrivate(true))
                         onBack()
                     },
                 )
@@ -58,8 +58,8 @@ fun SelectVideoRoute(onBack: () -> Unit) {
     if (state.sortSheetVisible) {
         SortSheet(
             selected = state.query.sort,
-            onSelect = viewModel::onSortChange,
-            onDismiss = { viewModel.setSortSheetVisible(false) },
+            onSelect = { viewModel.onEvent(LibraryContract.Event.SortChange(it)) },
+            onDismiss = { viewModel.onEvent(LibraryContract.Event.SetSortSheetVisible(false)) },
         )
     }
 }

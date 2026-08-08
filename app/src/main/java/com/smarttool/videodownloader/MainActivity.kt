@@ -12,6 +12,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.ads.admob.data.ContentAd
 import com.ads.admob.helper.banner.BannerAdConfig
@@ -36,8 +37,10 @@ import com.smarttool.videodownloader.core.withAppLocale
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
+import com.smarttool.videodownloader.feature.main.presentation.MainContract
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
 import com.smarttool.videodownloader.feature.main.presentation.MainViewModel
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import kotlin.system.exitProcess
@@ -92,6 +95,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            mainViewModel.effect.collect { effect ->
+                when (effect) {
+                    is MainContract.Effect.ExitRecorded -> {
+                        finishAffinity()
+                        exitProcess(1)
+                    }
+                }
+            }
+        }
 
         loadAd()
 
@@ -189,10 +203,7 @@ class MainActivity : AppCompatActivity() {
         EventBus.getDefault().post(UpdateEvent("hide_ads"))
 
         val dialogExitApp = DialogExitApp(this) {
-            mainViewModel.onExitConfirmed {
-                finishAffinity()
-                exitProcess(1)
-            }
+            mainViewModel.onEvent(MainContract.Event.ConfirmExit)
         }
 
         dialogExitApp.show()

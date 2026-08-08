@@ -50,7 +50,7 @@ private const val HINT_ANIMATION_INDEX = 3
 
 @Composable
 fun LanguageScreen(
-    state: LanguageUiState,
+    state: LanguageContract.State,
     mode: LanguageMode,
     showLoadingOverlay: Boolean,
     headerTitle: String,

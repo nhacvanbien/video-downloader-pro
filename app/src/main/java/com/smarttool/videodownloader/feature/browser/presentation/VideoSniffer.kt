@@ -89,10 +89,12 @@ class VideoSniffer(
 
         if (isManifest) {
             if (requestWithCookies != null) {
-                detector.verifyLinkStatus(
-                    requestWithCookies,
-                    tabViewModel.currentTitle.get(),
-                    true,
+                detector.onEvent(
+                    DetectedVideosContract.Event.VerifyLinkStatus(
+                        requestWithCookies,
+                        tabViewModel.uiState.value.currentTitle,
+                        true,
+                    ),
                 )
             }
         } else if (probeEveryNonManifest || contentType == ContentType.MP4) {
@@ -107,7 +109,7 @@ class VideoSniffer(
     @Synchronized
     private fun trackRegularProbe(requestWithCookies: Request?) {
         val job = detector.checkRegularMp4(requestWithCookies)
-        val pageUrl = tabViewModel.getTabTextInput().get().orEmpty()
+        val pageUrl = tabViewModel.uiState.value.tabUrl
 
         if (pageUrl != lastProbedPageUrl) {
             regularProbes.remove(lastProbedPageUrl)?.forEach { it.cancel() }

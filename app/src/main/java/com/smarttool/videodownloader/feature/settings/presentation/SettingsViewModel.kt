@@ -12,18 +12,24 @@ class SettingsViewModel(
     private val getSettings: GetSettingsUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsUiState())
-    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(SettingsContract.State())
+    val uiState: StateFlow<SettingsContract.State> = _uiState.asStateFlow()
 
     init {
         refresh()
     }
 
+    fun onEvent(event: SettingsContract.Event) {
+        when (event) {
+            is SettingsContract.Event.Refresh -> refresh()
+        }
+    }
+
     /** Re-read on resume: rating state changes after the rating dialog is completed. */
-    fun refresh() {
+    private fun refresh() {
         viewModelScope.launch {
             val settings = getSettings()
-            _uiState.value = SettingsUiState(
+            _uiState.value = SettingsContract.State(
                 downloadLocation = settings.downloadLocation,
                 showRateRow = !settings.isRated,
             )

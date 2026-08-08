@@ -19,30 +19,41 @@ class PinViewModel(
     private val savePin: SavePinUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PinUiState())
-    val uiState: StateFlow<PinUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PinContract.State())
+    val uiState: StateFlow<PinContract.State> = _uiState.asStateFlow()
 
-    private val _events = Channel<PinEvent>(Channel.BUFFERED)
-    val events: Flow<PinEvent> = _events.receiveAsFlow()
+    private val _effect = Channel<PinContract.Effect>(Channel.BUFFERED)
+    val effect: Flow<PinContract.Effect> = _effect.receiveAsFlow()
 
     private var firstEntry = ""
     private var isChangingPin = false
+
+    fun onEvent(event: PinContract.Event) {
+        when (event) {
+            is PinContract.Event.Start -> start(event.changingPin)
+            is PinContract.Event.Digit -> append(event.digit)
+            PinContract.Event.Backspace -> backspace()
+        }
+    }
 
     /**
      * @param changingPin true when reached from "change PIN", which forces the
      *   create/confirm flow even though a PIN already exists.
      */
-    suspend fun start(changingPin: Boolean) {
+    private fun start(changingPin: Boolean) {
         isChangingPin = changingPin
-        val verifying = repository.isPinConfigured() && !changingPin
 
-        _uiState.value = PinUiState(
-            step = if (verifying) PinStep.Verify else PinStep.Create,
-            allowForgotPin = verifying,
-        )
+        viewModelScope.launch {
+            val verifying = repository.isPinConfigured() && !changingPin
+
+            _uiState.value = PinContract.State(
+                step = if (verifying) PinStep.Verify else PinStep.Create,
+                allowForgotPin = verifying,
+            )
+        }
     }
 
-    fun append(digit: String) {
+    private fun append(digit: String) {
         val state = _uiState.value
         if (state.entered.length >= PIN_LENGTH) return
 
@@ -52,7 +63,7 @@ class PinViewModel(
         if (entered.length == PIN_LENGTH) onComplete(entered)
     }
 
-    fun backspace() {
+    private fun backspace() {
         val state = _uiState.value
         if (state.entered.isEmpty()) return
         _uiState.value = state.copy(entered = state.entered.dropLast(1), showIncorrect = false)
@@ -62,7 +73,7 @@ class PinViewModel(
         when (_uiState.value.step) {
             PinStep.Verify -> viewModelScope.launch {
                 if (verifyPin(entered)) {
-                    _events.send(PinEvent.Unlocked)
+                    _effect.send(PinContract.Effect.Unlocked)
                 } else {
                     _uiState.value = _uiState.value.copy(entered = "", showIncorrect = true)
                 }
@@ -76,17 +87,17 @@ class PinViewModel(
             PinStep.Confirm -> {
                 if (entered == firstEntry) {
                     if (isChangingPin) {
-                        // The event navigates away, so the PIN is persisted before it is sent.
+                        // The effect navigates away, so the PIN is persisted before it is sent.
                         viewModelScope.launch {
                             savePin(entered)
-                            _events.send(PinEvent.PinChanged)
+                            _effect.send(PinContract.Effect.PinChanged)
                         }
                     } else {
-                        _events.trySend(PinEvent.PinChosen(entered))
+                        _effect.trySend(PinContract.Effect.PinChosen(entered))
                     }
                 } else {
                     _uiState.value = _uiState.value.copy(entered = "")
-                    _events.trySend(PinEvent.ConfirmMismatch)
+                    _effect.trySend(PinContract.Effect.ConfirmMismatch)
                 }
             }
         }

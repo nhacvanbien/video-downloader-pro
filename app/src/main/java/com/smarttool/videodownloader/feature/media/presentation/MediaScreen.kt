@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
 import com.smarttool.videodownloader.core.ui.components.RetainedAndroidView
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
-import com.smarttool.videodownloader.core.ads.AdsConstant
 import java.util.concurrent.TimeUnit
 
 /**
@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit
  */
 @Composable
 fun MediaScreen(
-    state: MediaUiState,
+    state: MediaContract.State,
     playerView: View,
     onBack: () -> Unit,
     onMore: () -> Unit,
@@ -130,7 +130,7 @@ private fun MediaHeader(
 
 @Composable
 private fun MediaControls(
-    state: MediaUiState,
+    state: MediaContract.State,
     onPlayPause: () -> Unit,
     onSeek: (Long) -> Unit,
     onCycleSpeed: () -> Unit,
