@@ -3,12 +3,10 @@ package com.smarttool.videodownloader.feature.browser.presentation
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.smarttool.videodownloader.VideoDownloaderApplication
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosSheetHost
 import com.smarttool.videodownloader.feature.downloads.presentation.toUiState
@@ -42,15 +40,6 @@ fun WebTabRoute(
     val tabViewModel = host.tabViewModel
     val detector = host.detector
 
-    // App-resume ads used to be suppressed by listing WebTabActivity in the ad SDK's
-    // `listClassInValid`. With no Activity to name, the browser destination has to
-    // suppress them itself — otherwise an app-open ad covers the page on every resume.
-    DisposableEffect(Unit) {
-        val appResumeAdHelper = VideoDownloaderApplication.instance.appResumeAdHelper
-        appResumeAdHelper.setDisableAppResumeOnScreen()
-        onDispose { appResumeAdHelper.setEnableAppResumeOnScreen() }
-    }
-
     fun closeTab() {
         detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
         onBack()
@@ -77,7 +66,6 @@ fun WebTabRoute(
         state = state,
         webView = host.webViewContainer,
         fullscreenContainer = host.fullscreenContainer,
-        bannerAd = host.bannerView,
         onUrlChange = { tabViewModel.onEvent(WebTabPipelineContract.Event.UrlChange(it)) },
         onSubmitUrl = {
             val submittedUrl = tabViewModel.uiState.value.tabUrl

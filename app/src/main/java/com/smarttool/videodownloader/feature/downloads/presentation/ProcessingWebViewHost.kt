@@ -191,9 +191,15 @@ class ProcessingWebViewHost(
 
                     DetectedVideosContract.Effect.VideoPushed -> toast(R.string.string_video_found)
 
-                    // Never surfaced today — carried over unchanged from the pre-Contract
-                    // `loginRequiredEvent`, which also had no observer anywhere.
-                    is DetectedVideosContract.Effect.LoginRequired -> Unit
+                    is DetectedVideosContract.Effect.LoginRequired ->
+                        Toast.makeText(
+                            activity,
+                            activity.getString(
+                                R.string.string_login_required_to_download,
+                                effect.host,
+                            ),
+                            Toast.LENGTH_LONG,
+                        ).show()
                 }
             }
         }

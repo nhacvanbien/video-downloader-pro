@@ -7,13 +7,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import org.koin.androidx.compose.koinViewModel
 
-/**
- * The Browser tab: search box plus popular-site tiles. Every entry point here is an
- * interstitial slot, which is why [showInterstitial] wraps each one.
- */
+/** The Browser tab: search box plus popular-site tiles. */
 @Composable
 fun BrowserHomeRoute(
-    showInterstitial: (onDone: () -> Unit) -> Unit,
     onOpenUrl: (String) -> Unit,
     onOpenGuide: () -> Unit,
     onOpenTabs: () -> Unit,
@@ -43,16 +39,14 @@ fun BrowserHomeRoute(
         onQueryChange = { viewModel.onEvent(BrowserHomeContract.Event.QueryChange(it)) },
         onSubmitQuery = {
             if (state.query.isNotEmpty()) {
-                showInterstitial {
-                    openTab(state.query)
-                    viewModel.onEvent(BrowserHomeContract.Event.ClearQuery)
-                }
+                openTab(state.query)
+                viewModel.onEvent(BrowserHomeContract.Event.ClearQuery)
             }
         },
-        onOpenSite = { site -> showInterstitial { openTab(site.url) } },
-        onOpenGuide = { showInterstitial(onOpenGuide) },
-        onOpenTabs = { showInterstitial(onOpenTabs) },
-        onOpenBookmarks = { showInterstitial(onOpenBookmarks) },
-        onOpenHistory = { showInterstitial(onOpenHistory) },
+        onOpenSite = { site -> openTab(site.url) },
+        onOpenGuide = onOpenGuide,
+        onOpenTabs = onOpenTabs,
+        onOpenBookmarks = onOpenBookmarks,
+        onOpenHistory = onOpenHistory,
     )
 }

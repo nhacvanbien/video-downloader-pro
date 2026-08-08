@@ -8,25 +8,11 @@ import android.view.ContextMenu.ContextMenuInfo
 import android.view.View
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.ads.admob.data.ContentAd
-import com.ads.admob.helper.banner.BannerAdConfig
-import com.ads.admob.helper.banner.BannerAdHelper
-import com.ads.admob.helper.banner.params.BannerAdParam
-import com.ads.admob.listener.BannerAdCallBack
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.LoadAdError
-import com.smarttool.videodownloader.android.BuildConfig
-import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
-import com.smarttool.videodownloader.core.UpdateEvent
-import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.ads.InterAdsManager
-import com.smarttool.videodownloader.core.ads.showInterAll
 import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.navigation.AppNavHost
 import com.smarttool.videodownloader.core.navigation.AppRoute
@@ -43,7 +29,6 @@ import com.smarttool.videodownloader.feature.main.presentation.MainContract
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
 import com.smarttool.videodownloader.feature.main.presentation.MainViewModel
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import kotlin.system.exitProcess
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
@@ -51,10 +36,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 /**
  * The app's only screen host. Everything except the splash lives in [AppNavHost].
  *
- * The Activity still owns three things the composition cannot: the WebView-backed
- * controllers (they have to outlive their destination's composable), the shared
- * permission sheet (its result launchers belong to the Activity), and the ad SDK
- * surfaces, which are Views.
+ * The Activity still owns two things the composition cannot: the WebView-backed
+ * controllers (they have to outlive their destination's composable) and the shared
+ * permission sheet (its result launchers belong to the Activity).
  */
 class MainActivity : AppCompatActivity() {
 
@@ -74,21 +58,6 @@ class MainActivity : AppCompatActivity() {
 
     private val webTabHost by lazy {
         WebTabViewHost(this, permissionSheet, permissionChecker)
-    }
-
-    private val bannerBinding by lazy { LayoutBannerContainerBinding.inflate(layoutInflater) }
-
-    private val bannerAdHelper by lazy {
-        BannerAdHelper(
-            activity = this,
-            lifecycleOwner = this,
-            config = BannerAdConfig(
-                idAds = BuildConfig.BANNER_ALL,
-                canShowAds = AdsConstant.showBannerAll,
-                canReloadAds = true,
-                adPlacement = "banner_home",
-            ),
-        )
     }
 
     /** Applied here, not in [onCreate], so legacy View-based screens resolve resources
@@ -112,19 +81,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        loadAd()
-
-        // The full-screen native ad is a destination now, so the ad manager needs a way
-        // to reach the graph instead of starting an Activity of its own.
-        InterAdsManager.openNativeFull = { openNativeFull?.invoke() }
-
         selectedTab = initialTab()
         processingHost.start()
 
         setContent {
             val navController = rememberNavController()
-
-            SideEffect { openNativeFull = { navController.navigate(AppRoute.NATIVE_FULL) } }
 
             AppLocaleProvider {
                 AppTheme {
@@ -132,20 +93,15 @@ class MainActivity : AppCompatActivity() {
                         navController = navController,
                         startDestination = startDestination(),
                         selectedTab = selectedTab,
-                        mainBannerAd = bannerBinding.root,
                         processingHost = processingHost,
                         webTabHost = webTabHost,
                         onSelectTab = { selectedTab = it },
-                        showInterstitial = { onDone -> showInterAll(onDone) },
                         onExitRequested = ::showDialogExitApp,
                     )
                 }
             }
         }
     }
-
-    /** Set once the NavHost exists; see [InterAdsManager.openNativeFull]. */
-    private var openNativeFull: (() -> Unit)? = null
 
     /**
      * The splash decides where the graph starts, so onboarding steps do not have to be
@@ -200,40 +156,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        InterAdsManager.openNativeFull = null
-        openNativeFull = null
         processingHost.release()
         webTabHost.release()
     }
 
     private fun showDialogExitApp() {
-        EventBus.getDefault().post(UpdateEvent("hide_ads"))
-
         val dialogExitApp = DialogExitApp(this) {
             mainViewModel.onEvent(MainContract.Event.ConfirmExit)
         }
 
         dialogExitApp.show()
-
-        dialogExitApp.setOnDismissListener {
-            EventBus.getDefault().post(UpdateEvent("show_ads"))
-        }
-    }
-
-    private fun loadAd() {
-        if (AdsConstant.showBannerAll) {
-            bannerAdHelper.setBannerContentView(bannerBinding.frAdsBanner)
-            bannerAdHelper.requestAds(BannerAdParam.Request)
-            bannerAdHelper.registerAdListener(object : BannerAdCallBack {
-                override fun onAdImpression() = Unit
-                override fun onAdClicked() = Unit
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) = Unit
-                override fun onAdFailedToShow(adError: AdError) = Unit
-                override fun onAdLoaded(data: ContentAd) = Unit
-            })
-        }
-
-        InterAdsManager.requestInter(this, InterAdsManager.INTER_ALL)
     }
 
     companion object {

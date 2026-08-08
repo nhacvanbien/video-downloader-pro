@@ -150,11 +150,6 @@ class DetectedVideosTabViewModel(
         hlsTitle: String? = null,
         isM3u8: Boolean = false,
     ) {
-        // TODO list of sites, where youtube dl should be disabled
-        if (resourceRequest.url.toString().contains("tiktok.")) {
-            return
-        }
-
         val urlToVerify = resourceRequest.url.toString()
         if (isM3u8) {
             startVerifyProcess(resourceRequest, true, hlsTitle)
@@ -315,7 +310,7 @@ class DetectedVideosTabViewModel(
                 updateRegularLoading { it + request.url.toString() }
                 propagateCheckJob(uriString, headers)
             } catch (e: Throwable) {
-                Timber.w("checkRegularMp4 failed: $clearedUrl")
+                Timber.w(e, "checkRegularMp4 failed: $clearedUrl")
             } finally {
                 updateRegularLoading { it - request.url.toString() }
             }

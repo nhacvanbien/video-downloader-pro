@@ -1,6 +1,5 @@
 package com.smarttool.videodownloader.feature.main.presentation
 
-import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.smarttool.videodownloader.android.R
@@ -18,10 +17,8 @@ import com.smarttool.videodownloader.feature.settings.presentation.SettingsRoute
 @Composable
 fun MainRoute(
     selectedTab: MainTab,
-    bannerAd: View,
     processingHost: ProcessingWebViewHost,
     onSelectTab: (MainTab) -> Unit,
-    showInterstitial: (onDone: () -> Unit) -> Unit,
     onOpenUrl: (String) -> Unit,
     onOpenGuide: (from: String) -> Unit,
     onOpenTabs: () -> Unit,
@@ -41,7 +38,6 @@ fun MainRoute(
     ) { tab ->
         when (tab) {
             MainTab.Browser -> BrowserHomeRoute(
-                showInterstitial = showInterstitial,
                 onOpenUrl = onOpenUrl,
                 onOpenGuide = { onOpenGuide(GUIDE_FROM_HOME) },
                 onOpenTabs = onOpenTabs,
@@ -51,7 +47,7 @@ fun MainRoute(
 
             MainTab.Processing -> ProcessingRoute(
                 host = processingHost,
-                onOpenGuide = { showInterstitial { onOpenGuide(GUIDE_FROM_PROCESS) } },
+                onOpenGuide = { onOpenGuide(GUIDE_FROM_PROCESS) },
                 onPreviewMedia = onPreviewMedia,
             )
 

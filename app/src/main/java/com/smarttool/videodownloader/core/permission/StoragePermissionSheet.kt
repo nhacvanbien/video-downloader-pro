@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toColorInt
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.smarttool.videodownloader.VideoDownloaderApplication
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.android.databinding.LayoutBottomSheetPermissionBinding
 
@@ -209,7 +208,6 @@ class StoragePermissionSheet(
             data = Uri.fromParts("package", activity.packageName, null)
         }
 
-        VideoDownloaderApplication.instance.appResumeAdHelper.setDisableAppResumeOnScreen()
         openAppSettings.launch(intent)
     }
 

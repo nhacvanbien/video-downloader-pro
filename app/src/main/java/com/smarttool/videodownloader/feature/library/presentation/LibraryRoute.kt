@@ -65,7 +65,6 @@ fun LibraryRoute(
         ),
         state = state,
         items = items,
-        showAd = if (isPrivate) items.isNotEmpty() else true,
         onFilterChange = { viewModel.onEvent(LibraryContract.Event.FilterChange(it)) },
         onSearchChange = { viewModel.onEvent(LibraryContract.Event.SearchChange(it)) },
         onSearchVisibleChange = { viewModel.onEvent(LibraryContract.Event.SetSearchVisible(it)) },

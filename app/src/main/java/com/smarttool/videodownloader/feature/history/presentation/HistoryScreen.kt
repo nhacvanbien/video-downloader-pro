@@ -66,7 +66,6 @@ fun HistoryScreen(
     onDeleteEntry: (HistoryEntry) -> Unit,
     onClearHistory: () -> Unit,
     onAddBookmark: () -> Unit,
-    adSlot: @Composable () -> Unit = {},
 ) {
     val isBookmarkMode = state.mode == HistoryMode.BOOKMARK
 
@@ -135,10 +134,6 @@ fun HistoryScreen(
                         Icon(painterResource(R.drawable.ic_add), contentDescription = null)
                     }
                 }
-            }
-
-            if (!isBookmarkMode && state.entries.isNotEmpty()) {
-                adSlot()
             }
         }
     }

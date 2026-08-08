@@ -60,11 +60,6 @@
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
 
-<!--        <property-->
-<!--            android:name="android.adservices.AD_SERVICES_CONFIG"-->
-<!--            android:resource="@xml/gma_ad_services_config"-->
-<!--            tools:replace="android:resource" />-->
-
         <receiver
             android:name="com.smarttool.videodownloader.data.downloader.generic_downloader.NotificationReceiver"
             android:enabled="true" />
@@ -90,16 +85,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="${app_id}" />
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="${facebook_app_id}" />
-        <meta-data
-            android:name="com.facebook.sdk.ClientToken"
-            android:value="${facebook_client_token}" />
     </application>
 
 </manifest>

@@ -32,7 +32,6 @@ fun SelectVideoRoute(onBack: () -> Unit) {
         title = stringResource(R.string.string_add_to_private),
         state = state,
         items = items,
-        showAd = false,
         onFilterChange = { viewModel.onEvent(LibraryContract.Event.FilterChange(it)) },
         onSearchChange = { viewModel.onEvent(LibraryContract.Event.SearchChange(it)) },
         onSearchVisibleChange = { viewModel.onEvent(LibraryContract.Event.SetSearchVisible(it)) },

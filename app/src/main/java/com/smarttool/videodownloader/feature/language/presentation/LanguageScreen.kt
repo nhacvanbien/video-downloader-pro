@@ -96,24 +96,6 @@ fun LanguageScreen(
                     )
                 }
             }
-
-//            if (mode != LanguageMode.Settings && hasSelection) {
-//                NativeAdFullContainer(
-//                    adUnitId = BuildConfig.NATIVE_LANGUAGE_1_2,
-//                    layoutRes = R.layout.layout_native_language_2,
-//                    adPlacement = "native_language_1_2",
-//                    canShowAds = AdsConstant.showNativeLanguage1_2,
-//                    modifier = Modifier.fillMaxWidth().height(280.dp),
-//                )
-//            } else {
-//                NativeAdFullContainer(
-//                    adUnitId = BuildConfig.NATIVE_LANGUAGE_1_1,
-//                    layoutRes = R.layout.layout_native_language,
-//                    adPlacement = "native_language_1_1",
-//                    canShowAds = AdsConstant.showNativeLanguage1_1,
-//                    modifier = Modifier.fillMaxWidth().height(280.dp),
-//                )
-//            }
         }
 
         if (showLoadingOverlay) {

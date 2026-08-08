@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -31,17 +30,14 @@ import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
 
 /**
- * The splash chrome. [progressView] and [bannerView] are the existing Views the
- * activity still drives (the custom seekbar exposes a progress flow the ad
- * orchestration awaits, and the ad SDK writes into the banner container), so they
- * are hosted here rather than reimplemented.
+ * The splash chrome. [progressView] is the existing custom seekbar View the activity
+ * still drives (it exposes the progress flow the hand-off to [MainActivity] awaits),
+ * so it is hosted here rather than reimplemented.
  */
 @Composable
 fun SplashScreen(
     loadingText: String,
-    showBanner: Boolean,
     progressView: View,
-    bannerView: View,
 ) {
     Box(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
         Column(
@@ -80,18 +76,6 @@ fun SplashScreen(
                 factory = { progressView },
                 modifier = Modifier.width(180.dp).height(20.dp).padding(bottom = 8.dp),
             )
-
-            Text(
-                text = stringResource(R.string.string_this_action_can_contain_ads),
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
-                color = AppWhite,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 64.dp, vertical = 28.dp),
-            )
-
-            if (showBanner) {
-                AndroidView(factory = { bannerView }, modifier = Modifier.fillMaxWidth())
-            }
         }
     }
 }

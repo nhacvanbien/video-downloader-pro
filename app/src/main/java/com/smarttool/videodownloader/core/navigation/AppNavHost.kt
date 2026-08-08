@@ -1,6 +1,5 @@
 package com.smarttool.videodownloader.core.navigation
 
-import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -25,7 +24,6 @@ import com.smarttool.videodownloader.feature.main.presentation.GUIDE_FROM_HOME
 import com.smarttool.videodownloader.feature.main.presentation.MainRoute
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
 import com.smarttool.videodownloader.feature.media.presentation.MediaRoute
-import com.smarttool.videodownloader.feature.nativefull.presentation.NativeFullRoute
 import com.smarttool.videodownloader.feature.permission.presentation.PermissionRoute
 import com.smarttool.videodownloader.feature.pin.presentation.PinRoute
 import com.smarttool.videodownloader.feature.pin.presentation.SecurityRoute
@@ -51,11 +49,9 @@ fun AppNavHost(
     navController: NavHostController,
     startDestination: String,
     selectedTab: MainTab,
-    mainBannerAd: View,
     processingHost: ProcessingWebViewHost,
     webTabHost: WebTabViewHost,
     onSelectTab: (MainTab) -> Unit,
-    showInterstitial: (onDone: () -> Unit) -> Unit,
     onExitRequested: () -> Unit,
 ) {
     val openWebTab: (String) -> Unit = { url ->
@@ -88,10 +84,8 @@ fun AppNavHost(
         composable(AppRoute.MAIN) {
             MainRoute(
                 selectedTab = selectedTab,
-                bannerAd = mainBannerAd,
                 processingHost = processingHost,
                 onSelectTab = onSelectTab,
-                showInterstitial = showInterstitial,
                 onOpenUrl = openWebTab,
                 onOpenGuide = { from -> navController.navigate(AppRoute.guide(from)) },
                 onOpenTabs = { navController.navigate(AppRoute.TABS) },
@@ -115,7 +109,6 @@ fun AppNavHost(
 
             GuideRoute(
                 isHomeGuide = open == GUIDE_FROM_HOME,
-                showInterstitial = showInterstitial,
                 onBack = { navController.popBackStack() },
             )
         }
@@ -132,7 +125,6 @@ fun AppNavHost(
                 } else {
                     HistoryMode.HISTORY
                 },
-                showInterstitial = showInterstitial,
                 onOpenUrl = openWebTab,
                 onBack = { navController.popBackStack() },
             )
@@ -140,7 +132,6 @@ fun AppNavHost(
 
         composable(AppRoute.TABS) {
             TabsRoute(
-                showInterstitial = showInterstitial,
                 onOpenUrl = openWebTab,
             )
         }
@@ -154,7 +145,7 @@ fun AppNavHost(
             WebTabRoute(
                 host = webTabHost,
                 url = url,
-                onOpenTabs = { showInterstitial { navController.navigate(AppRoute.TABS) } },
+                onOpenTabs = { navController.navigate(AppRoute.TABS) },
                 onPreviewMedia = previewMedia,
                 onBack = {
                     webTabHost.release()
@@ -331,10 +322,6 @@ fun AppNavHost(
                     }
                 },
             )
-        }
-
-        composable(AppRoute.NATIVE_FULL) {
-            NativeFullRoute(onClose = { navController.popBackStack() })
         }
     }
 }

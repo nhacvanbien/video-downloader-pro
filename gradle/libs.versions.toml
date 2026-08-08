@@ -3,6 +3,7 @@ android-gradle-plugin = "8.4.0"
 activity = "1.10.1"
 agp = "8.13.0"
 appcompat = "1.7.1"
+webkit = "1.12.1"
 constraintlayout = "2.2.1"
 coreKtx = "1.17.0"
 espressoCore = "3.7.0"
@@ -32,12 +33,8 @@ datastore = "1.1.1"
 dotsindicator = "4.3"
 review = "2.0.1"
 appUpdate = "2.1.0"
-facebookAds = "6.18.0.0"
-facebookSdk = "17.0.0"
-shimmer = "0.5.0"
 guava = "27.0.1-android"
 lottie = "6.4.0"
-vtnAds = "2.0.4"
 jsoup = "1.18.3"
 youtubeDl = "0.18.1"
 work = "2.9.1"
@@ -60,6 +57,7 @@ lifecycle = "2.8.7"
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-webkit = { group = "androidx.webkit", name = "webkit", version.ref = "webkit" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -121,12 +119,8 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 dotsindicator = { module = "com.tbuonomo:dotsindicator", version.ref = "dotsindicator" }
 review = { module = "com.google.android.play:review", version.ref = "review" }
 app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdate" }
-facebook-ads = { module = "com.google.ads.mediation:facebook", version.ref = "facebookAds" }
-facebook-sdk = { module = "com.facebook.android:facebook-android-sdk", version.ref = "facebookSdk" }
-facebook-shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "shimmer" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
-vtn-ads = { module = "com.github.devvtn:vtn_ads_libs", version.ref = "vtnAds" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 youtube-dl = { module = "io.github.junkfood02.youtubedl-android:library", version.ref = "youtubeDl" }
 youtube-dl-ffmpeg = { module = "io.github.junkfood02.youtubedl-android:ffmpeg", version.ref = "youtubeDl" }

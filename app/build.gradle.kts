@@ -38,68 +38,19 @@ android {
     productFlavors {
         create("develop") {
             dimension = "default"
-            buildConfigField("Long", "Minimum_Fetch", "5L")
-            buildConfigField("String", "facebook_app_id", "\"1303924174289230\"")
-            buildConfigField("String", "facebook_client_token", "\"ea374c985a08b0c8c400bcd17c54f4d4\"")
-            buildConfigField("String", "INTER_SPLASH", "\"ca-app-pub-3940256099942544/1033173712\"")
-            buildConfigField("String", "BANNER_SPLASH", "\"ca-app-pub-3940256099942544/6300978111\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_1", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_2", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_1", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_2", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_PERMISSION", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_HOME", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "BANNER_ALL", "\"ca-app-pub-3940256099942544/6300978111\"")
-            buildConfigField("String", "NATIVE_SMALL_ALL", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "OPEN_RESUME", "\"ca-app-pub-3940256099942544/9257395921\"")
-            buildConfigField("String", "INTER_SPLASH_HIGH", "\"ca-app-pub-3940256099942544/1033173712\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_1_HIGH", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_2_HIGH", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_1_HIGH", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_2_HIGH", "\"ca-app-pub-3940256099942544/2247696110\"")
-            buildConfigField("String", "INTER_ALL", "\"ca-app-pub-3940256099942544/1033173712\"")
-            buildConfigField("String", "NATIVE_FULL_ALL", "\"ca-app-pub-3940256099942544/2247696110\"")
-
         }
         create("production") {
             dimension = "default"
-            buildConfigField("Long", "Minimum_Fetch", "3600L")
-            buildConfigField("String", "facebook_app_id", "\"1303924174289230\"")
-            buildConfigField("String", "facebook_client_token", "\"ea374c985a08b0c8c400bcd17c54f4d4\"")
-            buildConfigField("String", "INTER_SPLASH", "\"ca-app-pub-1249320623511529/5683148735\"")
-            buildConfigField("String", "BANNER_SPLASH", "\"ca-app-pub-1249320623511529/4370067061\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_1", "\"ca-app-pub-1249320623511529/1389638368\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_2", "\"ca-app-pub-1249320623511529/3056985394\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_1", "\"ca-app-pub-1249320623511529/4314226747\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_2", "\"ca-app-pub-1249320623511529/9272514731\"")
-            buildConfigField("String", "NATIVE_PERMISSION", "\"ca-app-pub-1249320623511529/1688063405\"")
-            buildConfigField("String", "NATIVE_HOME", "\"ca-app-pub-1249320623511529/8885731803\"")
-            buildConfigField("String", "BANNER_ALL", "\"ca-app-pub-1249320623511529/8181319563\"")
-            buildConfigField("String", "NATIVE_SMALL_ALL", "\"ca-app-pub-1249320623511529/8877246141\"")
-            buildConfigField("String", "OPEN_RESUME", "\"ca-app-pub-1249320623511529/5555156222\"")
-            buildConfigField("String", "INTER_SPLASH_HIGH", "\"ca-app-pub-1249320623511529/6082158815\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_1_HIGH", "\"ca-app-pub-1249320623511529/2142913807\"")
-            buildConfigField("String", "NATIVE_LANGUAGE_1_2_HIGH", "\"ca-app-pub-1249320623511529/1346328144\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_1_HIGH", "\"ca-app-pub-1249320623511529/5062211878\"")
-            buildConfigField("String", "NATIVE_ONBOARD_FULLSCREEN_1_2_HIGH", "\"ca-app-pub-1249320623511529/5144589463\"")
-            buildConfigField("String", "INTER_ALL", "\"ca-app-pub-1249320623511529/9304113717\"")
-            buildConfigField("String", "NATIVE_FULL_ALL", "\"ca-app-pub-1249320623511529/9583315311\"")
         }
     }
 
     buildTypes {
         debug {
             isDebuggable = true
-            manifestPlaceholders["app_id"] = "ca-app-pub-1249320623511529~7642263518"
-            manifestPlaceholders["facebook_app_id"] = "1303924174289230"
-            manifestPlaceholders["facebook_client_token"] = "ea374c985a08b0c8c400bcd17c54f4d4"
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            manifestPlaceholders["app_id"] = "ca-app-pub-1249320623511529~7642263518"
-            manifestPlaceholders["facebook_app_id"] = "1303924174289230"
-            manifestPlaceholders["facebook_client_token"] = "ea374c985a08b0c8c400bcd17c54f4d4"
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -133,6 +84,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.webkit)
 
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -183,9 +135,6 @@ dependencies {
     implementation(libs.dotsindicator)
     implementation(libs.review)
     implementation(libs.app.update)
-    implementation(libs.facebook.ads)
-    implementation(libs.facebook.sdk)
-    implementation(libs.facebook.shimmer)
     implementation(libs.lottie)
     implementation(libs.circular.progress)
     implementation(libs.balloon)

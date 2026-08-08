@@ -61,7 +61,6 @@ fun WebTabScreen(
     state: WebTabUiState,
     webView: View,
     fullscreenContainer: View,
-    bannerAd: View,
     onUrlChange: (String) -> Unit,
     onSubmitUrl: () -> Unit,
     onBack: () -> Unit,
@@ -114,8 +113,6 @@ fun WebTabScreen(
                     onBookmark = onBookmark,
                     onDownload = onDownload
                 )
-
-//                RetainedAndroidView(view = bannerAd, modifier = Modifier.fillMaxWidth())
             }
         }
 

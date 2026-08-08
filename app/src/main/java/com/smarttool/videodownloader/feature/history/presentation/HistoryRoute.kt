@@ -6,10 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.smarttool.videodownloader.android.BuildConfig
-import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
 import com.smarttool.videodownloader.core.ui.dialogs.DialogAddBookmark
 import com.smarttool.videodownloader.core.ui.dialogs.DialogConfirmDelete
 import com.smarttool.videodownloader.data.repository.TabModelRepository
@@ -24,7 +20,6 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun HistoryRoute(
     mode: HistoryMode,
-    showInterstitial: (onDone: () -> Unit) -> Unit,
     onOpenUrl: (String) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -35,13 +30,11 @@ fun HistoryRoute(
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val leave = { showInterstitial(onBack) }
-
-    BackHandler { leave() }
+    BackHandler { onBack() }
 
     HistoryScreen(
         state = state,
-        onBack = leave,
+        onBack = onBack,
         onSearchQueryChange = { viewModel.onEvent(HistoryContract.Event.SearchQueryChange(it)) },
         onSearchActiveChange = { viewModel.onEvent(HistoryContract.Event.SearchActiveChange(it)) },
         onEntryClick = { entry ->
@@ -64,14 +57,6 @@ fun HistoryRoute(
             DialogAddBookmark(context) { name, url ->
                 viewModel.onEvent(HistoryContract.Event.AddBookmark(name, url))
             }.show()
-        },
-        adSlot = {
-            NativeAdContainer(
-                adUnitId = BuildConfig.NATIVE_SMALL_ALL,
-                layoutRes = R.layout.layout_native_ad_small_bottom,
-                adPlacement = "native_history",
-                canShowAds = AdsConstant.showNativeSmallAll,
-            )
         },
     )
 }

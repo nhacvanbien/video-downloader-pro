@@ -25,10 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
 import com.smarttool.videodownloader.core.ui.components.ScreenGradient
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
@@ -130,13 +127,6 @@ fun PermissionScreen(
                 )
             }
         }
-
-        NativeAdContainer(
-            adUnitId = BuildConfig.NATIVE_PERMISSION,
-            layoutRes = R.layout.layout_native_ad_small_bottom,
-            adPlacement = "native_permission",
-            canShowAds = AdsConstant.showNativePermission,
-        )
     }
 }
 

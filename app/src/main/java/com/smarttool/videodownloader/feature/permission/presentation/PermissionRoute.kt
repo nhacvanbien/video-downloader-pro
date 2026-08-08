@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.smarttool.videodownloader.VideoDownloaderApplication
 import com.smarttool.videodownloader.android.R
 import org.koin.androidx.compose.koinViewModel
 
@@ -49,7 +48,6 @@ fun PermissionRoute(onContinue: () -> Unit) {
             AlertDialog.BUTTON_POSITIVE,
             context.getString(R.string.go_to_setting),
         ) { _, _ ->
-            VideoDownloaderApplication.instance.appResumeAdHelper.setDisableAppResumeOnScreen()
             context.startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", context.packageName, null)
@@ -92,7 +90,6 @@ fun PermissionRoute(onContinue: () -> Unit) {
     // can change without one of the launchers above reporting it.
     LifecycleResumeEffect(Unit) {
         viewModel.onEvent(PermissionContract.Event.RefreshGrants)
-        VideoDownloaderApplication.instance.appResumeAdHelper.setEnableAppResumeOnScreen()
         onPauseOrDispose { }
     }
 

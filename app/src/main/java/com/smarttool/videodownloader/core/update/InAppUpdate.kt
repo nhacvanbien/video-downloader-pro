@@ -1,4 +1,4 @@
-package com.smarttool.videodownloader.core.ads
+package com.smarttool.videodownloader.core.update
 
 import android.app.Activity
 import android.content.Intent

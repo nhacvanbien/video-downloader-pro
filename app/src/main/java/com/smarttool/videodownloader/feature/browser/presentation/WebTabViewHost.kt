@@ -26,19 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import com.ads.admob.data.ContentAd
-import com.ads.admob.helper.banner.BannerAdConfig
-import com.ads.admob.helper.banner.BannerAdHelper
-import com.ads.admob.helper.banner.params.BannerAdParam
-import com.ads.admob.listener.BannerAdCallBack
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.LoadAdError
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
 import com.smarttool.videodownloader.core.AppConstant
-import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.browser.BrowserUserAgent
 import com.smarttool.videodownloader.core.browser.applyDetectionDefaults
 import com.smarttool.videodownloader.core.di.ScopedViewModelStore
@@ -62,8 +52,8 @@ import org.koin.core.component.inject
 import timber.log.Timber
 
 /**
- * Owns the browser tab's raw [WebView] (and the ad banner / fullscreen container Views
- * around it) and nothing else: every callback below reads state from [tabViewModel]/
+ * Owns the browser tab's raw [WebView] (and the fullscreen container View around it)
+ * and nothing else: every callback below reads state from [tabViewModel]/
  * [detector]/[settingsViewModel] or dispatches an event to them — none of it decides
  * anything itself. [WebTabViewModel], [DetectedVideosTabViewModel] and
  * [BrowserSettingsViewModel] hold all the state and business rules; this class exists
@@ -120,12 +110,6 @@ class WebTabViewHost(
     /** Receives the page's fullscreen video via `WebChromeClient.onShowCustomView`. */
     val fullscreenContainer: FrameLayout by lazy { FrameLayout(activity) }
 
-    private val bannerBinding by lazy {
-        LayoutBannerContainerBinding.inflate(activity.layoutInflater)
-    }
-
-    val bannerView: View get() = bannerBinding.root
-
     private lateinit var webTab: WebTab
 
     private var videoAlert: MaterialAlertDialogBuilder? = null
@@ -162,7 +146,6 @@ class WebTabViewHost(
 
         webTab = WebTabFactory.createWebTabFromInput(url)
 
-        loadAd()
         registerServiceWorkerClient()
 
         detector.attach(tabViewModel)
@@ -267,9 +250,15 @@ class WebTabViewHost(
 
                     DetectedVideosContract.Effect.VideoPushed -> onVideoPushed()
 
-                    // Never surfaced today — carried over unchanged from the pre-Contract
-                    // `loginRequiredEvent`, which also had no observer anywhere.
-                    is DetectedVideosContract.Effect.LoginRequired -> Unit
+                    is DetectedVideosContract.Effect.LoginRequired ->
+                        Toast.makeText(
+                            activity,
+                            activity.getString(
+                                R.string.string_login_required_to_download,
+                                effect.host,
+                            ),
+                            Toast.LENGTH_LONG,
+                        ).show()
                 }
             }
         }
@@ -678,35 +667,6 @@ class WebTabViewHost(
             activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("copied_text", text))
         toast(R.string.string_copied_to_clipboard)
-    }
-
-    // ------------------------------------------------------------------ ads
-
-    private val bannerAdHelper by lazy {
-        BannerAdHelper(
-            activity = activity,
-            lifecycleOwner = activity,
-            config = BannerAdConfig(
-                idAds = BuildConfig.BANNER_ALL,
-                canShowAds = AdsConstant.showBannerAll,
-                canReloadAds = true,
-                adPlacement = "banner_web_tab",
-            ),
-        )
-    }
-
-    private fun loadAd() {
-        if (!AdsConstant.showBannerAll) return
-
-        bannerAdHelper.setBannerContentView(bannerBinding.frAdsBanner)
-        bannerAdHelper.requestAds(BannerAdParam.Request)
-        bannerAdHelper.registerAdListener(object : BannerAdCallBack {
-            override fun onAdImpression() = Unit
-            override fun onAdClicked() = Unit
-            override fun onAdFailedToLoad(loadAdError: LoadAdError) = Unit
-            override fun onAdFailedToShow(adError: AdError) = Unit
-            override fun onAdLoaded(data: ContentAd) = Unit
-        })
     }
 
     private fun toast(messageRes: Int) {

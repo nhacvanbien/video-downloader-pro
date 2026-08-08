@@ -10,7 +10,6 @@ import org.koin.androidx.compose.koinViewModel
 /** The open-tabs list. Every way out of it opens the browser on a URL. */
 @Composable
 fun TabsRoute(
-    showInterstitial: (onDone: () -> Unit) -> Unit,
     onOpenUrl: (String) -> Unit,
 ) {
     val viewModel: TabsViewModel = koinViewModel()
@@ -28,10 +27,8 @@ fun TabsRoute(
     TabsScreen(
         tabs = tabs,
         onOpenTab = { tab ->
-            showInterstitial {
-                if (tab.url.isNotEmpty()) {
-                    viewModel.onEvent(TabsContract.Event.OpenTab(tab))
-                }
+            if (tab.url.isNotEmpty()) {
+                viewModel.onEvent(TabsContract.Event.OpenTab(tab))
             }
         },
         onDeleteTab = { viewModel.onEvent(TabsContract.Event.DeleteTab(it)) },

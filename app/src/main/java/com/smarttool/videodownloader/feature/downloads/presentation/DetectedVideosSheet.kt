@@ -28,11 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.MediaThumbnail
-import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
@@ -41,8 +38,7 @@ import com.smarttool.videodownloader.feature.downloads.domain.model.VideoFormatO
 
 /**
  * Picker for the videos detected on the current page — the Compose replacement for
- * the `VideoInfoAdapter` bottom sheet. The native ad renders under the first row
- * only, matching the View version.
+ * the `VideoInfoAdapter` bottom sheet.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +56,7 @@ fun DetectedVideosSheet(
         containerColor = AppWhite,
     ) {
         LazyColumn(modifier = Modifier.padding(bottom = 24.dp)) {
-            itemsIndexed(videos, key = { _, v -> v.id }) { index, video ->
+            itemsIndexed(videos, key = { _, v -> v.id }) { _, video ->
                 DetectedVideoRow(
                     video = video,
                     onSelectFormat = { onSelectFormat(video, it) },
@@ -68,15 +64,6 @@ fun DetectedVideosSheet(
                     onPreview = { onPreview(video) },
                     onDownload = { onDownload(video) },
                 )
-
-                if (index == 0) {
-                    NativeAdContainer(
-                        adUnitId = BuildConfig.NATIVE_SMALL_ALL,
-                        layoutRes = R.layout.layout_native_ad_small_bottom,
-                        adPlacement = "native_small_all",
-                        canShowAds = AdsConstant.showNativeSmallAll,
-                    )
-                }
             }
         }
     }

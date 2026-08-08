@@ -26,8 +26,6 @@ object AppRoute {
 
     const val DISCLAIMERS = "disclaimers"
 
-    const val NATIVE_FULL = "nativeFull"
-
     const val ARG_OPEN = "open"
     const val GUIDE = "guide/{$ARG_OPEN}"
 
