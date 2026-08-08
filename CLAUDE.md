@@ -50,7 +50,7 @@ Không có migration dữ liệu cũ từ `app_prefs` — cố ý, app được 
 ### 5. Giữ instance View qua điều hướng Compose (BẮT BUỘC, đừng phá)
 App vẫn giữ vài View thật (WebView, PlayerView, banner ad) sống xuyên suốt navigation vì composable bị dispose khi màn khác đè lên:
 - `core/ui/components/RetainedAndroidView.kt` — dùng cho mọi View cần giữ sống; `AndroidView(factory = { view })` trần sẽ **crash lần compose thứ 2** ("child already has a parent").
-- `feature/browser/presentation/WebTabController.kt` và `feature/downloads/presentation/ProcessingController.kt` do **Activity sở hữu**, không nằm trong composition. Rời màn phải gọi `release()` tường minh (BackHandler/onBack), KHÔNG suy ra từ composable bị dispose.
+- `feature/browser/presentation/WebTabViewHost.kt` và `feature/downloads/presentation/ProcessingWebViewHost.kt` do **Activity sở hữu**, không nằm trong composition. Rời màn phải gọi `release()` tường minh (BackHandler/onBack), KHÔNG suy ra từ composable bị dispose.
 - `feature/media/presentation/MediaPlayerHolder.kt` giữ ExoPlayer, tạo bằng `remember(url)`, release trong `DisposableEffect`.
 - `PlayerView` trong `MediaPlayerHolder` PHẢI inflate từ `res/layout/view_media_player.xml` (có `app:surface_type="texture_view"`), KHÔNG được gọi `PlayerView(context)` trần. Constructor trần không có `AttributeSet` nên rơi về mặc định `SURFACE_TYPE_SURFACE_VIEW`; `SurfaceView` compositing bởi SurfaceFlinger ở layer riêng, huỷ surface bất đồng bộ với việc View bị gỡ khỏi cây → video đè (ghost frame) lên màn hình vài giây sau khi back. `surface_type` chỉ đọc được từ XML attrs lúc construct, không có setter runtime.
 - `MainActivity` cần `android:configChanges="orientation|screenSize|..."` trong manifest — nếu Activity bị recreate lúc xoay ngang sẽ mất WebView + back stack.
@@ -77,6 +77,12 @@ Nếu tạo `Dialog(context)` rồi set `ComposeView` bên trong: PHẢI chụp 
 - Đừng regex xoá import hàng loạt.
 - Trước khi `rm` bất kỳ file nào: `grep` cả `app/src/main/res/` — custom View có thể chỉ được XML tham chiếu, không hiện ra khi grep code Kotlin.
 - Compile sau **mỗi bước**, đừng dồn nhiều thay đổi rồi mới compile.
+
+## Bẫy trong download & WebView (đã dính, đã fix — đừng lặp lại)
+
+- `FileUtil.moveMedia()` / `moveFileToDownloadsFolder()` trả về **path thật sự** sau khi move (kiểu `String?`, không phải `Boolean`). Trên Android Q+, khi lưu vào Downloads công khai, MediaStore dedup tên file khi trùng (`name(1)`, `name(2)`...) — path bạn tính sẵn trước khi move (`target`/`toUri`) có thể không khớp file thật sự được tạo. LUÔN dùng giá trị `moveMedia` trả về để set `VideoTaskItem.filePath`, đừng tự suy path từ tên gốc.
+- `NotificationsHelper.createNotificationBuilder()` nhánh `VideoTaskState.SUCCESS` chỉ insert vào Room (`videoTaskItemRepository.insertVideoTaskItem`) nếu `File(task.filePath).exists()` đúng. Nếu `filePath` sai (xem trên) thì insert bị skip **âm thầm** — không log, không exception, không crash. Video tải xong (file có trên sdcard) nhưng không hiện ở tab Downloaded / không có row trong DB → kiểm tra chỗ này đầu tiên.
+- Title video lấy từ `WebTabViewModel.currentTitle`, chỉ nên set qua event `TitleReceived` (bắn từ `WebChromeClient.onReceivedTitle`, wired ở cả `WebTabViewHost` và `ProcessingWebViewHost`). ĐỪNG đọc `view.title` trong `onPageStarted`/`shouldOverrideUrlLoading` rồi coi là title thật — tại thời điểm đó WebView trả về chính URL vì trang chưa parse xong `<title>`.
 
 ## Ghi chú khác
 
