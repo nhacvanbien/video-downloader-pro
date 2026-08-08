@@ -1,8 +1,5 @@
 package com.smarttool.videodownloader.feature.downloads.presentation
 
-import android.content.ClipDescription
-import android.content.ClipboardManager
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import android.view.ViewGroup
@@ -28,10 +25,6 @@ import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
-import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
-import com.smarttool.videodownloader.data.network.entity.ProgressInfo
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosContract
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosTabViewModel
@@ -46,22 +39,20 @@ import org.koin.core.component.inject
 import timber.log.Timber
 
 /**
- * The Processing tab: paste a link, probe it with an off-screen WebView, then list and
- * control the running downloads.
- *
- * This used to be `ProcessingFragment`. The detection WebView has to outlive tab
- * switches — the tab bodies are now composables that get disposed when you switch away
- * — so it lives here in an Activity-owned object instead of in the composition.
- *
- * The WebView is configured, sniffed and presented exactly as the browser's is; the
- * shared halves are [applyDetectionDefaults], [VideoSniffer] and
- * [DetectedVideosPresenter]. What is left here is what makes this tab itself: the probe
- * is invisible and muted, and its URL comes from the clipboard rather than from browsing.
+ * Owns the Processing tab's off-screen probe [WebView] and nothing else: every callback
+ * below reads state from [tabViewModel]/[detector] or dispatches an event to them — none
+ * of it decides anything itself. [ProcessingViewModel], [WebTabViewModel] and
+ * [DetectedVideosTabViewModel] hold all the state and business rules; this class exists
+ * purely because the probe (and the detected-videos sheet built from it) have to outlive
+ * tab switches — the Processing tab body is a composable that gets disposed when you
+ * switch away — so they cannot live in the composition, and cannot live in a ViewModel
+ * either (a `View` outliving the screen that created it is exactly what ViewModels are
+ * meant to avoid).
  */
-class ProcessingController(
+class ProcessingWebViewHost(
     private val activity: AppCompatActivity,
-    private val permissionSheet: StoragePermissionSheet,
-    private val permissionChecker: MediaPermissionChecker,
+    val permissionSheet: StoragePermissionSheet,
+    val permissionChecker: MediaPermissionChecker,
 ) : KoinComponent {
 
     /**
@@ -74,8 +65,12 @@ class ProcessingController(
     lateinit var processingViewModel: ProcessingViewModel
         private set
 
-    private lateinit var tabViewModel: WebTabViewModel
-    private lateinit var detector: DetectedVideosTabViewModel
+    lateinit var tabViewModel: WebTabViewModel
+        private set
+
+    lateinit var detector: DetectedVideosTabViewModel
+        private set
+
     private lateinit var sniffer: VideoSniffer
 
     /**
@@ -91,16 +86,10 @@ class ProcessingController(
     private val detectedVideoUiMapper: DetectedVideoUiMapper by inject()
     private val sanitizeFileName: SanitizeFileNameUseCase by inject()
 
-    /** Set by the route composable so the controller can drive navigation. */
+    /** Set by the route composable so the sheet can drive navigation. */
     var onPreviewMedia: (url: String, title: String, headers: String) -> Unit = { _, _, _ -> }
 
-    var uiState by mutableStateOf(ProcessingUiState())
-        private set
-
     private var webView: WebView? = null
-
-    private var currentUrl = ""
-
     private var started = false
 
     /** The off-screen probe WebView the screen keeps attached at 1dp. */
@@ -132,10 +121,7 @@ class ProcessingController(
 
         detector.attach(tabViewModel)
 
-        observeDetectionState()
-        observeLoadPageEvent()
-
-        tabViewModel.onEvent(WebTabPipelineContract.Event.LoadPage(currentUrl))
+        observeEffects()
     }
 
     fun release() {
@@ -166,18 +152,34 @@ class ProcessingController(
         webView?.onResume()
     }
 
-    // ------------------------------------------------------------------ observers
+    // ------------------------------------------------------------------ view-model wiring
 
-    private fun observeDetectionState() {
+    private fun observeEffects() {
+        // ProcessingViewModel decided whether the pasted text is probeable; forward that
+        // decision to whichever pipeline ViewModel acts on it.
         activity.lifecycleScope.launch {
-            detector.uiState.collect { state ->
-                uiState = uiState.copy(
-                    downloadButtonState = when (state.downloadButtonState) {
-                        is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
-                        is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
-                        else -> DownloadButtonUiState.Disabled
-                    },
-                )
+            processingViewModel.effect.collect { effect ->
+                when (effect) {
+                    is ProcessingContract.Effect.LoadUrl ->
+                        tabViewModel.onEvent(WebTabPipelineContract.Event.LoadPage(effect.url))
+
+                    ProcessingContract.Effect.ResetDetection ->
+                        detector.onEvent(DetectedVideosContract.Event.MarkCanNotDownload)
+                }
+            }
+        }
+
+        // The effect only carries the URL to load. It must not replace the WebView the
+        // screen is showing — `WebTabViewModel`'s `LoadPage` builds a tab with no WebView
+        // at all, and this host owns the only one there is.
+        activity.lifecycleScope.launch {
+            tabViewModel.effect.collect { effect ->
+                if (effect is WebTabPipelineContract.Effect.LoadPage &&
+                    effect.tab.getUrl().startsWith("http")
+                ) {
+                    webView?.stopLoading()
+                    webView?.loadUrl(effect.tab.getUrl())
+                }
             }
         }
 
@@ -198,77 +200,6 @@ class ProcessingController(
                 }
             }
         }
-    }
-
-    /**
-     * The event only carries the URL to load. It must not replace the WebView the
-     * screen is showing — `WebTabViewModel.loadPage` builds a tab with no WebView at
-     * all, and this controller owns the only one there is.
-     */
-    private fun observeLoadPageEvent() {
-        activity.lifecycleScope.launch {
-            tabViewModel.effect.collect { effect ->
-                if (effect is WebTabPipelineContract.Effect.LoadPage &&
-                    effect.tab.getUrl().startsWith("http")
-                ) {
-                    webView?.stopLoading()
-                    webView?.loadUrl(effect.tab.getUrl())
-                }
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------ screen actions
-
-    fun onUrlChange(url: String) {
-        uiState = uiState.copy(url = url)
-        currentUrl = url
-
-        // Anything that is not an http(s) link cannot be probed, so reset the button.
-        if (url.isBlank() || !url.startsWith("http")) {
-            detector.onEvent(DetectedVideosContract.Event.MarkCanNotDownload)
-            return
-        }
-
-        tabViewModel.onEvent(WebTabPipelineContract.Event.LoadPage(url))
-    }
-
-    fun pasteFromClipboard() {
-        val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-        val hasText = clipboard.hasPrimaryClip() &&
-            clipboard.primaryClipDescription
-                ?.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) == true
-
-        if (!hasText) {
-            toast(R.string.string_no_text_in_clipboard)
-            return
-        }
-
-        val copied = clipboard.primaryClip?.getItemAt(0)?.text?.toString().orEmpty()
-
-        if (copied.isEmpty()) {
-            toast(R.string.string_clipboard_is_empty)
-            return
-        }
-
-        onUrlChange(copied)
-    }
-
-    fun requestDetectedVideos() {
-        detector.onEvent(DetectedVideosContract.Event.ShowVideoInfo)
-    }
-
-    fun onPauseResume(info: ProgressInfo) {
-        if (info.downloadStatus == VideoTaskState.PAUSE) {
-            processingViewModel.onEvent(ProcessingContract.Event.Resume(info))
-        } else {
-            processingViewModel.onEvent(ProcessingContract.Event.Pause(info))
-        }
-    }
-
-    fun cancel(info: ProgressInfo) {
-        processingViewModel.onEvent(ProcessingContract.Event.Cancel(info, removeFile = true))
     }
 
     // ------------------------------------------------------------------ web view
@@ -347,11 +278,8 @@ class ProcessingController(
             view: WebView?,
             detail: RenderProcessGoneDetail?,
         ): Boolean {
-            val crashedOurs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val crashedOurs =
                 view == webView && detail?.didCrash() == true
-            } else {
-                view == webView
-            }
 
             if (crashedOurs) {
                 view?.destroy()

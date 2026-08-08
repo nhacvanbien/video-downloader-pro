@@ -10,9 +10,15 @@ import com.smarttool.videodownloader.feature.downloads.domain.usecase.PauseDownl
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ResumeDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StartDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StopAndSaveDownloadUseCase
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -34,12 +40,19 @@ class ProcessingViewModel(
     private val stopAndSaveDownload: StopAndSaveDownloadUseCase,
 ) : ViewModel() {
 
+    private val _uiState = MutableStateFlow(ProcessingContract.State())
+    val uiState: StateFlow<ProcessingContract.State> = _uiState.asStateFlow()
+
+    private val _effect = Channel<ProcessingContract.Effect>(Channel.BUFFERED)
+    val effect: Flow<ProcessingContract.Effect> = _effect.receiveAsFlow()
+
     /** Screen state, so this one is right to stop with the screen. */
     val downloads: StateFlow<List<ProgressInfo>> = observeActiveDownloads()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun onEvent(event: ProcessingContract.Event) {
         when (event) {
+            is ProcessingContract.Event.UrlChange -> onUrlChange(event.url)
             is ProcessingContract.Event.Start -> appScope.launch { startDownload(event.videoInfo) }
             is ProcessingContract.Event.Pause -> appScope.launch { pauseDownload(event.progressInfo) }
             is ProcessingContract.Event.Resume -> appScope.launch { resumeDownload(event.progressInfo) }
@@ -47,6 +60,17 @@ class ProcessingViewModel(
                 appScope.launch { cancelDownload(event.progressInfo, event.removeFile) }
 
             is ProcessingContract.Event.StopAndSave -> stopAndSaveDownload(event.progressInfo)
+        }
+    }
+
+    private fun onUrlChange(url: String) {
+        _uiState.update { it.copy(url = url) }
+
+        // Anything that is not an http(s) link cannot be probed, so reset the button.
+        if (url.isBlank() || !url.startsWith("http")) {
+            _effect.trySend(ProcessingContract.Effect.ResetDetection)
+        } else {
+            _effect.trySend(ProcessingContract.Effect.LoadUrl(url))
         }
     }
 }

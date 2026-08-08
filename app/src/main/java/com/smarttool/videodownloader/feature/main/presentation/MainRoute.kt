@@ -6,8 +6,8 @@ import androidx.compose.runtime.Composable
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.feature.browser.presentation.BrowserHomeRoute
-import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingRoute
+import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingWebViewHost
 import com.smarttool.videodownloader.feature.library.presentation.LibraryRoute
 import com.smarttool.videodownloader.feature.settings.presentation.SettingsRoute
 
@@ -19,7 +19,7 @@ import com.smarttool.videodownloader.feature.settings.presentation.SettingsRoute
 fun MainRoute(
     selectedTab: MainTab,
     bannerAd: View,
-    processingController: ProcessingController,
+    processingHost: ProcessingWebViewHost,
     onSelectTab: (MainTab) -> Unit,
     showInterstitial: (onDone: () -> Unit) -> Unit,
     onOpenUrl: (String) -> Unit,
@@ -50,7 +50,7 @@ fun MainRoute(
             )
 
             MainTab.Processing -> ProcessingRoute(
-                controller = processingController,
+                host = processingHost,
                 onOpenGuide = { showInterstitial { onOpenGuide(GUIDE_FROM_PROCESS) } },
                 onPreviewMedia = onPreviewMedia,
             )

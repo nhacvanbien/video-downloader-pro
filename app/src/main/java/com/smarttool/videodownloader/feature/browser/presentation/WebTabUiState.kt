@@ -2,6 +2,8 @@ package com.smarttool.videodownloader.feature.browser.presentation
 
 import com.smarttool.videodownloader.feature.downloads.presentation.DownloadButtonUiState
 
+/** Rendering shape `WebTabRoute` builds by combining `WebTabViewModel`'s and
+ * `DetectedVideosTabViewModel`'s state — not owned/mutated by either ViewModel itself. */
 data class WebTabUiState(
     val url: String = "",
     val progress: Int = 0,

@@ -35,8 +35,8 @@ import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.core.withAppLocale
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
-import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
-import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
+import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewHost
+import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingWebViewHost
 import com.smarttool.videodownloader.feature.main.presentation.MainContract
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
 import com.smarttool.videodownloader.feature.main.presentation.MainViewModel
@@ -65,12 +65,12 @@ class MainActivity : AppCompatActivity() {
         StoragePermissionSheet(this, permissionChecker)
     }
 
-    private val processingController by lazy {
-        ProcessingController(this, permissionSheet, permissionChecker)
+    private val processingHost by lazy {
+        ProcessingWebViewHost(this, permissionSheet, permissionChecker)
     }
 
-    private val webTabController by lazy {
-        WebTabController(this, permissionSheet, permissionChecker)
+    private val webTabHost by lazy {
+        WebTabViewHost(this, permissionSheet, permissionChecker)
     }
 
     private val bannerBinding by lazy { LayoutBannerContainerBinding.inflate(layoutInflater) }
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         InterAdsManager.openNativeFull = { openNativeFull?.invoke() }
 
         selectedTab = initialTab()
-        processingController.start()
+        processingHost.start()
 
         setContent {
             val navController = rememberNavController()
@@ -127,8 +127,8 @@ class MainActivity : AppCompatActivity() {
                     startDestination = startDestination(),
                     selectedTab = selectedTab,
                     mainBannerAd = bannerBinding.root,
-                    processingController = processingController,
-                    webTabController = webTabController,
+                    processingHost = processingHost,
+                    webTabHost = webTabHost,
                     onSelectTab = { selectedTab = it },
                     showInterstitial = { onDone -> showInterAll(onDone) },
                     onExitRequested = ::showDialogExitApp,
@@ -176,27 +176,27 @@ class MainActivity : AppCompatActivity() {
         menuInfo: ContextMenuInfo?,
     ) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        webTabController.onCreateContextMenu(v)
+        webTabHost.onCreateContextMenu(v)
     }
 
     override fun onPause() {
         super.onPause()
-        processingController.onActivityPause()
-        webTabController.onActivityPause()
+        processingHost.onActivityPause()
+        webTabHost.onActivityPause()
     }
 
     override fun onResume() {
         super.onResume()
-        processingController.onActivityResume()
-        webTabController.onActivityResume()
+        processingHost.onActivityResume()
+        webTabHost.onActivityResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         InterAdsManager.openNativeFull = null
         openNativeFull = null
-        processingController.release()
-        webTabController.release()
+        processingHost.release()
+        webTabHost.release()
     }
 
     private fun showDialogExitApp() {

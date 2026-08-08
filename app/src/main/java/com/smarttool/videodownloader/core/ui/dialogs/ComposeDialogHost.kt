@@ -15,8 +15,8 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 /**
- * Plain [Dialog] shown from non-Compose classes (Activity, WebTabController,
- * ProcessingController) needs its own ViewTree*Owner wiring — it isn't part of the host
+ * Plain [Dialog] shown from non-Compose classes (Activity, WebTabViewHost,
+ * ProcessingWebViewHost) needs its own ViewTree*Owner wiring — it isn't part of the host
  * Activity's setContent() tree, so Compose can't resolve them automatically.
  */
 fun Dialog.setComposeContent(context: Context, content: @Composable () -> Unit) {

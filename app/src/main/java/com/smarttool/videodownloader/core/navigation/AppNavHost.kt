@@ -9,10 +9,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
-import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
+import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewHost
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabRoute
 import com.smarttool.videodownloader.feature.disclaimers.presentation.DisclaimersRoute
-import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
+import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingWebViewHost
 import com.smarttool.videodownloader.feature.guide.presentation.GuideRoute
 import com.smarttool.videodownloader.feature.history.presentation.HistoryMode
 import com.smarttool.videodownloader.feature.history.presentation.HistoryRoute
@@ -52,8 +52,8 @@ fun AppNavHost(
     startDestination: String,
     selectedTab: MainTab,
     mainBannerAd: View,
-    processingController: ProcessingController,
-    webTabController: WebTabController,
+    processingHost: ProcessingWebViewHost,
+    webTabHost: WebTabViewHost,
     onSelectTab: (MainTab) -> Unit,
     showInterstitial: (onDone: () -> Unit) -> Unit,
     onExitRequested: () -> Unit,
@@ -89,7 +89,7 @@ fun AppNavHost(
             MainRoute(
                 selectedTab = selectedTab,
                 bannerAd = mainBannerAd,
-                processingController = processingController,
+                processingHost = processingHost,
                 onSelectTab = onSelectTab,
                 showInterstitial = showInterstitial,
                 onOpenUrl = openWebTab,
@@ -152,12 +152,12 @@ fun AppNavHost(
             val url = AppRoute.decode(entry.arguments?.getString(AppRoute.ARG_URL))
 
             WebTabRoute(
-                controller = webTabController,
+                host = webTabHost,
                 url = url,
                 onOpenTabs = { showInterstitial { navController.navigate(AppRoute.TABS) } },
                 onPreviewMedia = previewMedia,
                 onBack = {
-                    webTabController.release()
+                    webTabHost.release()
                     navController.popBackStack()
                 },
             )

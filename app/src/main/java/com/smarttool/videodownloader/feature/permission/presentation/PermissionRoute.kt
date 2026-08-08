@@ -7,6 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +23,7 @@ import org.koin.androidx.compose.koinViewModel
  * Onboarding permission step. Skipping is allowed — the grants are re-requested from
  * the download flow — so both buttons lead to the same place.
  */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun PermissionRoute(onContinue: () -> Unit) {
     val viewModel: PermissionViewModel = koinViewModel()
@@ -98,21 +100,10 @@ fun PermissionRoute(onContinue: () -> Unit) {
         state = state,
         onSkip = { viewModel.onEvent(PermissionContract.Event.Complete) },
         onRequestStorage = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestMediaImages.launch(Manifest.permission.READ_MEDIA_IMAGES)
-            } else {
-                requestLegacyStorage.launch(
-                    arrayOf(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                    ),
-                )
-            }
+            requestMediaImages.launch(Manifest.permission.READ_MEDIA_IMAGES)
         },
         onRequestNotification = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
+            requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
         },
         onContinue = { viewModel.onEvent(PermissionContract.Event.Complete) },
     )

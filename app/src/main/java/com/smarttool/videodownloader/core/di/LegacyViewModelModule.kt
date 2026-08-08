@@ -17,6 +17,6 @@ import org.koin.dsl.module
  */
 val legacyViewModelModule = module {
     viewModel { BrowserSettingsViewModel(get(), get()) }
-    viewModel { WebTabViewModel(get()) }
+    viewModel { WebTabViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { DetectedVideosTabViewModel(get(), get(), get(), get(), androidContext()) }
 }

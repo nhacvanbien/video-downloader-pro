@@ -2,16 +2,10 @@ package com.smarttool.videodownloader.feature.browser.presentation
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
-import android.util.Base64
 import android.view.View
 import android.view.WindowManager
 import android.webkit.HttpAuthHandler
@@ -54,57 +48,32 @@ import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.core.ui.SystemUiController
 import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
-import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
-import com.smarttool.videodownloader.data.network.entity.HistoryItem
-import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
-import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosPresenter
-import com.smarttool.videodownloader.feature.downloads.presentation.DownloadButtonUiState
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingViewModel
-import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
-import com.smarttool.videodownloader.feature.history.domain.usecase.SaveHistoryEntryUseCase
-import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
-import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
-import com.smarttool.videodownloader.feature.tab.domain.usecase.GetSelectedTabUseCase
-import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
-import com.smarttool.videodownloader.feature.tab.domain.usecase.OpenTabUseCase
 import com.vimalcvs.materialrating.DialogManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
-import java.io.File
-import java.io.FileOutputStream
-import java.net.URL
 
 /**
- * The browser tab: WebView, ad-blocking and video-detection wiring, download sheet.
- *
- * This used to be `WebTabActivity`. Under a single-Activity graph the destination's
- * composable is thrown away whenever something is pushed on top of it (a video
- * preview, for instance), so the WebView cannot live in the composition — it lives
- * here, in an object the Activity owns for as long as the browser is on the back
- * stack. [release] is called explicitly when the user leaves the browser rather than
- * on composable disposal, which is what keeps page state across a preview round trip.
- *
- * The WebView is configured, sniffed and presented exactly as the Processing tab's probe
- * is; the shared halves are [applyDetectionDefaults], [VideoSniffer] and
- * [DetectedVideosPresenter]. What is left here is what makes this a browser: chrome,
- * history, tabs, fullscreen video, image downloads and the ad banner.
+ * Owns the browser tab's raw [WebView] (and the ad banner / fullscreen container Views
+ * around it) and nothing else: every callback below reads state from [tabViewModel]/
+ * [detector]/[settingsViewModel] or dispatches an event to them — none of it decides
+ * anything itself. [WebTabViewModel], [DetectedVideosTabViewModel] and
+ * [BrowserSettingsViewModel] hold all the state and business rules; this class exists
+ * purely because the WebView has to outlive the browser destination's composable being
+ * disposed (a video preview pushed on top throws it away) — the WebView cannot live in
+ * the composition and cannot live in a ViewModel either (a `View` outliving the screen
+ * that created it is exactly what ViewModels are meant to avoid).
  */
-class WebTabController(
+class WebTabViewHost(
     private val activity: AppCompatActivity,
     private val permissionSheet: StoragePermissionSheet,
     private val permissionChecker: MediaPermissionChecker,
@@ -118,9 +87,15 @@ class WebTabController(
      */
     private var viewModels = ScopedViewModelStore()
 
-    private lateinit var tabViewModel: WebTabViewModel
-    private lateinit var settingsViewModel: BrowserSettingsViewModel
-    private lateinit var detector: DetectedVideosTabViewModel
+    lateinit var tabViewModel: WebTabViewModel
+        private set
+
+    lateinit var settingsViewModel: BrowserSettingsViewModel
+        private set
+
+    lateinit var detector: DetectedVideosTabViewModel
+        private set
+
     private lateinit var processingViewModel: ProcessingViewModel
     private lateinit var sniffer: VideoSniffer
 
@@ -132,25 +107,14 @@ class WebTabController(
     var detected by mutableStateOf<DetectedVideosPresenter?>(null)
         private set
 
-    private val saveHistoryEntry: SaveHistoryEntryUseCase by inject()
     private val appUtil: SystemUiController by inject()
     private val proxyController: CustomProxyController by inject()
     private val okHttpProxyClient: OkHttpProxyClient by inject()
     private val detectedVideoUiMapper: DetectedVideoUiMapper by inject()
     private val sanitizeFileName: SanitizeFileNameUseCase by inject()
-    private val videoTaskItemRepository: VideoTaskItemRepository by inject()
-    private val observeTabs: ObserveTabsUseCase by inject()
-    private val createTab: CreateTabUseCase by inject()
-    private val getSelectedTab: GetSelectedTabUseCase by inject()
-    private val openTab: OpenTabUseCase by inject()
 
-    /** Set by the route composable so the controller can drive navigation. */
-    var onOpenTabs: () -> Unit = {}
-    var onCloseBrowser: () -> Unit = {}
+    /** Set by the route composable so the host can drive navigation. */
     var onPreviewMedia: (url: String, title: String, headers: String) -> Unit = { _, _, _ -> }
-
-    var uiState by mutableStateOf(WebTabUiState())
-        private set
 
     /** Hosts the WebView so the existing show/hide logic keeps working under Compose. */
     val webViewContainer: FrameLayout by lazy { FrameLayout(activity) }
@@ -166,14 +130,8 @@ class WebTabController(
 
     private lateinit var webTab: WebTab
 
-    private var historyItemCurrent: HistoryItem? = null
-
     private var videoAlert: MaterialAlertDialogBuilder? = null
-    private var lastSavedHistoryUrl: String = ""
-    private var lastSavedTitleHistory: String = ""
 
-    private var isReload = false
-    private var canGoCounter = 0
     private var started = false
 
     // ------------------------------------------------------------------ lifecycle
@@ -206,17 +164,17 @@ class WebTabController(
         )
 
         webTab = WebTabFactory.createWebTabFromInput(url)
-        uiState = WebTabUiState(url = webTab.getUrl())
 
         loadAd()
         registerServiceWorkerClient()
 
         detector.attach(tabViewModel)
 
-        ensureSelectedTabModel()
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            tabViewModel.ensureSelectedTab(webTab.getUrl())
+        }
         observeDownloadOutcomes()
-        observeDetectionState()
-        observeTabState()
+        observeEffects()
 
         recreateWebView()
         configureWebView()
@@ -256,31 +214,48 @@ class WebTabController(
         if (started) webTab.getWebView()?.onResume()
     }
 
-    // ------------------------------------------------------------------ observers
+    // ------------------------------------------------------------------ view-model wiring
 
-    private fun ensureSelectedTabModel() {
-        activity.lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                if (getSelectedTab() == null) {
-                    createTab(TabModel(url = webTab.getUrl(), isSelected = true))
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to insert initial tab model")
-            }
-        }
-    }
-
-    private fun observeDetectionState() {
+    private fun observeEffects() {
         activity.lifecycleScope.launch {
-            detector.uiState.collect { state ->
-                uiState = uiState.copy(
-                    downloadButtonState =
-                        when (state.downloadButtonState) {
-                            is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
-                            is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
-                            else -> DownloadButtonUiState.Disabled
-                        },
-                )
+            tabViewModel.effect.collect { effect ->
+                when (effect) {
+                    // The effect only carries the URL to load. It must not replace
+                    // [webTab]: `LoadPage` builds a tab with no WebView at all, and
+                    // this host owns the only one there is.
+                    is WebTabPipelineContract.Effect.LoadPage -> {
+                        if (effect.tab.getUrl().startsWith("http")) {
+                            webTab.setUrl(effect.tab.getUrl())
+                            webTab.getWebView()?.stopLoading()
+                            webTab.getWebView()?.loadUrl(effect.tab.getUrl())
+                        }
+                    }
+
+                    is WebTabPipelineContract.Effect.NotifyPageStarted ->
+                        detector.onEvent(
+                            DetectedVideosContract.Event.StartPage(effect.url, effect.userAgent),
+                        )
+
+                    WebTabPipelineContract.Effect.BookmarkSaved ->
+                        toast(R.string.string_save_to_bookmarks_successfully)
+
+                    is WebTabPipelineContract.Effect.ImageDownloaded ->
+                        Toast.makeText(
+                            activity,
+                            "File saved: ${effect.path}",
+                            Toast.LENGTH_SHORT,
+                        ).show()
+
+                    // Silent today too — `onClickDownloadImage` never checked the old
+                    // `downloadImage()` return value either.
+                    WebTabPipelineContract.Effect.ImageDownloadFailed -> Unit
+
+                    // Never surfaced today — `openPageEvent`/`changeTabFocusEvent` had
+                    // no observer before the Contract migration either.
+                    is WebTabPipelineContract.Effect.ChangeTabFocus,
+                    is WebTabPipelineContract.Effect.OpenPage,
+                    -> Unit
+                }
             }
         }
 
@@ -299,39 +274,6 @@ class WebTabController(
                     // `loginRequiredEvent`, which also had no observer anywhere.
                     is DetectedVideosContract.Effect.LoginRequired -> Unit
                 }
-            }
-        }
-    }
-
-    private fun observeTabState() {
-        activity.lifecycleScope.launch {
-            observeTabs().collect { uiState = uiState.copy(tabCount = it.size) }
-        }
-
-        activity.lifecycleScope.launch {
-            // The effect only carries the URL to load. It must not replace [webTab]:
-            // `WebTabViewModel.loadPage` builds a tab with no WebView at all, and this
-            // controller owns the only one there is.
-            tabViewModel.effect.collect { effect ->
-                if (effect is WebTabPipelineContract.Effect.LoadPage &&
-                    effect.tab.getUrl().startsWith("http")
-                ) {
-                    webTab.setUrl(effect.tab.getUrl())
-                    webTab.getWebView()?.stopLoading()
-                    webTab.getWebView()?.loadUrl(effect.tab.getUrl())
-                }
-            }
-        }
-
-        activity.lifecycleScope.launch {
-            tabViewModel.uiState.collect { state ->
-                uiState = uiState.copy(
-                    url = state.tabUrl,
-                    progress = state.progress,
-                    showProgress = state.progress != 100,
-                    isLoadingPage = state.isShowProgress,
-                )
-                isReload = !state.isShowProgress
             }
         }
     }
@@ -366,51 +308,11 @@ class WebTabController(
 
     // ------------------------------------------------------------------ chrome actions
 
-    fun submitUrl() {
-        val url = uiState.url
-        if (url.isEmpty()) return
-
-        detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
-        tabViewModel.onEvent(WebTabPipelineContract.Event.OpenPage(url))
-    }
-
-    fun onUrlChange(url: String) {
-        uiState = uiState.copy(url = url)
-    }
-
-    fun closeTab() {
-        detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
-        onCloseBrowser()
-    }
-
-    fun openTabs() {
-        onOpenTabs()
-    }
-
-    fun requestDetectedVideos() {
-        detector.onEvent(DetectedVideosContract.Event.ShowVideoInfo)
-    }
-
-    fun share() {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, webTab.getTitle())
-            putExtra(Intent.EXTRA_TEXT, webTab.getUrl())
-        }
-        activity.startActivity(
-            Intent.createChooser(
-                intent,
-                activity.getString(R.string.string_share)
-            )
-        )
-    }
-
-    /** Mirrors the WebView's history state into the Compose chrome. */
+    /** Mirrors the WebView's history state into the ViewModel. */
     private fun refreshNavState() {
         val webView = webTab.getWebView() ?: return
-        uiState = uiState.copy(
-            canGoBack = webView.canGoBack(),
-            canGoForward = webView.canGoForward(),
+        tabViewModel.onEvent(
+            WebTabPipelineContract.Event.RefreshNavState(webView.canGoBack(), webView.canGoForward()),
         )
     }
 
@@ -422,8 +324,6 @@ class WebTabController(
             tabViewModel.onEvent(WebTabPipelineContract.Event.GoBack(webView))
             detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
             refreshNavState()
-        } else {
-            canGoCounter = if (canGoCounter >= 1) 0 else canGoCounter + 1
         }
     }
 
@@ -440,10 +340,10 @@ class WebTabController(
 
     /**
      * Doubles as stop-loading: while a page is in flight the control shows a close
-     * icon, matching the View implementation's [isReload] flag.
+     * icon, matching [WebTabPipelineContract.State.isShowProgress].
      */
     fun reloadPage() {
-        if (!isReload) {
+        if (tabViewModel.uiState.value.isShowProgress) {
             tabViewModel.onEvent(WebTabPipelineContract.Event.PageStop(webTab.getWebView()))
             return
         }
@@ -473,19 +373,6 @@ class WebTabController(
             tabViewModel.onEvent(WebTabPipelineContract.Event.CloseTab(webTab))
         } else {
             tabViewModel.onEvent(WebTabPipelineContract.Event.PageReload(webTab.getWebView()))
-        }
-    }
-
-    fun saveUrlToHistoryBookmark() {
-        val item = historyItemCurrent ?: return
-
-        item.isBookmark = true
-        activity.lifecycleScope.launch(Dispatchers.IO) {
-            saveHistoryEntry(item.toEntry())
-
-            withContext(Dispatchers.Main) {
-                toast(R.string.string_save_to_bookmarks_successfully)
-            }
         }
     }
 
@@ -558,43 +445,13 @@ class WebTabController(
     private val webViewClient = object : WebViewClient() {
 
         override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
-            val viewTitle = view?.title
-            val title = tabViewModel.uiState.value.currentTitle
-            val userAgent = view?.settings?.userAgentString ?: BrowserUserAgent.MOBILE
+            if (url != null) {
+                val viewTitle = view?.title
+                val userAgent = view?.settings?.userAgentString ?: BrowserUserAgent.MOBILE
 
-            if (url != null && lastSavedHistoryUrl != url) {
-                activity.lifecycleScope.launch(Dispatchers.IO) {
-                    try {
-                        val icon = try {
-                            FaviconUtils.getEncodedFaviconFromUrl(
-                                okHttpProxyClient.getProxyOkHttpClient(),
-                                url,
-                            )
-                        } catch (e: Throwable) {
-                            null
-                        }
-
-                        val outputFavicon = FaviconUtils.bitmapToBytes(icon)
-
-                        saveUrlToHistory(url, icon, viewTitle ?: title)
-
-                        detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent))
-                        tabViewModel.onEvent(
-                            WebTabPipelineContract.Event.UpdateVisitedHistory(url, title, userAgent),
-                        )
-
-                        val tabModel = getSelectedTab()
-                        if (tabModel == null) {
-                            createTab(TabModel(url = url, isSelected = true, favicon = outputFavicon))
-                        } else {
-                            tabModel.url = url
-                            tabModel.favicon = outputFavicon
-                            openTab(tabModel)
-                        }
-                    } catch (e: Exception) {
-                        Timber.w(e, "Failed to update tab favicon")
-                    }
-                }
+                tabViewModel.onEvent(
+                    WebTabPipelineContract.Event.PageVisited(url, viewTitle, userAgent),
+                )
             }
 
             super.doUpdateVisitedHistory(view, url, isReload)
@@ -620,24 +477,9 @@ class WebTabController(
             super.onPageStarted(view, url, favicon)
             videoAlert = null
 
-            val outputFavicon = FaviconUtils.bitmapToBytes(favicon)
-
-            activity.lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val selected = getSelectedTab()
-                    if (selected == null) {
-                        createTab(TabModel(url = url, isSelected = true, favicon = outputFavicon))
-                    } else {
-                        selected.url = url
-                        selected.favicon = outputFavicon
-                        openTab(selected)
-                    }
-                } catch (e: Exception) {
-                    Timber.w(e, "Failed to update selected tab favicon")
-                }
-            }
-
-            tabViewModel.onEvent(WebTabPipelineContract.Event.StartPage(url, view.title))
+            tabViewModel.onEvent(
+                WebTabPipelineContract.Event.OnPageStarted(url, view.title, favicon),
+            )
         }
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -730,7 +572,7 @@ class WebTabController(
             fullscreenContainer.addView(view)
             appUtil.hideSystemUI(activity.window, fullscreenContainer)
             fullscreenContainer.visibility = View.VISIBLE
-            uiState = uiState.copy(isFullscreen = true)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.SetFullscreen(true))
         }
 
         override fun onHideCustomView() {
@@ -741,7 +583,7 @@ class WebTabController(
             fullscreenContainer.visibility = View.GONE
             activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-            uiState = uiState.copy(isFullscreen = false)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.SetFullscreen(false))
             activity.requestedOrientation = if (settingsViewModel.uiState.value.lockPortrait) {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             } else {
@@ -782,7 +624,7 @@ class WebTabController(
         val imageUrl = result.extra ?: return
 
         val isImage = result.type == WebView.HitTestResult.IMAGE_TYPE ||
-                result.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
+            result.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
 
         showImageDialog(imageUrl, isImage = isImage, showOpenInNewTab = true)
     }
@@ -808,7 +650,7 @@ class WebTabController(
             onClickDownloadImage = {
                 activity.lifecycleScope.launch(Dispatchers.Main) {
                     if (permissionChecker.hasAll()) {
-                        downloadImage(imageUrl)
+                        tabViewModel.onEvent(WebTabPipelineContract.Event.DownloadImage(imageUrl))
                     } else {
                         permissionSheet.show()
                     }
@@ -833,191 +675,6 @@ class WebTabController(
         clipboard.setPrimaryClip(ClipData.newPlainText("copied_text", text))
         toast(R.string.string_copied_to_clipboard)
     }
-
-    // ------------------------------------------------------------------ image download
-
-    private suspend fun downloadImage(imageUrl: String): File? = withContext(Dispatchers.IO) {
-        try {
-            if (imageUrl.startsWith("data:image")) {
-                return@withContext saveBase64Image(imageUrl)
-            }
-
-            val client = OkHttpClient()
-            val response = client.newCall(Request.Builder().url(imageUrl).build()).execute()
-
-            if (!response.isSuccessful) {
-                Timber.e("Image download failed: ${response.code}")
-                return@withContext null
-            }
-
-            val fileName = generateFileName(URL(imageUrl).toString())
-            val outputFile: File
-            val fileSize: Long
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val uri = insertPendingImage(fileName) ?: return@withContext null
-                val descriptor = activity.contentResolver.openFileDescriptor(uri, "w")
-                    ?: return@withContext null
-
-                fileSize = response.body?.contentLength() ?: 0
-
-                FileOutputStream(descriptor.fileDescriptor).use { output ->
-                    response.body?.byteStream()?.copyTo(output)
-                }
-                descriptor.close()
-
-                outputFile = File(realPathFromUri(uri) ?: return@withContext null)
-            } else {
-                val downloadsDir =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                outputFile = File(downloadsDir, fileName)
-
-                response.body?.byteStream()?.use { input ->
-                    FileOutputStream(outputFile).use { output -> input.copyTo(output) }
-                }
-
-                fileSize = outputFile.length()
-            }
-
-            saveDownloadedImage(outputFile, fileName, fileSize, imageUrl)
-            outputFile
-        } catch (e: Exception) {
-            Timber.e(e, "Image download failed: $imageUrl")
-            null
-        }
-    }
-
-    private suspend fun saveBase64Image(base64String: String): File? = withContext(Dispatchers.IO) {
-        try {
-            val base64Data = base64String.substringAfter("base64,", "")
-            if (base64Data.isBlank()) {
-                Timber.e("Invalid base64 data")
-                return@withContext null
-            }
-
-            val decodedBytes = Base64.decode(base64Data, Base64.DEFAULT)
-            val fileName = "downloaded_base64_image_${System.currentTimeMillis()}.jpg"
-
-            val outputFile: File
-            val fileSize: Long
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val uri = insertPendingImage(fileName) ?: return@withContext null
-                val descriptor = activity.contentResolver.openFileDescriptor(uri, "w")
-                    ?: return@withContext null
-
-                FileOutputStream(descriptor.fileDescriptor).use { it.write(decodedBytes) }
-                descriptor.close()
-
-                outputFile = File(realPathFromUri(uri) ?: return@withContext null)
-                fileSize = decodedBytes.size.toLong()
-            } else {
-                val picturesDir =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                outputFile = File(picturesDir, fileName)
-
-                FileOutputStream(outputFile).use { it.write(decodedBytes) }
-                fileSize = outputFile.length()
-            }
-
-            saveDownloadedImage(outputFile, fileName, fileSize, base64String)
-            outputFile
-        } catch (e: Exception) {
-            Timber.e(e, "Saving base64 image failed")
-            null
-        }
-    }
-
-    private suspend fun saveDownloadedImage(
-        outputFile: File,
-        fileName: String,
-        fileSize: Long,
-        sourceUrl: String,
-    ) {
-        videoTaskItemRepository.insertVideoTaskItem(
-            VideoTaskItem(
-                mId = outputFile.absolutePath.hashCode().toString(),
-                fileName = fileName,
-                filePath = outputFile.absolutePath,
-                fileSize = fileSize,
-                fileDate = System.currentTimeMillis(),
-                url = sourceUrl,
-                mimeType = "image",
-            ),
-        )
-
-        withContext(Dispatchers.Main) {
-            Toast.makeText(
-                activity,
-                "File saved: ${outputFile.absolutePath}",
-                Toast.LENGTH_SHORT,
-            ).show()
-        }
-    }
-
-    private fun insertPendingImage(fileName: String): Uri? {
-        val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-        }
-
-        return activity.contentResolver
-            .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-    }
-
-    private fun realPathFromUri(uri: Uri): String? {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-
-        activity.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-            val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            if (cursor.moveToFirst()) return cursor.getString(columnIndex)
-        }
-
-        return null
-    }
-
-    private fun generateFileName(url: String): String {
-        val extension = url.substringAfterLast(".", "jpg")
-        return "downloaded_image_${System.currentTimeMillis()}.$extension"
-    }
-
-    // ------------------------------------------------------------------ history
-
-    private suspend fun saveUrlToHistory(url: String, favicon: Bitmap?, title: String?) {
-        val isTitleEmpty = title?.trim()?.isEmpty() == true
-
-        val shouldSave = !isTitleEmpty &&
-                lastSavedTitleHistory != title &&
-                lastSavedHistoryUrl != url &&
-                url.isNotEmpty() &&
-                !url.contains("about:blank")
-
-        if (!shouldSave) return
-
-        lastSavedHistoryUrl = url
-        lastSavedTitleHistory = title.orEmpty()
-
-        yield()
-
-        val item = HistoryItem(
-            url = url,
-            favicon = FaviconUtils.bitmapToBytes(favicon),
-            title = title,
-        )
-
-        historyItemCurrent = item
-        saveHistoryEntry(item.toEntry())
-    }
-
-    private fun HistoryItem.toEntry() = HistoryEntry(
-        id = id,
-        title = title.orEmpty(),
-        url = url,
-        datetime = datetime,
-        isBookmark = isBookmark,
-        favicon = favicon,
-    )
 
     // ------------------------------------------------------------------ ads
 
