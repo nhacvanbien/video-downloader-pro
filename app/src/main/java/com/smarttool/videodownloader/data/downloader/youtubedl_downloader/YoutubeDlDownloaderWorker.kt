@@ -9,7 +9,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.smarttool.videodownloader.model.Proxy
+import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem

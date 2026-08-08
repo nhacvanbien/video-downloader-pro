@@ -34,7 +34,7 @@ import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
-import com.smarttool.videodownloader.dialog.DialogExitApp
+import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
 import com.smarttool.videodownloader.feature.main.presentation.MainTab

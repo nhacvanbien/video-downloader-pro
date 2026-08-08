@@ -5,7 +5,7 @@ import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.smarttool.videodownloader.model.Proxy
+import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient

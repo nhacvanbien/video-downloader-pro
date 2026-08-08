@@ -1,4 +1,4 @@
-package com.smarttool.videodownloader.model
+package com.smarttool.videodownloader.core.network
 
 import kotlin.collections.get
 

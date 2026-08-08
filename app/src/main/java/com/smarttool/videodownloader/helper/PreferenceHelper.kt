@@ -3,7 +3,7 @@ package com.smarttool.videodownloader.helper
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.appcompat.app.AppCompatDelegate
-import com.smarttool.videodownloader.model.Proxy
+import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.google.gson.Gson
 
@@ -63,7 +63,6 @@ class PreferenceHelper  constructor(
         private const val M3U8_THREAD_COUNT = "M3U8_THREAD_COUNT"
         private const val VIDEO_DETECTION_TRESHOLD = "VIDEO_DETECTION_TRESHOLD"
         private const val IS_LOCK_PORTRAIT = "IS_LOCK_PORTRAIT"
-        private const val USER_PROXY = "USER_PROXY"
         private const val IS_CHECK_IF_IN_LIST = "IS_CHECK_IF_IN_LIST"
         private const val IS_CHECK_EVERY_ON_M3U8 = "IS_CHECK_EVERY_ON_M3U8"
         private const val IS_SETUP_PIN_CODE = "IS_SETUP_PIN_CODE"
@@ -161,24 +160,6 @@ class PreferenceHelper  constructor(
             it.apply()
         }
     }
-
-    fun getUserProxy(): Proxy? {
-        val proxyString = sharedPreferences.getString(USER_PROXY, "")
-        if (proxyString?.isNotEmpty() == true) {
-            return Gson().fromJson(proxyString, Proxy::class.java)
-        }
-
-        return Proxy.noProxy()
-    }
-
-    fun saveUserProxy(proxy: Proxy) {
-        val proxyString = Gson().toJson(proxy)
-        sharedPreferences.edit().let {
-            it.putString(USER_PROXY, proxyString)
-            it.apply()
-        }
-    }
-
 
     fun setIsAdHostsUpdateTime(time: Long) {
         sharedPreferences.edit().let {

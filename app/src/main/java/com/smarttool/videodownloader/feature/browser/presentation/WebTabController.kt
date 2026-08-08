@@ -62,8 +62,8 @@ import com.smarttool.videodownloader.data.downloader.generic_downloader.models.V
 import com.smarttool.videodownloader.data.network.entity.HistoryItem
 import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.dialog.DialogInformationImage
-import com.smarttool.videodownloader.dialog.DialogRename
+import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
+import com.smarttool.videodownloader.core.ui.dialogs.DialogRename
 import com.smarttool.videodownloader.feature.browser.domain.AdBlockerHelper
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils

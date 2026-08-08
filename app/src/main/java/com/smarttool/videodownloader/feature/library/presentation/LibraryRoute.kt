@@ -19,8 +19,8 @@ import android.widget.Toast
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.file.IntentUtil
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
-import com.smarttool.videodownloader.dialog.DialogConfirmDelete
-import com.smarttool.videodownloader.dialog.DialogRename
+import com.smarttool.videodownloader.core.ui.dialogs.DialogConfirmDelete
+import com.smarttool.videodownloader.core.ui.dialogs.DialogRename
 import com.smarttool.videodownloader.feature.library.di.PrivateLibrary
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject

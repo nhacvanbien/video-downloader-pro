@@ -4,13 +4,13 @@ import okhttp3.Authenticator
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import java.net.InetSocketAddress
-import java.net.Proxy
+import java.net.Proxy as JavaNetProxy
 
 class OkHttpProxyClient  constructor(
     private val okHttpClient: OkHttpClient?,
     private val proxyController: CustomProxyController
 ) {
-    private var currentProxy: com.smarttool.videodownloader.model.Proxy
+    private var currentProxy: Proxy
     private var httpClientCached: OkHttpClient? = null
 
     init {
@@ -29,13 +29,13 @@ class OkHttpProxyClient  constructor(
                     .build()
             }
             httpClientCached =
-                if (proxy == com.smarttool.videodownloader.model.Proxy.noProxy()) {
+                if (proxy == Proxy.noProxy()) {
                     okHttpClient?.newBuilder()!!.build()
                 } else {
                     okHttpClient?.newBuilder()
                         ?.proxy(
-                            Proxy(
-                                Proxy.Type.HTTP,
+                            JavaNetProxy(
+                                JavaNetProxy.Type.HTTP,
                                 InetSocketAddress(proxy.host, proxy.port.toIntOrNull() ?: 1)
                             )
                         )
@@ -47,7 +47,7 @@ class OkHttpProxyClient  constructor(
 
     }
 
-    private fun getProxy(): com.smarttool.videodownloader.model.Proxy {
+    private fun getProxy(): Proxy {
         return proxyController.getCurrentRunningProxy()
     }
 

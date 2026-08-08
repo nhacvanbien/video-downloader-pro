@@ -6,10 +6,9 @@ import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewFeature
 import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.smarttool.videodownloader.model.Proxy
 
 
-class CustomProxyController  constructor(
+class CustomProxyController(
     private val sharedPrefHelper: PreferenceHelper,
 ) {
 
@@ -81,29 +80,4 @@ class CustomProxyController  constructor(
         return sharedPrefHelper.getIsProxyOn()
     }
 
-    fun setIsProxyOn(isOn: Boolean) {
-        if (isOn) {
-            setCurrentProxy(sharedPrefHelper.getCurrentProxy())
-        } else {
-            System.setProperty("http.proxyUser", "")
-            System.setProperty("http.proxyPassword", "")
-            System.setProperty("https.proxyUser", "")
-            System.setProperty("https.proxyPassword", "")
-
-            System.setProperty("http.proxyHost", "")
-            System.setProperty("http.proxyPort", "")
-
-            System.setProperty("https.proxyHost", "")
-            System.setProperty("https.proxyPort", "")
-            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "")
-
-            Authenticator.setDefault(object : Authenticator() {})
-
-            if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
-                ProxyController.getInstance().clearProxyOverride({ }) {}
-            }
-        }
-
-        sharedPrefHelper.setIsProxyOn(isOn)
-    }
 }
