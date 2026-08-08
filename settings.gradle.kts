@@ -17,11 +17,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter()
         maven("https://jitpack.io")
     }
 }
 
-rootProject.name = "sa024-video-downloader-3"
+rootProject.name = "video-downloader"
 include(":app")
 include(":rating-library")
