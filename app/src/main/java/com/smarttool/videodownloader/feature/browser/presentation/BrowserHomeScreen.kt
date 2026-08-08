@@ -164,11 +164,6 @@ private fun SearchField(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_search),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp).clickable(onClick = onSubmit),
-        )
 
         Box(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
             if (query.isEmpty()) {
@@ -190,6 +185,12 @@ private fun SearchField(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+        Image(
+            painter = painterResource(R.drawable.ic_search),
+            contentDescription = null,
+            modifier = Modifier.size(20.dp).clickable(onClick = onSubmit),
+        )
+
     }
 }
 

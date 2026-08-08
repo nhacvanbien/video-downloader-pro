@@ -24,7 +24,10 @@ data class TabModel(
     var isSelected: Boolean = true,
 
     @ColumnInfo(name = "_favicon", typeAffinity = ColumnInfo.BLOB)
-    var favicon: ByteArray? = null
+    var favicon: ByteArray? = null,
+
+    @ColumnInfo(name = "_last_accessed")
+    var lastAccessedAt: Long = System.currentTimeMillis()
 ) {
     fun faviconBitmap(): Bitmap? {
         if (favicon == null) return null

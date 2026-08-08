@@ -142,7 +142,7 @@ class FileUtil constructor(private val appContext: Context) {
         return if (isFileApiSupportedByUri(context, uri)) {
             !File(uri.toFile().parentFile, newName).exists()
         } else {
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 !isDownloadedVideoContentExistsByName(context.contentResolver, uri, newName)
             } else {
                 throw Exception("File api support ERROR")
@@ -158,7 +158,7 @@ class FileUtil constructor(private val appContext: Context) {
             return from.toFile().renameTo(newFile)
         } else {
             Timber.d("moveMedia via MediaStore: $from -> $to")
-            return if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 moveFileToDownloadsFolder(
                     context.contentResolver, from.toFile(), to.toFile().name
                 )
@@ -392,7 +392,7 @@ class FileUtil constructor(private val appContext: Context) {
         val privateDir = getPrivateDownloadsDir(context, isExternalTo)
         val isAppDir = uri.toString().startsWith(Uri.fromFile(privateDir).toString())
 
-        return !(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && !isAppDir)
+        return !(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !isAppDir)
     }
 
     private fun getContentSize(context: Context, uri: Uri): Long {

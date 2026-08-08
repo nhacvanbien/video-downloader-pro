@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.core.ui.dialogs
 
 import android.app.Dialog
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.runtime.Composable
@@ -27,9 +28,22 @@ fun Dialog.setComposeContent(context: Context, content: @Composable () -> Unit) 
         setContent(content)
     }
 
-    (context as? LifecycleOwner)?.let { composeView.setViewTreeLifecycleOwner(it) }
-    (context as? ViewModelStoreOwner)?.let { composeView.setViewTreeViewModelStoreOwner(it) }
-    (context as? SavedStateRegistryOwner)?.let { composeView.setViewTreeSavedStateRegistryOwner(it) }
+    // `context` here is commonly a ContextThemeWrapper (AppLocaleProvider wraps
+    // LocalContext app-wide for live language switching), which does not itself implement
+    // these owner interfaces — they live on the underlying Activity. Unwrap through the
+    // ContextWrapper chain to find it instead of casting `context` directly.
+    context.findOwner<LifecycleOwner>()?.let { composeView.setViewTreeLifecycleOwner(it) }
+    context.findOwner<ViewModelStoreOwner>()?.let { composeView.setViewTreeViewModelStoreOwner(it) }
+    context.findOwner<SavedStateRegistryOwner>()?.let { composeView.setViewTreeSavedStateRegistryOwner(it) }
 
     setContentView(composeView)
+}
+
+private inline fun <reified T> Context.findOwner(): T? {
+    var ctx: Context? = this
+    while (ctx != null) {
+        if (ctx is T) return ctx
+        ctx = (ctx as? ContextWrapper)?.baseContext
+    }
+    return null
 }

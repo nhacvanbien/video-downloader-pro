@@ -4,8 +4,8 @@ import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.VideoDownloaderApplication
@@ -30,13 +30,17 @@ fun WebTabRoute(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
-    val tabViewModel = host.tabViewModel
-    val detector = host.detector
 
-    LaunchedEffect(url) {
+    // Runs synchronously during composition (unlike LaunchedEffect, whose body only
+    // fires after the first frame) so `host.tabViewModel`/`host.detector` below are
+    // guaranteed to be initialized before they're read.
+    remember(url) {
         host.onPreviewMedia = onPreviewMedia
         host.start(url)
     }
+
+    val tabViewModel = host.tabViewModel
+    val detector = host.detector
 
     // App-resume ads used to be suppressed by listing WebTabActivity in the ad SDK's
     // `listClassInValid`. With no Activity to name, the browser destination has to

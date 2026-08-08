@@ -12,7 +12,7 @@ import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 @Dao
 interface TabModelDao {
 
-    @Query("SELECT * FROM TabModel")
+    @Query("SELECT * FROM TabModel ORDER BY _is_selected DESC, _last_accessed DESC")
     fun getAllTabModel(): LiveData<List<TabModel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -21,12 +21,16 @@ interface TabModelDao {
     @Delete
     suspend fun deleteTabModel(item: TabModel)
 
-    @Query("UPDATE TabModel SET _url = :newUrl, _is_selected = :isSelected,_favicon = :favicon WHERE _id = :id")
+    @Query(
+        "UPDATE TabModel SET _url = :newUrl, _is_selected = :isSelected, _favicon = :favicon, " +
+            "_last_accessed = :lastAccessedAt WHERE _id = :id"
+    )
     suspend fun updateInfoTabModel(
         id: String,
         newUrl: String,
         favicon: ByteArray?,
-        isSelected: Boolean
+        isSelected: Boolean,
+        lastAccessedAt: Long
     )
 
     @Query("SELECT COUNT(*) FROM TabModel")
@@ -49,10 +53,11 @@ interface TabModelDao {
         id: String,
         newUrl: String,
         favicon: ByteArray?,
-        isSelected: Boolean
+        isSelected: Boolean,
+        lastAccessedAt: Long = System.currentTimeMillis()
     ) {
         updateAllTabsToUnselected()
-        updateInfoTabModel(id, newUrl, favicon, isSelected)
+        updateInfoTabModel(id, newUrl, favicon, isSelected, lastAccessedAt)
     }
 
     @Query("SELECT * FROM TabModel WHERE _id = :id")

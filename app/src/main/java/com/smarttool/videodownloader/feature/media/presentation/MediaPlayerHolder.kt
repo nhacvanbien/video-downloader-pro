@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.feature.media.presentation
 
 import android.content.Context
 import android.net.Uri
+import android.view.LayoutInflater
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
@@ -17,6 +18,7 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import com.smarttool.videodownloader.android.R
 import java.net.CookieManager
 import java.net.CookiePolicy
 import java.net.HttpCookie
@@ -45,7 +47,11 @@ class MediaPlayerHolder(
         .setMediaSourceFactory(createMediaFactory(url.toString().startsWith("http")))
         .build()
 
-    val playerView: PlayerView = PlayerView(context).apply {
+    // Inflated with a TextureView surface (see res/layout/view_media_player.xml): the
+    // default SurfaceView tears down its SurfaceFlinger layer asynchronously, leaving the
+    // last frame visibly overlaid on top of the next screen for a moment after back press.
+    val playerView: PlayerView = (LayoutInflater.from(context)
+        .inflate(R.layout.view_media_player, null) as PlayerView).apply {
         player = this@MediaPlayerHolder.player
         useController = false
         resizeMode = resizeModeFor(fillMode)

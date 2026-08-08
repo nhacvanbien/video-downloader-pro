@@ -31,7 +31,6 @@ import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideos
 import com.smarttool.videodownloader.feature.browser.presentation.VideoSniffer
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabPipelineContract
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
-import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -84,7 +83,6 @@ class ProcessingWebViewHost(
     private val okHttpProxyClient: OkHttpProxyClient by inject()
     private val proxyController: CustomProxyController by inject()
     private val detectedVideoUiMapper: DetectedVideoUiMapper by inject()
-    private val sanitizeFileName: SanitizeFileNameUseCase by inject()
 
     /** Set by the route composable so the sheet can drive navigation. */
     var onPreviewMedia: (url: String, title: String, headers: String) -> Unit = { _, _, _ -> }
@@ -112,7 +110,6 @@ class ProcessingWebViewHost(
             detector = detector,
             processingViewModel = processingViewModel,
             mapper = detectedVideoUiMapper,
-            sanitizeFileName = sanitizeFileName,
             announceDownloadStart = true,
             onPreviewMedia = { url, title, headers -> onPreviewMedia(url, title, headers) },
         )

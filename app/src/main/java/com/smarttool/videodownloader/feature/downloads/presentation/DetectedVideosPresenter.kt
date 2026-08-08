@@ -13,7 +13,6 @@ import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosContract
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosTabViewModel
 import com.smarttool.videodownloader.feature.downloads.domain.model.DownloadTabListener
-import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import org.json.JSONObject
 
 /**
@@ -29,7 +28,6 @@ class DetectedVideosPresenter(
     private val detector: DetectedVideosTabViewModel,
     private val processingViewModel: ProcessingViewModel,
     private val mapper: DetectedVideoUiMapper,
-    private val sanitizeFileName: SanitizeFileNameUseCase,
     /**
      * Processing confirms a start with its own toast; the browser stays quiet here and
      * reports the finished download instead.
@@ -82,7 +80,7 @@ class DetectedVideosPresenter(
             return
         }
 
-        onDownloadVideo(info, format, sanitizeFileName(video.title))
+        onDownloadVideo(info, format, video.title)
         isSheetVisible = false
         toast(R.string.string_downloading)
     }
@@ -108,7 +106,8 @@ class DetectedVideosPresenter(
 
     override fun onDownloadVideo(videoInfo: VideoInfo, format: String, videoTitle: String) {
         val info = videoInfo.copy(
-            title = FileNameCleaner.cleanFileName(videoTitle),
+            title = videoTitle,
+            fileName = FileNameCleaner.cleanFileName(videoTitle),
             formats = VideFormatEntityList(
                 videoInfo.formats.formats.filter { it.format?.contains(format) ?: false },
             ),

@@ -141,7 +141,6 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
                                             result?.let {
                                                 item.fileName = extractFileName(target)!!.first
-                                                item.title = extractFileName(target)!!.second
                                             }
 
                                         }

@@ -1,6 +1,7 @@
 package com.smarttool.videodownloader.core.ui.theme
 
 import android.content.res.Configuration
+import android.view.ContextThemeWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -37,7 +38,14 @@ fun AppLocaleProvider(content: @Composable () -> Unit) {
             val configuration = Configuration(context.resources.configuration)
             configuration.setLocale(locale)
             configuration.setLayoutDirection(locale)
-            context.createConfigurationContext(configuration)
+            // `createConfigurationContext` returns a bare ContextImpl, not a
+            // ContextWrapper — it severs the chain back to the hosting Activity that
+            // `findComponentActivity()` (used by ad components) relies on. A
+            // ContextThemeWrapper keeps `context` as its baseContext while still
+            // picking up the overridden configuration/resources.
+            ContextThemeWrapper(context, 0).apply {
+                applyOverrideConfiguration(configuration)
+            }
         }
     }
 

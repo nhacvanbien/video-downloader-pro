@@ -51,7 +51,6 @@ import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
-import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosPresenter
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingViewModel
@@ -111,7 +110,6 @@ class WebTabViewHost(
     private val proxyController: CustomProxyController by inject()
     private val okHttpProxyClient: OkHttpProxyClient by inject()
     private val detectedVideoUiMapper: DetectedVideoUiMapper by inject()
-    private val sanitizeFileName: SanitizeFileNameUseCase by inject()
 
     /** Set by the route composable so the host can drive navigation. */
     var onPreviewMedia: (url: String, title: String, headers: String) -> Unit = { _, _, _ -> }
@@ -156,7 +154,6 @@ class WebTabViewHost(
             detector = detector,
             processingViewModel = processingViewModel,
             mapper = detectedVideoUiMapper,
-            sanitizeFileName = sanitizeFileName,
             announceDownloadStart = false,
             onPreviewMedia = { mediaUrl, title, headers ->
                 onPreviewMedia(mediaUrl, title, headers)

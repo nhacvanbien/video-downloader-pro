@@ -17,7 +17,7 @@ import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 
 
-const val DB_VERSION = 1
+const val DB_VERSION = 2
 
 @Database(
     entities = [HistoryItem::class, AdHost::class, ProgressInfo::class, VideoTaskItem::class, TabModel::class],

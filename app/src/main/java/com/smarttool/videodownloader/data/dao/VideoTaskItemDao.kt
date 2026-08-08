@@ -68,7 +68,7 @@ interface VideoTaskItemDao {
     @Query("UPDATE VideoTaskItem SET is_security = :isSecurity WHERE _id = :id")
     suspend fun updateIsSecurity(id: String, isSecurity: Boolean)
 
-    @Query("UPDATE VideoTaskItem SET file_name = :newName, file_path = :newPath WHERE _id = :id")
+    @Query("UPDATE VideoTaskItem SET file_name = :newName, file_path = :newPath, title = :newName WHERE _id = :id")
     suspend fun updateNameVideoTaskItem(id: String, newName: String, newPath: String)
 
     @Query("SELECT COUNT(*) FROM VideoTaskItem WHERE file_name = :newName AND mime_type = 'video'")

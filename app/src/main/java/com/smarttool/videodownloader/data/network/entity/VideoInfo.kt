@@ -31,6 +31,12 @@ data class VideoInfo(
     @Expose
     var title: String = "",
 
+    /** Filesystem-safe stem derived from [title]; used to build [name]. Never shown in the UI. */
+    @ColumnInfo(name = "fileName")
+    @SerializedName("fileName")
+    @Expose
+    var fileName: String = "",
+
     @ColumnInfo(name = "ext")
     @SerializedName("ext")
     @Expose
@@ -69,7 +75,7 @@ data class VideoInfo(
         }
 
     val name
-        get() = "$title.$ext"
+        get() = "${fileName.ifBlank { title }}.$ext"
 
     val isM3u8
         get() = originalUrl.contains(".m3u8") || originalUrl.contains(".mpd") || formats.formats.any { url ->
@@ -88,6 +94,7 @@ data class VideoInfo(
         if (id != other.id) return false
         if (downloadUrls != other.downloadUrls) return false
         if (title != other.title) return false
+        if (fileName != other.fileName) return false
         if (ext != other.ext) return false
         if (thumbnail != other.thumbnail) return false
         if (duration != other.duration) return false
@@ -102,6 +109,7 @@ data class VideoInfo(
         var result = id.hashCode()
         result = 31 * result + downloadUrls.hashCode()
         result = 31 * result + title.hashCode()
+        result = 31 * result + fileName.hashCode()
         result = 31 * result + ext.hashCode()
         result = 31 * result + thumbnail.hashCode()
         result = 31 * result + duration.hashCode()

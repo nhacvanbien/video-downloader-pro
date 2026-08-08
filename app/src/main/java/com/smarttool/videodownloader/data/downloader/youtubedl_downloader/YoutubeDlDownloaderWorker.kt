@@ -399,7 +399,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                         finishWork(VideoTaskItem(url).also { f ->
                             f.filePath = movedFilePath
                             f.fileName = extractFileName(movedFilePath).first
-                            f.title = extractFileName(movedFilePath).second
+                            f.title = task.title
                             f.errorCode = if (moved) 0 else 1
                             f.percent = 100F
                             f.taskState =

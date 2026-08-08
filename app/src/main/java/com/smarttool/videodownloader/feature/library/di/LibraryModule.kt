@@ -9,7 +9,6 @@ import com.smarttool.videodownloader.feature.downloads.domain.usecase.GetVideoFo
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ObserveActiveDownloadsUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.PauseDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ResumeDownloadUseCase
-import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StartDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StopAndSaveDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
@@ -56,7 +55,6 @@ val libraryModule = module {
     factory { CancelDownloadUseCase(get(), get()) }
     factory { StopAndSaveDownloadUseCase(get()) }
     factory { GetVideoFormatOptionsUseCase() }
-    factory { SanitizeFileNameUseCase() }
     factory { DetectedVideoUiMapper(get()) }
 
     viewModel { ProcessingViewModel(get(), get(), get(), get(), get(), get(), get()) }

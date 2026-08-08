@@ -314,7 +314,7 @@ private fun MediaRow(
 
         Column(modifier = Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Text(
-                text = item.fileName,
+                text = item.title.ifBlank { item.fileName },
                 style = MaterialTheme.typography.labelLarge,
                 color = TextPrimary,
                 maxLines = 1,
