@@ -1,41 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#111111</color>
     <color name="white">#FFFFFF</color>
     <color name="white80">#FFFFFF</color>
     <color name="color_select">#E60023</color>
-    <color name="color_bg_select">#F0F0F0</color>
-    <color name="color_normal">#EFEFEF</color>
     <color name="colorWhite">#FFFFFF</color>
-
-    <color name="color_tab_light_normal">#767676</color>
-    <color name="color_tab_light_selected">#111111</color>
-
-    <color name="color_tab_indicator">#E60023</color>
-    <color name="color_tab_indicator_light">#E60023</color>
-    <color name="color_tab_normal">#767676</color>
-    <color name="color_tab_selected">#111111</color>
-    <color name="color_all">#FFFFFF</color>
-
-    <color name="color_background">#FFFFFF</color>
-    <color name="color_pdf">#E60023</color>
-    <color name="color_word">#2F80ED</color>
-    <color name="color_main">#E60023</color>
-    <color name="colorPrimary">#E60023</color>
     <color name="primary">#E60023</color>
-    <color name="secondary">#767676</color>
-    <color name="tertiary">#ADADAD</color>
-    <color name="text_primary">#111111</color>
-    <color name="primary20">#33E60023</color>
-    <color name="lightTransparent">#1F111111</color>
-
-    <color name="text">#111111</color>
-    <color name="text_sub">#5F5F5F</color>
-    <color name="red">#E60023</color>
     <color name="gray">#EFEFEF</color>
 </resources>

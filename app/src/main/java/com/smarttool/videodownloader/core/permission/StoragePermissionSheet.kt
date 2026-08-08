@@ -7,18 +7,39 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.view.animation.LinearInterpolator
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.toColorInt
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.android.databinding.LayoutBottomSheetPermissionBinding
+import com.smarttool.videodownloader.core.ui.dialogs.setComposeContent
+import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 
 /**
  * The "grant storage, then notifications" bottom sheet the browser and the processing
@@ -37,19 +58,11 @@ class StoragePermissionSheet(
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private val pulse = AlphaAnimation(1f, 0.2f).apply {
-        duration = PULSE_DURATION_MILLIS
-        interpolator = LinearInterpolator()
-        repeatCount = Animation.INFINITE
-        repeatMode = Animation.REVERSE
-    }
-
     private val dialog by lazy {
         BottomSheetDialog(activity, R.style.CustomAlertBottomSheet)
     }
 
-    private var binding: LayoutBottomSheetPermissionBinding? = null
-
+    private var uiState by mutableStateOf(StoragePermissionUiState())
     private var pulseRunnable: Runnable? = null
 
     private val registry get() = activity.activityResultRegistry
@@ -91,28 +104,32 @@ class StoragePermissionSheet(
     }
 
     fun show() {
-        val layout = LayoutBottomSheetPermissionBinding.inflate(activity.layoutInflater)
-        binding = layout
+        dialog.setComposeContent(activity) {
+            StoragePermissionSheetContent(
+                state = uiState,
+                onClose = { dialog.dismiss() },
+                onStorageClick = { onStorageClicked() },
+                onNotificationClick = { onNotificationClicked() },
+            )
+        }
 
-        dialog.setContentView(layout.root)
         dialog.setCanceledOnTouchOutside(true)
-
         val behavior = dialog.behavior
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
         behavior.addBottomSheetCallback(KeepExpandedCallback(behavior))
 
-        layout.btnClose.setOnClickListener { dialog.dismiss() }
-        layout.btnNotification.setOnClickListener {
-            restartPulse()
-            requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        layout.btnStorage.setOnClickListener {
-            restartPulse()
-            requestStorage()
-        }
-
         refreshButtons()
         dialog.show()
+    }
+
+    private fun onStorageClicked() {
+        restartPulse()
+        requestStorage()
+    }
+
+    private fun onNotificationClicked() {
+        restartPulse()
+        requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     private fun requestStorage() {
@@ -137,54 +154,26 @@ class StoragePermissionSheet(
         if (checker.hasAll()) dialog.dismiss() else refreshButtons()
     }
 
-    /**
-     * Only one of the two buttons is ever actionable: storage first, notifications
-     * once storage is granted. The sheet's icon and caption follow the active one.
-     */
     private fun refreshButtons() {
-        val layout = binding ?: return
         val storageDone = checker.hasStorage()
-
+        uiState = StoragePermissionUiState(
+            storageGranted = storageDone,
+            notificationGranted = checker.hasNotification(),
+            storageEnabled = !storageDone,
+            notificationEnabled = storageDone,
+            pulseStorage = !storageDone,
+        )
         restartPulse()
-
-        layout.btnStorage.clearAnimation()
-        layout.btnNotification.clearAnimation()
-
-        layout.btnStorage.isEnabled = !storageDone
-        layout.btnNotification.isEnabled = storageDone
-
-        if (storageDone) {
-            layout.tvDes.text = activity.getString(R.string.string_notification)
-            layout.imgStorage.setImageResource(R.drawable.ic_notification)
-        } else {
-            layout.tvDes.text = activity.getString(R.string.string_storage)
-            layout.imgStorage.setImageResource(R.drawable.ic_storage)
-        }
-
-        styleButton(layout.btnStorage, enabled = !storageDone)
-        styleButton(layout.btnNotification, enabled = storageDone)
     }
 
-    private fun styleButton(button: TextView, enabled: Boolean) {
-        if (enabled) {
-            button.setBackgroundResource(R.drawable.bg_btn_skip_permission)
-            button.setTextColor(ENABLED_TEXT_COLOR.toColorInt())
-        } else {
-            button.setBackgroundResource(R.drawable.bg_btn_exit)
-            button.setTextColor(DISABLED_TEXT_COLOR.toColorInt())
-        }
-    }
-
-    /** Draws attention to whichever button is still actionable after a short idle. */
     private fun restartPulse() {
         pulseRunnable?.let { handler.removeCallbacks(it) }
 
         val runnable = Runnable {
-            val layout = binding ?: return@Runnable
-            when {
-                layout.btnStorage.isEnabled -> layout.btnStorage.startAnimation(pulse)
-                layout.btnNotification.isEnabled -> layout.btnNotification.startAnimation(pulse)
-            }
+            uiState = uiState.copy(
+                pulseStorage = uiState.storageEnabled,
+                pulseNotification = uiState.notificationEnabled,
+            )
         }
 
         pulseRunnable = runnable
@@ -213,8 +202,172 @@ class StoragePermissionSheet(
 
     private companion object {
         const val PULSE_DELAY_MILLIS = 5000L
-        const val PULSE_DURATION_MILLIS = 700L
-        const val ENABLED_TEXT_COLOR = "#FFFFFF"
-        const val DISABLED_TEXT_COLOR = "#808080"
+    }
+}
+
+private data class StoragePermissionUiState(
+    val storageGranted: Boolean = false,
+    val notificationGranted: Boolean = false,
+    val storageEnabled: Boolean = true,
+    val notificationEnabled: Boolean = false,
+    val pulseStorage: Boolean = false,
+    val pulseNotification: Boolean = false,
+)
+
+@Composable
+private fun StoragePermissionSheetContent(
+    state: StoragePermissionUiState,
+    onClose: () -> Unit,
+    onStorageClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppWhite)
+            .padding(10.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.string_permission),
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 18.sp),
+                color = TextPrimary,
+                modifier = Modifier.weight(1f),
+            )
+
+            Image(
+                painter = painterResource(R.drawable.ic_close),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(onClick = onClose)
+                    .padding(4.dp),
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 10.dp),
+        ) {
+            PermissionButton(
+                label = stringResource(R.string.string_storage),
+                enabled = state.storageEnabled,
+                pulse = state.pulseStorage,
+                onClick = onStorageClick,
+                modifier = Modifier.weight(1f),
+            )
+
+            PermissionButton(
+                label = stringResource(R.string.string_notification),
+                enabled = state.notificationEnabled,
+                pulse = state.pulseNotification,
+                onClick = onNotificationClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp),
+            )
+        }
+
+        Image(
+            painter = painterResource(R.drawable.img_permission),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp)
+                .size(width = 160.dp, height = 120.dp),
+        )
+
+        PermissionItemRow(
+            iconRes = if (state.storageGranted) R.drawable.ic_notification else R.drawable.ic_storage,
+            label = stringResource(
+                if (state.storageGranted) R.string.string_notification else R.string.string_storage
+            ),
+            switchEnabled = state.storageEnabled,
+            onToggle = if (!state.storageGranted) onStorageClick else onNotificationClick,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+    }
+}
+
+@Composable
+private fun PermissionButton(
+    label: String,
+    enabled: Boolean,
+    pulse: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = label,
+        style = MaterialTheme.typography.labelLarge.copy(
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+        ),
+        color = if (enabled) AppWhite else TextPrimary,
+        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (enabled)
+                    androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                else
+                    androidx.compose.ui.graphics.Color(0xFFE0E0E0)
+            )
+            .clickable(enabled = enabled, onClick = onClick)
+            .alpha(if (pulse) 0.2f else 1f)
+            .padding(vertical = 10.dp)
+            .fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun PermissionItemRow(
+    iconRes: Int,
+    label: String,
+    switchEnabled: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(androidx.compose.ui.graphics.Color(0xFFF5F5F5))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(22.dp),
+        )
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+            ),
+            color = TextPrimary,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp),
+        )
+
+        Image(
+            painter = painterResource(
+                if (switchEnabled) R.drawable.ic_switch_on else R.drawable.ic_switch_off
+            ),
+            contentDescription = null,
+            modifier = Modifier
+                .size(width = 44.dp, height = 24.dp)
+                .then(if (switchEnabled) Modifier else Modifier.clickable(onClick = onToggle)),
+        )
     }
 }
