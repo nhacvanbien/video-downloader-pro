@@ -20,6 +20,7 @@ import com.smarttool.videodownloader.data.repository.TabModelRepository
 import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
 import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.core.ui.SystemUiController
+import com.smarttool.videodownloader.core.coroutines.AppScope
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.file.IntentUtil
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
@@ -92,6 +93,7 @@ val appModule = module {
     single { AdBlockHostsRemoteDataSource(get(), get(), get()) }
 
     // --- Helpers ---
+    single { AppScope() }
     single { PreferenceHelper(androidContext()) }
     single { FileUtil() }
     single { SystemUiController() }

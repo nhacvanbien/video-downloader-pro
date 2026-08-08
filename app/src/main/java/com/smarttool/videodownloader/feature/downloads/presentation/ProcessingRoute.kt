@@ -34,16 +34,5 @@ fun ProcessingRoute(
         onCancel = controller::cancel,
     )
 
-    if (controller.showDetectedSheet) {
-        DetectedVideosSheet(
-            videos = controller.detectedVideos,
-            onSelectFormat = { video, option ->
-                controller.onSelectFormatById(video.id, option.format)
-            },
-            onRename = controller::renameDetectedVideo,
-            onPreview = controller::previewDetectedVideo,
-            onDownload = controller::downloadDetectedVideo,
-            onDismiss = { controller.showDetectedSheet = false },
-        )
-    }
+    DetectedVideosSheetHost(presenter = controller.detected)
 }

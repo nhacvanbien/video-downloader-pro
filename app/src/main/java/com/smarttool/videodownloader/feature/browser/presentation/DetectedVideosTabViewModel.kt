@@ -4,9 +4,7 @@ import android.net.Uri
 import android.webkit.CookieManager
 import androidx.databinding.Observable
 import androidx.databinding.Observable.OnPropertyChangedCallback
-import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.base.BaseViewModel
@@ -45,12 +43,18 @@ import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButton
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
 import timber.log.Timber
 
+/**
+ * The video-detection pipeline: takes the requests a page makes, works out which of them
+ * are downloadable videos, and accumulates what it finds in [detectedVideosList].
+ *
+ * Requests reach it through a [VideoSniffer], which every WebView host owns one of.
+ */
 class DetectedVideosTabViewModel constructor(
     private val preferenceHelper: PreferenceHelper,
     private val baseSchedulers: BaseSchedulers,
     private val okHttpProxyClient: OkHttpProxyClient,
     private val customProxyController: CustomProxyController,
-) : BaseViewModel(), IVideoDetector {
+) : BaseViewModel() {
     val selectedFormats = ObservableField<Map<String, String>>()
 
     val formatsTitles = ObservableField<Map<String, String>>()
@@ -75,14 +79,10 @@ class DetectedVideosTabViewModel constructor(
     var webTabModel: WebTabViewModel? = null
     val detectedVideosList = ObservableField(mutableSetOf<VideoInfo>())
 
-    private val downloadButtonIcon = ObservableInt(R.drawable.ic_download_disable)
     private val executorRegular = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
     @Volatile
     private var verifyVideoLinkJobStorage = mutableMapOf<String, Job>()
-
-    private val hasCheckLoadingsM3u8 = ObservableBoolean(false)
-    private val hasCheckLoadingsRegular = ObservableBoolean(false)
 
     private val videoServiceLocal = VideoServiceLocal(
         customProxyController,
@@ -98,9 +98,7 @@ class DetectedVideosTabViewModel constructor(
         regularLoadingList.addOnPropertyChangedCallback(object :
             OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                val notEmpty = regularLoadingList.get()?.isNotEmpty() == true
-                hasCheckLoadingsRegular.set(notEmpty)
-                if (notEmpty) {
+                if (regularLoadingList.get()?.isNotEmpty() == true) {
                     setButtonState(DownloadButtonStateCanNotDownload())
                 }
             }
@@ -108,22 +106,8 @@ class DetectedVideosTabViewModel constructor(
         m3u8LoadingList.addOnPropertyChangedCallback(object :
             OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                val notEmpty = m3u8LoadingList.get()?.isNotEmpty() == true
-                hasCheckLoadingsM3u8.set(notEmpty)
-                if (notEmpty) {
+                if (m3u8LoadingList.get()?.isNotEmpty() == true) {
                     setButtonState(DownloadButtonStateCanNotDownload())
-                }
-            }
-        })
-        downloadButtonState.addOnPropertyChangedCallback(object :
-            OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                when (downloadButtonState.get()) {
-                    is DownloadButtonStateCanNotDownload -> downloadButtonIcon.set(R.drawable.ic_download_disable)
-                    is DownloadButtonStateCanDownload -> downloadButtonIcon.set(R.drawable.ic_download_enable)
-                    is DownloadButtonStateLoading -> {
-                        downloadButtonIcon.set(R.drawable.ic_download_disable)
-                    }
                 }
             }
         })
@@ -134,7 +118,7 @@ class DetectedVideosTabViewModel constructor(
         cancelAllCheckJobs()
     }
 
-    override fun onStartPage(url: String, userAgentString: String) {
+    fun onStartPage(url: String, userAgentString: String) {
         // Nếu url rỗng hoặc không hợp lệ, reset trạng thái và return
         if (url.isBlank() || !url.startsWith("http")) {
             downloadButtonState.set(DownloadButtonStateCanNotDownload())
@@ -158,15 +142,7 @@ class DetectedVideosTabViewModel constructor(
         }
     }
 
-    override fun hasCheckLoadingsRegular(): ObservableBoolean {
-        return hasCheckLoadingsRegular
-    }
-
-    override fun hasCheckLoadingsM3u8(): ObservableBoolean {
-        return hasCheckLoadingsM3u8
-    }
-
-    override fun showVideoInfo() {
+    fun showVideoInfo() {
         Timber.d("showVideoInfo: state=${downloadButtonState.get()}")
         val state = downloadButtonState.get()
 
@@ -188,7 +164,11 @@ class DetectedVideosTabViewModel constructor(
         }
     }
 
-    override fun verifyLinkStatus(resourceRequest: Request, hlsTitle: String?, isM3u8: Boolean) {
+    fun verifyLinkStatus(
+        resourceRequest: Request,
+        hlsTitle: String? = null,
+        isM3u8: Boolean = false,
+    ) {
         // TODO list of sites, where youtube dl should be disabled
         if (resourceRequest.url.toString().contains("tiktok.")) {
             return
@@ -323,11 +303,7 @@ class DetectedVideosTabViewModel constructor(
         setButtonState(DownloadButtonStateCanDownload(newInfo))
     }
 
-    override fun getDownloadBtnIcon(): ObservableInt {
-        return downloadButtonIcon
-    }
-
-    override fun checkRegularMp4(request: Request?): Job? {
+    fun checkRegularMp4(request: Request?): Job? {
         if (request == null) {
             return null
         }
@@ -371,7 +347,7 @@ class DetectedVideosTabViewModel constructor(
         }
     }
 
-    override fun cancelAllCheckJobs() {
+    fun cancelAllCheckJobs() {
         regularLoadingList.set(mutableSetOf())
         m3u8LoadingList.set(mutableSetOf())
         executorReload.cancel()

@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.feature.downloads.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.smarttool.videodownloader.core.coroutines.AppScope
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.CancelDownloadUseCase
@@ -15,8 +16,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * Drives the download list and the actions on it.
+ *
+ * Every host that can start a download owns one of these, so an instance dies whenever
+ * its host does — which is why the actions below run on [appScope] rather than
+ * `viewModelScope`. Closing the browser right after tapping Download used to clear that
+ * tab's ViewModel store while the enqueue was still suspended in the repository write,
+ * cancelling it and losing the download with nothing shown to the user.
+ */
 class ProcessingViewModel(
     observeActiveDownloads: ObserveActiveDownloadsUseCase,
+    private val appScope: AppScope,
     private val startDownload: StartDownloadUseCase,
     private val pauseDownload: PauseDownloadUseCase,
     private val resumeDownload: ResumeDownloadUseCase,
@@ -24,23 +35,24 @@ class ProcessingViewModel(
     private val stopAndSaveDownload: StopAndSaveDownloadUseCase,
 ) : ViewModel() {
 
+    /** Screen state, so this one is right to stop with the screen. */
     val downloads: StateFlow<List<ProgressInfo>> = observeActiveDownloads()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun start(videoInfo: VideoInfo) {
-        viewModelScope.launch { startDownload(videoInfo) }
+        appScope.launch { startDownload(videoInfo) }
     }
 
     fun pause(progressInfo: ProgressInfo) {
-        viewModelScope.launch { pauseDownload(progressInfo) }
+        appScope.launch { pauseDownload(progressInfo) }
     }
 
     fun resume(progressInfo: ProgressInfo) {
-        viewModelScope.launch { resumeDownload(progressInfo) }
+        appScope.launch { resumeDownload(progressInfo) }
     }
 
     fun cancel(progressInfo: ProgressInfo, removeFile: Boolean) {
-        viewModelScope.launch { cancelDownload(progressInfo, removeFile) }
+        appScope.launch { cancelDownload(progressInfo, removeFile) }
     }
 
     fun stopAndSave(progressInfo: ProgressInfo) {

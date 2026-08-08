@@ -3,8 +3,6 @@ package com.smarttool.videodownloader
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.View
@@ -38,7 +36,6 @@ import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
-import com.smarttool.videodownloader.feature.tab.presentation.TabViewModel
 import com.smarttool.videodownloader.helper.PreferenceHelper
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
@@ -58,11 +55,6 @@ class MainActivity : BaseComposeActivity() {
     private val permissionChecker: MediaPermissionChecker by inject()
 
     private var selectedTab by mutableStateOf(MainTab.Browser)
-
-    /** Global tab store, shared with the download workers. */
-    private val tabViewModels: TabViewModel by lazy {
-        (application as VideoDownloaderApplication).globalViewModel
-    }
 
     private val permissionSheet by lazy {
         StoragePermissionSheet(this, permissionChecker)
@@ -122,8 +114,6 @@ class MainActivity : BaseComposeActivity() {
                 )
             }
         }
-
-        handleFinishedDownloadIntent()
     }
 
     /** Set once the NavHost exists; see [InterAdsManager.openNativeFull]. */
@@ -156,18 +146,6 @@ class MainActivity : BaseComposeActivity() {
         ) == true
 
         return if (hasKey) MainTab.Processing else MainTab.Browser
-    }
-
-    private fun handleFinishedDownloadIntent() {
-        if (intent?.hasExtra(YoutubeDlDownloaderWorker.DOWNLOAD_FILENAME_KEY) != true) return
-
-        val downloadFileName =
-            intent.getStringExtra(YoutubeDlDownloaderWorker.DOWNLOAD_FILENAME_KEY).orEmpty()
-
-        // The library screen needs a beat to compose before it can react to the event.
-        Handler(Looper.getMainLooper()).postDelayed({
-            tabViewModels.openDownloadedVideoEvent.value = downloadFileName
-        }, OPEN_DOWNLOADED_DELAY_MILLIS)
     }
 
     /** The browser registers its WebView for a context menu; only the Activity is asked. */
@@ -234,8 +212,6 @@ class MainActivity : BaseComposeActivity() {
     }
 
     companion object {
-        private const val OPEN_DOWNLOADED_DELAY_MILLIS = 1000L
-
         const val EXTRA_START_DESTINATION = "start_destination"
 
         fun newIntent(context: Context, startDestination: String? = null): Intent =

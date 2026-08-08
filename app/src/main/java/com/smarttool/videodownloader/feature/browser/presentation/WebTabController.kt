@@ -21,7 +21,6 @@ import android.webkit.ServiceWorkerController
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
@@ -50,8 +49,8 @@ import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBi
 import com.smarttool.videodownloader.core.AppConstant
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.browser.BrowserUserAgent
+import com.smarttool.videodownloader.core.browser.applyDetectionDefaults
 import com.smarttool.videodownloader.core.di.ScopedViewModelStore
-import com.smarttool.videodownloader.core.file.FileNameCleaner
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
@@ -60,22 +59,14 @@ import com.smarttool.videodownloader.core.ui.SystemUiController
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.network.entity.HistoryItem
-import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
-import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
-import com.smarttool.videodownloader.core.ui.dialogs.DialogRename
-import com.smarttool.videodownloader.feature.browser.domain.AdBlockerHelper
-import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
-import com.smarttool.videodownloader.feature.browser.domain.VideoUtils
-import com.smarttool.videodownloader.feature.browser.domain.model.ContentType
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
-import com.smarttool.videodownloader.feature.downloads.domain.model.DownloadTabListener
-import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUi
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
+import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosPresenter
 import com.smarttool.videodownloader.feature.downloads.presentation.DownloadButtonUiState
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingViewModel
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
@@ -86,13 +77,11 @@ import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import com.smarttool.videodownloader.feature.tab.presentation.TabModelViewModel
 import com.vimalcvs.materialrating.DialogManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -109,12 +98,17 @@ import timber.log.Timber
  * here, in an object the Activity owns for as long as the browser is on the back
  * stack. [release] is called explicitly when the user leaves the browser rather than
  * on composable disposal, which is what keeps page state across a preview round trip.
+ *
+ * The WebView is configured, sniffed and presented exactly as the Processing tab's probe
+ * is; the shared halves are [applyDetectionDefaults], [VideoSniffer] and
+ * [DetectedVideosPresenter]. What is left here is what makes this a browser: chrome,
+ * history, tabs, fullscreen video, image downloads and the ad banner.
  */
 class WebTabController(
     private val activity: AppCompatActivity,
     private val permissionSheet: StoragePermissionSheet,
     private val permissionChecker: MediaPermissionChecker,
-) : DownloadTabListener, DownloadImageHandler, KoinComponent {
+) : DownloadImageHandler, KoinComponent {
 
     /**
      * Rebuilt for every browser session. Clearing a store cancels its ViewModels'
@@ -127,10 +121,18 @@ class WebTabController(
     private lateinit var tabViewModel: WebTabViewModel
     private lateinit var privateVideoViewModel: PrivateVideoViewModel
     private lateinit var settingsViewModel: BrowserSettingsViewModel
-    private lateinit var videoDetectionTabViewModel: DetectedVideosTabViewModel
-    private lateinit var videoDetectionModel: VideoDetectionAlgVModel
+    private lateinit var detector: DetectedVideosTabViewModel
     private lateinit var tabModelViewModel: TabModelViewModel
     private lateinit var processingViewModel: ProcessingViewModel
+    private lateinit var sniffer: VideoSniffer
+
+    /**
+     * Owns the detected-videos sheet's state; the route renders it. Null outside a
+     * session — the route composes before [start] runs and again after [release] — and
+     * Compose state rather than a plain field so appearing recomposes the route.
+     */
+    var detected by mutableStateOf<DetectedVideosPresenter?>(null)
+        private set
 
     private val saveHistoryEntry: SaveHistoryEntryUseCase by inject()
     private val appUtil: SystemUiController by inject()
@@ -146,11 +148,6 @@ class WebTabController(
 
     var uiState by mutableStateOf(WebTabUiState())
         private set
-
-    var detectedVideos by mutableStateOf<List<DetectedVideoUi>>(emptyList())
-        private set
-
-    var showDetectedSheet by mutableStateOf(false)
 
     /** Hosts the WebView so the existing show/hide logic keeps working under Compose. */
     val webViewContainer: FrameLayout by lazy { FrameLayout(activity) }
@@ -171,8 +168,6 @@ class WebTabController(
     private var videoAlert: MaterialAlertDialogBuilder? = null
     private var lastSavedHistoryUrl: String = ""
     private var lastSavedTitleHistory: String = ""
-    private var lastRegularCheckUrl = ""
-    private val regularJobsStorage: MutableMap<String, List<Job>> = mutableMapOf()
 
     private var isReload = false
     private var canGoCounter = 0
@@ -192,10 +187,22 @@ class WebTabController(
         tabViewModel = viewModels.get()
         privateVideoViewModel = viewModels.get()
         settingsViewModel = viewModels.get()
-        videoDetectionTabViewModel = viewModels.get()
-        videoDetectionModel = viewModels.get()
+        detector = viewModels.get()
         tabModelViewModel = viewModels.get()
         processingViewModel = viewModels.get()
+
+        sniffer = VideoSniffer(detector, tabViewModel, okHttpProxyClient)
+        detected = DetectedVideosPresenter(
+            activity = activity,
+            detector = detector,
+            processingViewModel = processingViewModel,
+            mapper = detectedVideoUiMapper,
+            sanitizeFileName = sanitizeFileName,
+            announceDownloadStart = false,
+            onPreviewMedia = { mediaUrl, title, headers ->
+                onPreviewMedia(mediaUrl, title, headers)
+            },
+        )
 
         webTab = WebTabFactory.createWebTabFromInput(url)
         uiState = WebTabUiState(url = webTab.getUrl())
@@ -203,9 +210,8 @@ class WebTabController(
         loadAd()
         registerServiceWorkerClient()
 
-        videoDetectionTabViewModel.webTabModel = tabViewModel
-        videoDetectionTabViewModel.start()
-        videoDetectionModel.start()
+        detector.webTabModel = tabViewModel
+        detector.start()
         tabViewModel.start()
 
         ensureSelectedTabModel()
@@ -224,13 +230,10 @@ class WebTabController(
         if (!started) return
         started = false
 
-        videoDetectionTabViewModel.cancelAllCheckJobs()
+        detector.cancelAllCheckJobs()
         tabViewModel.stop()
-        videoDetectionModel.stop()
-        videoDetectionTabViewModel.stop()
-
-        regularJobsStorage.values.flatten().forEach { it.cancel() }
-        regularJobsStorage.clear()
+        detector.stop()
+        sniffer.cancelPendingProbes()
 
         webTab.getWebView()?.let { webView ->
             activity.unregisterForContextMenu(webView)
@@ -242,8 +245,7 @@ class WebTabController(
 
         webViewContainer.removeAllViews()
         fullscreenContainer.removeAllViews()
-        showDetectedSheet = false
-        detectedVideos = emptyList()
+        detected = null
         viewModels.clear()
     }
 
@@ -272,12 +274,12 @@ class WebTabController(
     }
 
     private fun observeDetectionState() {
-        videoDetectionTabViewModel.downloadButtonState.addOnPropertyChangedCallback(
+        detector.downloadButtonState.addOnPropertyChangedCallback(
             object : OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                     uiState = uiState.copy(
                         downloadButtonState =
-                            when (videoDetectionTabViewModel.downloadButtonState.get()) {
+                            when (detector.downloadButtonState.get()) {
                                 is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
                                 is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
                                 else -> DownloadButtonUiState.Disabled
@@ -287,13 +289,13 @@ class WebTabController(
             },
         )
 
-        videoDetectionTabViewModel.showDetectedVideosEvent.observe(activity) {
-            videoDetectionTabViewModel.detectedVideosList.get()?.firstOrNull() ?: return@observe
+        detector.showDetectedVideosEvent.observe(activity) {
+            detector.detectedVideosList.get()?.firstOrNull() ?: return@observe
 
-            if (permissionChecker.hasAll()) openDetectedSheet() else permissionSheet.show()
+            if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
         }
 
-        videoDetectionTabViewModel.videoPushedEvent.observe(activity) { onVideoPushed() }
+        detector.videoPushedEvent.observe(activity) { onVideoPushed() }
     }
 
     private fun observeTabState() {
@@ -374,7 +376,7 @@ class WebTabController(
         val url = uiState.url
         if (url.isEmpty()) return
 
-        videoDetectionTabViewModel.cancelAllCheckJobs()
+        detector.cancelAllCheckJobs()
         tabViewModel.openPage(url)
     }
 
@@ -383,7 +385,7 @@ class WebTabController(
     }
 
     fun closeTab() {
-        videoDetectionTabViewModel.cancelAllCheckJobs()
+        detector.cancelAllCheckJobs()
         onCloseBrowser()
     }
 
@@ -392,7 +394,7 @@ class WebTabController(
     }
 
     fun requestDetectedVideos() {
-        videoDetectionTabViewModel.showVideoInfo()
+        detector.showVideoInfo()
     }
 
     fun share() {
@@ -424,7 +426,7 @@ class WebTabController(
         if (webView.canGoBack()) {
             webView.goBack()
             tabViewModel.onGoBack(webView)
-            videoDetectionTabViewModel.cancelAllCheckJobs()
+            detector.cancelAllCheckJobs()
             refreshNavState()
         } else {
             canGoCounter = if (canGoCounter >= 1) 0 else canGoCounter + 1
@@ -437,7 +439,7 @@ class WebTabController(
         if (webView.canGoForward()) {
             webView.goForward()
             tabViewModel.onGoForward(webView)
-            videoDetectionTabViewModel.cancelAllCheckJobs()
+            detector.cancelAllCheckJobs()
             refreshNavState()
         }
     }
@@ -466,10 +468,10 @@ class WebTabController(
 
         if (url == null) return
 
-        videoDetectionTabViewModel.viewModelScope.launch(
-            videoDetectionTabViewModel.executorReload,
+        detector.viewModelScope.launch(
+            detector.executorReload,
         ) {
-            videoDetectionTabViewModel.onStartPage(url, userAgent)
+            detector.onStartPage(url, userAgent)
         }
 
         if (url.contains("www.facebook") && urlWasChange) {
@@ -494,99 +496,6 @@ class WebTabController(
     }
 
     // ------------------------------------------------------------------ detected videos
-
-    /** Rebuilds the sheet model from the detection ViewModel's current edits. */
-    private fun refreshDetectedVideos() {
-        val titles = videoDetectionTabViewModel.formatsTitles.get().orEmpty()
-        val formats = videoDetectionTabViewModel.selectedFormats.get().orEmpty()
-
-        detectedVideos = videoDetectionTabViewModel.detectedVideosList.get()
-            .orEmpty()
-            .reversed()
-            .map { detectedVideoUiMapper(it, titles, formats) }
-    }
-
-    private fun openDetectedSheet() {
-        refreshDetectedVideos()
-        showDetectedSheet = true
-    }
-
-    private fun findVideoInfo(id: String): VideoInfo? =
-        videoDetectionTabViewModel.detectedVideosList.get()?.firstOrNull { it.id == id }
-
-    fun onSelectFormatById(id: String, format: String) {
-        val info = findVideoInfo(id) ?: return
-        onSelectFormat(info, format)
-        refreshDetectedVideos()
-    }
-
-    fun renameDetectedVideo(video: DetectedVideoUi) {
-        DialogRename(activity, video.title) { newName ->
-            val titles = videoDetectionTabViewModel.formatsTitles.get()?.toMutableMap()
-                ?: mutableMapOf()
-            titles[video.id] = newName
-            videoDetectionTabViewModel.formatsTitles.set(titles)
-            refreshDetectedVideos()
-        }.show()
-    }
-
-    fun previewDetectedVideo(video: DetectedVideoUi) {
-        val info = findVideoInfo(video.id) ?: return
-        val format = video.selectedFormat ?: return
-        onPreviewVideo(info, format, false)
-    }
-
-    fun downloadDetectedVideo(video: DetectedVideoUi) {
-        val info = findVideoInfo(video.id) ?: return
-        val format = video.selectedFormat
-
-        if (format == null) {
-            toast(R.string.string_invalid_data)
-            return
-        }
-
-        onDownloadVideo(info, format, sanitizeFileName(video.title))
-        showDetectedSheet = false
-        toast(R.string.string_downloading)
-    }
-
-    override fun onCancel() {
-        showDetectedSheet = false
-    }
-
-    override fun onPreviewVideo(videoInfo: VideoInfo, format: String, isForce: Boolean) {
-        val title = videoDetectionTabViewModel.formatsTitles.get()?.get(videoInfo.id).orEmpty()
-        val currFormat = videoInfo.formats.formats.filter {
-            it.format?.contains(format) ?: false
-        }
-
-        val first = currFormat.firstOrNull() ?: return
-
-        val headers = first.httpHeaders
-            ?.let { JSONObject(it as Map<*, *>).toString() }
-            ?: "{}"
-
-        onPreviewMedia(first.url.orEmpty(), title, if (isForce) "{}" else headers)
-    }
-
-    override fun onDownloadVideo(videoInfo: VideoInfo, format: String, videoTitle: String) {
-        val info = videoInfo.copy(
-            title = FileNameCleaner.cleanFileName(videoTitle),
-            formats = VideFormatEntityList(
-                videoInfo.formats.formats.filter { it.format?.contains(format) ?: false },
-            ),
-        )
-
-        processingViewModel.start(info)
-        showDetectedSheet = false
-    }
-
-    override fun onSelectFormat(videoInfo: VideoInfo, format: String) {
-        val formats =
-            videoDetectionTabViewModel.selectedFormats.get()?.toMutableMap() ?: mutableMapOf()
-        formats[videoInfo.id] = format
-        videoDetectionTabViewModel.selectedFormats.set(formats)
-    }
 
     private fun onVideoPushed() {
         toast(R.string.string_video_found)
@@ -637,30 +546,7 @@ class WebTabController(
 
         webView.webChromeClient = webChromeClient
         webView.webViewClient = webViewClient
-        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        webView.isScrollbarFadingEnabled = true
-
-        webView.settings.apply {
-            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            setSupportZoom(true)
-            setSupportMultipleWindows(true)
-            setGeolocationEnabled(false)
-            allowContentAccess = true
-            allowFileAccess = true
-            offscreenPreRaster = false
-            displayZoomControls = false
-            builtInZoomControls = true
-            loadWithOverviewMode = true
-            layoutAlgorithm = WebSettings.LayoutAlgorithm.NORMAL
-            useWideViewPort = true
-            domStorageEnabled = true
-            javaScriptEnabled = true
-            databaseEnabled = true
-            cacheMode = WebSettings.LOAD_NO_CACHE
-            javaScriptCanOpenWindowsAutomatically = true
-            mediaPlaybackRequiresUserGesture = false
-            userAgentString = BrowserUserAgent.MOBILE
-        }
+        webView.applyDetectionDefaults(allowAutoplay = true)
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
 
@@ -698,7 +584,7 @@ class WebTabController(
 
                         saveUrlToHistory(url, icon, viewTitle ?: title)
 
-                        videoDetectionTabViewModel.onStartPage(url, userAgent)
+                        detector.onStartPage(url, userAgent)
                         tabViewModel.onUpdateVisitedHistory(url, title, userAgent)
 
                         val tabModel = tabModelViewModel.getSelectedTabModel()
@@ -737,45 +623,8 @@ class WebTabController(
         override fun shouldInterceptRequest(
             view: WebView?,
             request: WebResourceRequest?,
-        ): WebResourceResponse? {
-            val url = request?.url.toString()
-
-            if (tabViewModel.isAd(url)) return AdBlockerHelper.createEmptyResource()
-
-            val requestWithCookies = request?.let { resourceRequest ->
-                try {
-                    CookieUtils.webRequestToHttpWithCookies(resourceRequest)
-                } catch (e: Throwable) {
-                    null
-                }
-            }
-
-            val contentType = VideoUtils.getContentTypeByUrl(
-                url,
-                requestWithCookies?.headers,
-                okHttpProxyClient,
-            )
-
-            val isManifest = contentType == ContentType.M3U8 ||
-                    contentType == ContentType.MPD ||
-                    url.contains(".m3u8") ||
-                    url.contains(".mpd") ||
-                    (url.contains(".txt") && url.contains("hentaihaven"))
-
-            if (isManifest) {
-                if (requestWithCookies != null) {
-                    videoDetectionTabViewModel.verifyLinkStatus(
-                        requestWithCookies,
-                        tabViewModel.currentTitle.get(),
-                        true,
-                    )
-                }
-            } else {
-                trackRegularMp4(requestWithCookies)
-            }
-
-            return super.shouldInterceptRequest(view, request)
-        }
+        ): WebResourceResponse? =
+            sniffer.onPageRequest(request) ?: super.shouldInterceptRequest(view, request)
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
@@ -841,26 +690,6 @@ class WebTabController(
         ): Boolean {
             view?.destroy()
             return true
-        }
-    }
-
-    /**
-     * Long-lived MP4 probes are keyed by the page that started them, so navigating
-     * away disposes the previous page's checks instead of leaking them.
-     */
-    private fun trackRegularMp4(requestWithCookies: okhttp3.Request?) {
-        val job = videoDetectionTabViewModel.checkRegularMp4(requestWithCookies)
-        val currentUrl = tabViewModel.getTabTextInput().get() ?: ""
-
-        if (currentUrl != lastRegularCheckUrl) {
-            regularJobsStorage[lastRegularCheckUrl]?.forEach { it.cancel() }
-            regularJobsStorage.remove(lastRegularCheckUrl)
-            lastRegularCheckUrl = currentUrl
-        }
-
-        if (job != null) {
-            regularJobsStorage[currentUrl] =
-                (regularJobsStorage[currentUrl].orEmpty()) + job
         }
     }
 
@@ -935,38 +764,14 @@ class WebTabController(
         }
     }
 
+    /**
+     * Streams delivered by a page's service worker never reach [webViewClient], so they
+     * are sniffed here as well — through the same [sniffer], which is what makes them
+     * land in the same detected-videos list.
+     */
     private val serviceWorkerClient = object : ServiceWorkerClient() {
         override fun shouldInterceptRequest(request: WebResourceRequest): WebResourceResponse? {
-            val url = request.url.toString()
-
-            val requestWithCookies = try {
-                CookieUtils.webRequestToHttpWithCookies(request)
-            } catch (e: Throwable) {
-                null
-            }
-
-            val contentType = VideoUtils.getContentTypeByUrl(
-                url,
-                requestWithCookies?.headers,
-                okHttpProxyClient,
-            )
-
-            val isManifest = contentType == ContentType.MPD ||
-                    contentType == ContentType.M3U8 ||
-                    url.contains(".m3u8") ||
-                    url.contains(".mpd") ||
-                    url.contains(".txt")
-
-            if (isManifest) {
-                if (requestWithCookies != null) {
-                    activity.lifecycleScope.launch(Dispatchers.Main) {
-                        videoDetectionModel.verifyLinkStatus(requestWithCookies, "", true)
-                    }
-                }
-            } else if (contentType == ContentType.MP4) {
-                videoDetectionModel.checkRegularMp4(requestWithCookies)
-            }
-
+            sniffer.onServiceWorkerRequest(request)
             return super.shouldInterceptRequest(request)
         }
     }

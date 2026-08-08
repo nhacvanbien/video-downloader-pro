@@ -1,0 +1,121 @@
+package com.smarttool.videodownloader.feature.browser.presentation
+
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import com.smarttool.videodownloader.core.network.OkHttpProxyClient
+import com.smarttool.videodownloader.feature.browser.domain.AdBlockerHelper
+import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
+import com.smarttool.videodownloader.feature.browser.domain.VideoUtils
+import com.smarttool.videodownloader.feature.browser.domain.model.ContentType
+import kotlinx.coroutines.Job
+import okhttp3.Request
+
+/**
+ * Watches everything a WebView fetches and hands anything that looks like a video to
+ * [detector].
+ *
+ * Both WebView hosts run this. The browser tab detects in the background while the user
+ * surfs; the Processing tab loads one pasted link in an off-screen WebView for the same
+ * purpose. They differ in what they show, not in how they sniff, so the sniffing lives
+ * here and each host owns an instance — sharing one would cross-wire their results.
+ */
+class VideoSniffer(
+    private val detector: DetectedVideosTabViewModel,
+    private val tabViewModel: WebTabViewModel,
+    private val okHttpProxyClient: OkHttpProxyClient,
+) {
+
+    /**
+     * Probes of plain video files outlive the request that started them, so they are
+     * keyed by the page that was open at the time and cancelled when it changes.
+     */
+    private val regularProbes: MutableMap<String, List<Job>> = mutableMapOf()
+    private var lastProbedPageUrl = ""
+
+    /**
+     * Feeds a page request to the detector. Returns the stand-in response that blocks an
+     * ad, or null to let the WebView load the request itself.
+     */
+    fun onPageRequest(request: WebResourceRequest?): WebResourceResponse? {
+        val url = request?.url?.toString().orEmpty()
+
+        if (tabViewModel.isAd(url)) return AdBlockerHelper.createEmptyResource()
+
+        sniff(url, request, probeEveryNonManifest = true)
+        return null
+    }
+
+    /**
+     * Same, for a request the page's service worker made. Those cannot be blocked — the
+     * callback has no ad-blocking contract — and only requests already typed as MP4 are
+     * probed, because a worker can fan out far more requests than a page does.
+     */
+    fun onServiceWorkerRequest(request: WebResourceRequest) {
+        sniff(request.url.toString(), request, probeEveryNonManifest = false)
+    }
+
+    /** Drops every probe still in flight; call it when the host tears its WebView down. */
+    @Synchronized
+    fun cancelPendingProbes() {
+        regularProbes.values.flatten().forEach { it.cancel() }
+        regularProbes.clear()
+        lastProbedPageUrl = ""
+    }
+
+    private fun sniff(
+        url: String,
+        request: WebResourceRequest?,
+        probeEveryNonManifest: Boolean,
+    ) {
+        val requestWithCookies = request?.let { resourceRequest ->
+            try {
+                CookieUtils.webRequestToHttpWithCookies(resourceRequest)
+            } catch (e: Throwable) {
+                null
+            }
+        }
+
+        val contentType = VideoUtils.getContentTypeByUrl(
+            url,
+            requestWithCookies?.headers,
+            okHttpProxyClient,
+        )
+
+        val isManifest = contentType == ContentType.M3U8 ||
+            contentType == ContentType.MPD ||
+            url.contains(".m3u8") ||
+            url.contains(".mpd") ||
+            (url.contains(".txt") && url.contains("hentaihaven"))
+
+        if (isManifest) {
+            if (requestWithCookies != null) {
+                detector.verifyLinkStatus(
+                    requestWithCookies,
+                    tabViewModel.currentTitle.get(),
+                    true,
+                )
+            }
+        } else if (probeEveryNonManifest || contentType == ContentType.MP4) {
+            trackRegularProbe(requestWithCookies)
+        }
+    }
+
+    /**
+     * Synchronized because the WebView delivers requests off the main thread while
+     * [cancelPendingProbes] runs on it.
+     */
+    @Synchronized
+    private fun trackRegularProbe(requestWithCookies: Request?) {
+        val job = detector.checkRegularMp4(requestWithCookies)
+        val pageUrl = tabViewModel.getTabTextInput().get().orEmpty()
+
+        if (pageUrl != lastProbedPageUrl) {
+            regularProbes.remove(lastProbedPageUrl)?.forEach { it.cancel() }
+            lastProbedPageUrl = pageUrl
+        }
+
+        if (job != null) {
+            regularProbes[pageUrl] = regularProbes[pageUrl].orEmpty() + job
+        }
+    }
+}

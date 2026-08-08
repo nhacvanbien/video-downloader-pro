@@ -1,18 +1,10 @@
-
 package com.smarttool.videodownloader
 
 import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.ads.admob.admob.TevoAdmobFactory
-import com.ads.admob.config.EventConfig
-import com.ads.admob.config.NetworkProvider
-import com.ads.admob.config.TevoAdjustConfig
-import com.ads.admob.config.TevoAdsConfig
 import com.ads.admob.helper.appoppen.AppResumeAdConfig
 import com.ads.admob.helper.appoppen.AppResumeAdHelper
 import com.google.android.gms.ads.AdActivity
@@ -30,7 +22,6 @@ import com.smarttool.videodownloader.feature.tab.di.tabModule
 import com.smarttool.videodownloader.feature.settings.di.settingsModule
 import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.feature.splash.presentation.SplashActivity
-import com.smarttool.videodownloader.feature.tab.presentation.TabViewModel
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ContextUtils
 import com.smarttool.videodownloader.core.logging.CrashlyticsTree
@@ -46,7 +37,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import java.io.File
-import kotlin.jvm.java
 import androidx.work.WorkerFactory
 import org.koin.android.ext.android.inject
 import timber.log.Timber
@@ -63,13 +53,6 @@ class VideoDownloaderApplication : Application() {
     private val workerFactory: WorkerFactory by inject()
 
     private val fileUtil: FileUtil by inject()
-
-    val globalViewModel by lazy {
-        ViewModelProvider(
-            ViewModelStore(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(this)
-        ).get(TabViewModel::class.java)
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -103,24 +86,24 @@ class VideoDownloaderApplication : Application() {
 
         initializeFileUtils()
 
-        val file: File = fileUtil.folderDir
-
         WorkManager.initialize(
             applicationContext,
             Configuration.Builder()
                 .setWorkerFactory(workerFactory).build()
         )
 
+        // Off the main thread: creating the download folder hits the filesystem, and the
+        // youtube-dl init and update both unpack and download.
         CoroutineScope(Dispatchers.Default).launch {
-            if (!file.exists()) {
-                file.mkdirs()
+            val downloadDir: File = fileUtil.folderDir
+            if (!downloadDir.exists()) {
+                downloadDir.mkdirs()
             }
 
             initializeYoutubeDl()
 
             updateYoutubeDL()
         }
-
     }
 
     private fun initializeFileUtils() {
@@ -148,7 +131,7 @@ class VideoDownloaderApplication : Application() {
         try {
             val status = YoutubeDL.getInstance()
                 .updateYoutubeDL(applicationContext, YoutubeDL.UpdateChannel.NIGHTLY)
-            Timber.i("youtube-dl update (MASTER) status=$status")
+            Timber.i("youtube-dl update (NIGHTLY) status=$status")
         } catch (e: Throwable) {
             Timber.e(e, "youtube-dl update failed")
         }

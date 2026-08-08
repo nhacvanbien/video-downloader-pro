@@ -17,11 +17,11 @@ object AdsConstant {
     var showNativeOnboardFullscreen1_1 = true
     var showNativeOnboardFullscreen1_2 = true
     var showNativePermission = true
-    var showNativeHome = true
-    var showBannerAll = true
-    var showNativeSmallAll = true
+    var showNativeHome = false
+    var showBannerAll = false
+    var showNativeSmallAll = false
     var showOpenResume = true
-    var showInterAll = true
+    var showInterAll = false
 
     var useNativeLanguage11High = true
     var useNativeLanguage12High = true

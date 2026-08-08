@@ -5,14 +5,12 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
-import android.view.View
 import android.view.ViewGroup
 import android.webkit.HttpAuthHandler
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -26,34 +24,24 @@ import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat.setAudioMuted
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.browser.BrowserUserAgent
+import com.smarttool.videodownloader.core.browser.applyDetectionDefaults
 import com.smarttool.videodownloader.core.di.ScopedViewModelStore
-import com.smarttool.videodownloader.core.file.FileNameCleaner
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
-import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
-import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
-import com.smarttool.videodownloader.core.ui.dialogs.DialogRename
-import com.smarttool.videodownloader.feature.browser.domain.AdBlockerHelper
-import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
-import com.smarttool.videodownloader.feature.browser.domain.VideoUtils
-import com.smarttool.videodownloader.feature.browser.domain.model.ContentType
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanNotDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosTabViewModel
-import com.smarttool.videodownloader.feature.browser.presentation.VideoDetectionAlgVModel
+import com.smarttool.videodownloader.feature.browser.presentation.VideoSniffer
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
-import com.smarttool.videodownloader.feature.downloads.domain.model.DownloadTabListener
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
@@ -65,12 +53,17 @@ import timber.log.Timber
  * This used to be `ProcessingFragment`. The detection WebView has to outlive tab
  * switches — the tab bodies are now composables that get disposed when you switch away
  * — so it lives here in an Activity-owned object instead of in the composition.
+ *
+ * The WebView is configured, sniffed and presented exactly as the browser's is; the
+ * shared halves are [applyDetectionDefaults], [VideoSniffer] and
+ * [DetectedVideosPresenter]. What is left here is what makes this tab itself: the probe
+ * is invisible and muted, and its URL comes from the clipboard rather than from browsing.
  */
 class ProcessingController(
     private val activity: AppCompatActivity,
     private val permissionSheet: StoragePermissionSheet,
     private val permissionChecker: MediaPermissionChecker,
-) : DownloadTabListener, KoinComponent {
+) : KoinComponent {
 
     /**
      * Rebuilt on every [start]. Clearing a store cancels its ViewModels'
@@ -83,8 +76,16 @@ class ProcessingController(
         private set
 
     private lateinit var tabViewModel: WebTabViewModel
-    private lateinit var videoDetectionTabViewModel: DetectedVideosTabViewModel
-    private lateinit var videoDetectionModel: VideoDetectionAlgVModel
+    private lateinit var detector: DetectedVideosTabViewModel
+    private lateinit var sniffer: VideoSniffer
+
+    /**
+     * Owns the detected-videos sheet's state; the route renders it. Null outside a
+     * session, and Compose state rather than a plain field so appearing recomposes the
+     * route.
+     */
+    var detected by mutableStateOf<DetectedVideosPresenter?>(null)
+        private set
 
     private val okHttpProxyClient: OkHttpProxyClient by inject()
     private val proxyController: CustomProxyController by inject()
@@ -97,17 +98,9 @@ class ProcessingController(
     var uiState by mutableStateOf(ProcessingUiState())
         private set
 
-    var detectedVideos by mutableStateOf<List<DetectedVideoUi>>(emptyList())
-        private set
-
-    var showDetectedSheet by mutableStateOf(false)
-
     private var webView: WebView? = null
 
     private var currentUrl = ""
-    private var lastSavedHistoryUrl = ""
-    private var lastRegularCheckUrl = ""
-    private val regularJobsStorage: MutableMap<String, List<Job>> = mutableMapOf()
 
     private var started = false
 
@@ -123,14 +116,23 @@ class ProcessingController(
         viewModels = ScopedViewModelStore()
         processingViewModel = viewModels.get()
         tabViewModel = viewModels.get()
-        videoDetectionTabViewModel = viewModels.get()
-        videoDetectionModel = viewModels.get()
+        detector = viewModels.get()
+
+        sniffer = VideoSniffer(detector, tabViewModel, okHttpProxyClient)
+        detected = DetectedVideosPresenter(
+            activity = activity,
+            detector = detector,
+            processingViewModel = processingViewModel,
+            mapper = detectedVideoUiMapper,
+            sanitizeFileName = sanitizeFileName,
+            announceDownloadStart = true,
+            onPreviewMedia = { url, title, headers -> onPreviewMedia(url, title, headers) },
+        )
 
         webView = WebView(activity).also(::configureWebView)
 
-        videoDetectionTabViewModel.webTabModel = tabViewModel
-        videoDetectionTabViewModel.start()
-        videoDetectionModel.start()
+        detector.webTabModel = tabViewModel
+        detector.start()
 
         observeDetectionState()
         observeLoadPageEvent()
@@ -143,11 +145,9 @@ class ProcessingController(
         started = false
 
         tabViewModel.stop()
-        videoDetectionModel.stop()
-        videoDetectionTabViewModel.stop()
-
-        regularJobsStorage.values.flatten().forEach { it.cancel() }
-        regularJobsStorage.clear()
+        detector.stop()
+        sniffer.cancelPendingProbes()
+        detected = null
 
         webView?.let { view ->
             (view.parent as? ViewGroup)?.removeView(view)
@@ -170,12 +170,11 @@ class ProcessingController(
     // ------------------------------------------------------------------ observers
 
     private fun observeDetectionState() {
-        videoDetectionTabViewModel.downloadButtonState.addOnPropertyChangedCallback(
+        detector.downloadButtonState.addOnPropertyChangedCallback(
             object : OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                     uiState = uiState.copy(
-                        downloadButtonState =
-                        when (videoDetectionTabViewModel.downloadButtonState.get()) {
+                        downloadButtonState = when (detector.downloadButtonState.get()) {
                             is DownloadButtonStateCanDownload -> DownloadButtonUiState.Enabled
                             is DownloadButtonStateLoading -> DownloadButtonUiState.Loading
                             else -> DownloadButtonUiState.Disabled
@@ -185,14 +184,13 @@ class ProcessingController(
             },
         )
 
-        videoDetectionTabViewModel.showDetectedVideosEvent.observe(activity) {
-            val firstItem = videoDetectionTabViewModel.detectedVideosList.get()?.firstOrNull()
-            if (firstItem == null) return@observe
+        detector.showDetectedVideosEvent.observe(activity) {
+            detector.detectedVideosList.get()?.firstOrNull() ?: return@observe
 
-            if (permissionChecker.hasAll()) openDetectedSheet() else permissionSheet.show()
+            if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
         }
 
-        videoDetectionTabViewModel.videoPushedEvent.observe(activity) {
+        detector.videoPushedEvent.observe(activity) {
             toast(R.string.string_video_found)
         }
     }
@@ -219,7 +217,7 @@ class ProcessingController(
 
         // Anything that is not an http(s) link cannot be probed, so reset the button.
         if (url.isBlank() || !url.startsWith("http")) {
-            videoDetectionTabViewModel.downloadButtonState.set(DownloadButtonStateCanNotDownload())
+            detector.downloadButtonState.set(DownloadButtonStateCanNotDownload())
             return
         }
 
@@ -249,7 +247,7 @@ class ProcessingController(
     }
 
     fun requestDetectedVideos() {
-        videoDetectionTabViewModel.showVideoInfo()
+        detector.showVideoInfo()
     }
 
     fun onPauseResume(info: ProgressInfo) {
@@ -264,132 +262,13 @@ class ProcessingController(
         processingViewModel.cancel(info, removeFile = true)
     }
 
-    // ------------------------------------------------------------------ detected videos
-
-    /** Rebuilds the sheet model from the detection ViewModel's current edits. */
-    private fun refreshDetectedVideos() {
-        val titles = videoDetectionTabViewModel.formatsTitles.get().orEmpty()
-        val formats = videoDetectionTabViewModel.selectedFormats.get().orEmpty()
-
-        detectedVideos = videoDetectionTabViewModel.detectedVideosList.get()
-            .orEmpty()
-            .reversed()
-            .map { detectedVideoUiMapper(it, titles, formats) }
-    }
-
-    private fun openDetectedSheet() {
-        refreshDetectedVideos()
-        showDetectedSheet = true
-    }
-
-    private fun findVideoInfo(id: String): VideoInfo? =
-        videoDetectionTabViewModel.detectedVideosList.get()?.firstOrNull { it.id == id }
-
-    fun onSelectFormatById(id: String, format: String) {
-        val info = findVideoInfo(id) ?: return
-        onSelectFormat(info, format)
-        refreshDetectedVideos()
-    }
-
-    fun renameDetectedVideo(video: DetectedVideoUi) {
-        DialogRename(activity, video.title) { newName ->
-            val titles = videoDetectionTabViewModel.formatsTitles.get()?.toMutableMap()
-                ?: mutableMapOf()
-            titles[video.id] = newName
-            videoDetectionTabViewModel.formatsTitles.set(titles)
-            refreshDetectedVideos()
-        }.show()
-    }
-
-    fun previewDetectedVideo(video: DetectedVideoUi) {
-        val info = findVideoInfo(video.id) ?: return
-        val format = video.selectedFormat ?: return
-        onPreviewVideo(info, format, false)
-    }
-
-    fun downloadDetectedVideo(video: DetectedVideoUi) {
-        val info = findVideoInfo(video.id) ?: return
-        val format = video.selectedFormat
-
-        if (format == null) {
-            toast(R.string.string_invalid_data)
-            return
-        }
-
-        onDownloadVideo(info, format, sanitizeFileName(video.title))
-        showDetectedSheet = false
-        toast(R.string.string_downloading)
-    }
-
-    override fun onCancel() {
-        showDetectedSheet = false
-    }
-
-    override fun onPreviewVideo(videoInfo: VideoInfo, format: String, isForce: Boolean) {
-        val title = videoDetectionTabViewModel.formatsTitles.get()?.get(videoInfo.id).orEmpty()
-        val currFormat = videoInfo.formats.formats.filter {
-            it.format?.contains(format) ?: false
-        }
-
-        val first = currFormat.firstOrNull() ?: return
-
-        val headers = first.httpHeaders
-            ?.let { JSONObject(it as Map<*, *>).toString() }
-            ?: "{}"
-
-        onPreviewMedia(first.url.orEmpty(), title, if (isForce) "{}" else headers)
-    }
-
-    override fun onDownloadVideo(videoInfo: VideoInfo, format: String, videoTitle: String) {
-        val info = videoInfo.copy(
-            title = FileNameCleaner.cleanFileName(videoTitle),
-            formats = VideFormatEntityList(
-                videoInfo.formats.formats.filter { it.format?.contains(format) ?: false },
-            ),
-        )
-
-        processingViewModel.start(info)
-        showDetectedSheet = false
-        toast(R.string.download_started)
-    }
-
-    override fun onSelectFormat(videoInfo: VideoInfo, format: String) {
-        val formats =
-            videoDetectionTabViewModel.selectedFormats.get()?.toMutableMap() ?: mutableMapOf()
-        formats[videoInfo.id] = format
-        videoDetectionTabViewModel.selectedFormats.set(formats)
-    }
-
     // ------------------------------------------------------------------ web view
 
     private fun configureWebView(webView: WebView) {
         webView.webChromeClient = webChromeClient
         webView.webViewClient = webViewClient
-        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        webView.isScrollbarFadingEnabled = true
+        webView.applyDetectionDefaults(allowAutoplay = false)
         setAudioMuted(webView, true)
-
-        webView.settings.apply {
-            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            setSupportZoom(true)
-            setSupportMultipleWindows(true)
-            setGeolocationEnabled(false)
-            allowContentAccess = true
-            allowFileAccess = true
-            offscreenPreRaster = false
-            displayZoomControls = false
-            builtInZoomControls = true
-            loadWithOverviewMode = true
-            layoutAlgorithm = WebSettings.LayoutAlgorithm.NORMAL
-            useWideViewPort = true
-            domStorageEnabled = true
-            javaScriptEnabled = true
-            databaseEnabled = true
-            cacheMode = WebSettings.LOAD_NO_CACHE
-            javaScriptCanOpenWindowsAutomatically = true
-            userAgentString = BrowserUserAgent.MOBILE
-            mediaPlaybackRequiresUserGesture = true // Chặn autoplay
-        }
 
         Timber.d("Processing detection WebView ready")
     }
@@ -400,9 +279,9 @@ class ProcessingController(
             val title = tabViewModel.currentTitle.get()
             val userAgent = view?.settings?.userAgentString ?: BrowserUserAgent.MOBILE
 
-            if (url != null && lastSavedHistoryUrl != url) {
+            if (url != null) {
                 activity.lifecycleScope.launch(Dispatchers.IO) {
-                    videoDetectionTabViewModel.onStartPage(url, userAgent)
+                    detector.onStartPage(url, userAgent)
                     tabViewModel.onUpdateVisitedHistory(url, title, userAgent)
                 }
             }
@@ -423,45 +302,8 @@ class ProcessingController(
         override fun shouldInterceptRequest(
             view: WebView?,
             request: WebResourceRequest?,
-        ): WebResourceResponse? {
-            val url = request?.url.toString()
-
-            if (tabViewModel.isAd(url)) return AdBlockerHelper.createEmptyResource()
-
-            val requestWithCookies = request?.let { resourceRequest ->
-                try {
-                    CookieUtils.webRequestToHttpWithCookies(resourceRequest)
-                } catch (e: Throwable) {
-                    null
-                }
-            }
-
-            val contentType = VideoUtils.getContentTypeByUrl(
-                url,
-                requestWithCookies?.headers,
-                okHttpProxyClient,
-            )
-
-            val isManifest = contentType == ContentType.M3U8 ||
-                contentType == ContentType.MPD ||
-                url.contains(".m3u8") ||
-                url.contains(".mpd") ||
-                (url.contains(".txt") && url.contains("hentaihaven"))
-
-            if (isManifest) {
-                if (requestWithCookies != null) {
-                    videoDetectionTabViewModel.verifyLinkStatus(
-                        requestWithCookies,
-                        tabViewModel.currentTitle.get(),
-                        true,
-                    )
-                }
-            } else {
-                trackRegularMp4(requestWithCookies)
-            }
-
-            return super.shouldInterceptRequest(view, request)
-        }
+        ): WebResourceResponse? =
+            sniffer.onPageRequest(request) ?: super.shouldInterceptRequest(view, request)
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
@@ -509,25 +351,6 @@ class ProcessingController(
         }
     }
 
-    /**
-     * Long-lived MP4 probes are keyed by the page that started them, so navigating
-     * away disposes the previous page's checks instead of leaking them.
-     */
-    private fun trackRegularMp4(requestWithCookies: okhttp3.Request?) {
-        val job = videoDetectionTabViewModel.checkRegularMp4(requestWithCookies)
-        val pageUrl = tabViewModel.getTabTextInput().get() ?: ""
-
-        if (pageUrl != lastRegularCheckUrl) {
-            regularJobsStorage[lastRegularCheckUrl]?.forEach { it.cancel() }
-            regularJobsStorage.remove(lastRegularCheckUrl)
-            lastRegularCheckUrl = pageUrl
-        }
-
-        if (job != null) {
-            regularJobsStorage[pageUrl] = (regularJobsStorage[pageUrl].orEmpty()) + job
-        }
-    }
-
     private val webChromeClient = object : WebChromeClient() {
 
         override fun onCreateWindow(
@@ -543,10 +366,6 @@ class ProcessingController(
             val url = href.data.getString("url") ?: ""
 
             val isAd = tabViewModel.isAd(url)
-
-            Timber.d(
-                "ON_CREATE_WINDOW::************* $url ${view.url} isAd:: $isAd $isUserGesture",
-            )
 
             if (url.isEmpty() || !url.startsWith("http") || isAd || !isUserGesture) return false
 

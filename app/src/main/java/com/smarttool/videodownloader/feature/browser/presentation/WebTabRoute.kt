@@ -7,7 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import com.smarttool.videodownloader.VideoDownloaderApplication
-import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosSheet
+import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosSheetHost
 
 /**
  * The browser destination.
@@ -62,16 +62,5 @@ fun WebTabRoute(
         onDownload = controller::requestDetectedVideos,
     )
 
-    if (controller.showDetectedSheet) {
-        DetectedVideosSheet(
-            videos = controller.detectedVideos,
-            onSelectFormat = { video, option ->
-                controller.onSelectFormatById(video.id, option.format)
-            },
-            onRename = controller::renameDetectedVideo,
-            onPreview = controller::previewDetectedVideo,
-            onDownload = controller::downloadDetectedVideo,
-            onDismiss = { controller.showDetectedSheet = false },
-        )
-    }
+    DetectedVideosSheetHost(presenter = controller.detected)
 }

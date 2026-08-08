@@ -52,7 +52,7 @@ val libraryModule = module {
     factory { SanitizeFileNameUseCase() }
     factory { DetectedVideoUiMapper(get()) }
 
-    viewModel { ProcessingViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { ProcessingViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { LibraryViewModel(false, get(), get(), get(), get(), get(), get()) }
     viewModel(PrivateLibrary) { LibraryViewModel(true, get(), get(), get(), get(), get(), get()) }
 }

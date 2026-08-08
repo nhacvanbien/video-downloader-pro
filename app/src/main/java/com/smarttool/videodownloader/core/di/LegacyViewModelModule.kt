@@ -2,7 +2,6 @@ package com.smarttool.videodownloader.core.di
 
 import com.smarttool.videodownloader.feature.browser.presentation.BrowserSettingsViewModel
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosTabViewModel
-import com.smarttool.videodownloader.feature.browser.presentation.VideoDetectionAlgVModel
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
 import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
 import com.smarttool.videodownloader.feature.tab.presentation.TabModelViewModel
@@ -21,7 +20,6 @@ val legacyViewModelModule = module {
     viewModel { TabModelViewModel(get()) }
     viewModel { BrowserSettingsViewModel(get()) }
     viewModel { WebTabViewModel(get()) }
-    viewModel { VideoDetectionAlgVModel(get(), get()) }
     viewModel { PrivateVideoViewModel(get(), get()) }
     viewModel { DetectedVideosTabViewModel(get(), get(), get(), get()) }
 }
