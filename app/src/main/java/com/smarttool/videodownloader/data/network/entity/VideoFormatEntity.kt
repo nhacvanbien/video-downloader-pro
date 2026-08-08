@@ -102,7 +102,19 @@ data class VideoFormatEntity(
     @SerializedName("httpHeaders")
     @Expose
     val httpHeaders: Map<String, String>? = null
-)
+) {
+    /**
+     * False when yt-dlp returned this entry with formatId "0" and nothing else usable
+     * (no resolution, no codec) — seen when it parses a single-quality HLS media
+     * playlist (e.g. `.../240p/index-v1-a1.m3u8`) directly instead of the master
+     * playlist that actually carries the `#EXT-X-STREAM-INF` resolution/codec tags.
+     * That leaves a format entry that's real (a working stream URL) but has nothing
+     * meaningful to label or pick by.
+     */
+    val isUsable: Boolean
+        get() = formatId != "0" || width > 0 || height > 0 ||
+            !vcodec.isNullOrBlank() || !acodec.isNullOrBlank()
+}
 
 data class VideFormatEntityList(
     val formats: List<VideoFormatEntity>

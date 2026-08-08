@@ -70,7 +70,7 @@ fun AppNavHost(
         navController.navigate(
             AppRoute.playMedia(
                 url = item.filePath,
-                title = item.fileName,
+                title = item.title,
                 type = if (item.mimeType.startsWith("image")) "image" else "video",
                 isDownloaded = true,
             ),

@@ -219,6 +219,21 @@ class DetectedVideosTabViewModel(
             return
         }
 
+        // An HLS page fetches both the master playlist and each quality's own media
+        // playlist directly (e.g. ".../240p/index-v1-a1.m3u8"); WebView surfaces both as
+        // separate requests, so both end up verified here independently. yt-dlp parses a
+        // media playlist "successfully" but without the resolution/codec tags that only
+        // live in the master, producing a real-but-unusable single-format VideoInfo (see
+        // VideoFormatEntity.isUsable). If that lands first, the dedup check below — which
+        // matches on shared format URLs — then rejects the *good* master result as a
+        // "duplicate" of this junk one, since the master's own format list references the
+        // same per-quality URL. Dropping these before they can occupy that dedup slot keeps
+        // the accurate master entry free to land.
+        if (newInfo.formats.formats.isNotEmpty() && newInfo.formats.formats.none { it.isUsable }) {
+            Timber.d("pushNewVideoInfoToAll: dropping ${newInfo.originalUrl} — no usable format metadata")
+            return
+        }
+
         val currentTabUrl = webTabModel?.uiState?.value?.tabUrl
         val isTwitch = currentTabUrl?.contains(".twitch.") == true
 
@@ -556,18 +571,20 @@ class DetectedVideosTabViewModel(
                 builder?.build()
             )
 
+            // Extract format/resolution label from URL or fallback to file size
+            val formatLabel = inferFormatLabel(url.toString(), alternativeHeaders, contentLength)
+
             val video = VideoInfoWrapper(
                 VideoInfo(
                     downloadUrls = downloadUrls,
                     title = webTabModel?.uiState?.value?.currentTitle ?: "no_title",
                     ext = "mp4",
                     originalUrl = webTabModel?.uiState?.value?.tabUrl ?: "",
-                    // TODO format regular file link
                     formats = VideFormatEntityList(
                         mutableListOf(
                             VideoFormatEntity(
                                 formatId = "0",
-                                format = appContext.getString(R.string.player_resolution),
+                                format = formatLabel,
                                 ext = "mp4",
                                 url = downloadUrls.first().url.toString(),
                                 httpHeaders = downloadUrls.first().headers.toMap(),
@@ -581,6 +598,63 @@ class DetectedVideosTabViewModel(
             video.videoInfo?.let { pushNewVideoInfoToAll(it) }
         } catch (e: Throwable) {
             Timber.e(e, "setVideoInfoWrapperFromUrl failed")
+        }
+    }
+
+    /**
+     * Infer a meaningful format label for a regular MP4 download. Since we only have the
+     * HTTP response (Content-Length, headers) and no format metadata, try these in order:
+     * 1. Extract resolution from URL (e.g., "video_720p.mp4" → "720P")
+     * 2. Extract from Content-Disposition filename (e.g., "video-1080p-final.mp4")
+     * 3. Infer from file size (larger files → HD, smaller → SD)
+     * 4. Fallback to generic "MP4"
+     *
+     * GetVideoFormatOptionsUseCase.shortLabel() will later parse this to display a clean label.
+     */
+    private fun inferFormatLabel(
+        urlString: String,
+        headers: Map<String, String>,
+        fileSize: Long
+    ): String {
+        // Try 1: Extract resolution from URL path/query
+        val urlFormat = extractResolutionFromUrl(urlString)
+        if (urlFormat.isNotEmpty()) {
+            return urlFormat
+        }
+
+        // Try 2: Extract from Content-Disposition filename
+        val contentDisposition = headers["Content-Disposition"] ?: headers["content-disposition"]
+        if (!contentDisposition.isNullOrEmpty()) {
+            val filenameFormat = extractResolutionFromUrl(contentDisposition)
+            if (filenameFormat.isNotEmpty()) {
+                return filenameFormat
+            }
+        }
+
+        // Try 3: Infer from file size (rough heuristic)
+        val sizeFormat = inferResolutionFromSize(fileSize)
+        if (sizeFormat.isNotEmpty()) {
+            return sizeFormat
+        }
+
+        // Try 4: Generic fallback
+        return "MP4"
+    }
+
+    /** Extract resolution pattern like "720p", "1080p", "480p" from URL or filename. */
+    private fun extractResolutionFromUrl(text: String): String {
+        val resolutionPattern = Regex("\\b(\\d{3,4})[pP]\\b|([4k]{2}|2k|hd|sd|uhd)", RegexOption.IGNORE_CASE)
+        val match = resolutionPattern.find(text)
+        return match?.groupValues?.firstOrNull { it.isNotEmpty() } ?: ""
+    }
+
+    /** Rough heuristic: file size >= 100MB → HD, else SD. */
+    private fun inferResolutionFromSize(fileSize: Long): String {
+        return when {
+            fileSize >= 200 * 1024 * 1024 -> "1080P"  // >= 200MB
+            fileSize >= 100 * 1024 * 1024 -> "720P"   // >= 100MB
+            fileSize >= 30 * 1024 * 1024 -> "480P"    // >= 30MB
+            else -> ""
         }
     }
 }

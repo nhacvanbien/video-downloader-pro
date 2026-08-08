@@ -18,7 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import com.bumptech.glide.Glide
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.theme.AppGray
 import kotlinx.coroutines.Dispatchers
@@ -26,8 +28,10 @@ import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
 
 /**
- * Thumbnail for a downloaded file. Video frames are extracted off the main thread
- * (there is no Compose image loader in this project); images decode from the path.
+ * Thumbnail for a downloaded file, or for a detected-but-not-yet-downloaded video's
+ * remote poster URL. Video frames and local images decode off the main thread (there
+ * is no Compose image loader in this project); remote URLs go through Glide, which is
+ * already a dependency but otherwise unused now that the View adapters are gone.
  * Falls back to the play icon, as the View-based adapter did.
  */
 @Composable
@@ -36,12 +40,19 @@ fun MediaThumbnail(
     isImage: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     var bitmap by remember(filePath) { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(filePath, isImage) {
         bitmap = withContext(Dispatchers.IO) {
             runCatching {
-                if (isImage) {
+                if (filePath.startsWith("http")) {
+                    Glide.with(context)
+                        .asBitmap()
+                        .load(filePath)
+                        .submit(TARGET_WIDTH_PX, TARGET_WIDTH_PX)
+                        .get()
+                } else if (isImage) {
                     decodeScaledImage(filePath)
                 } else {
                     filePath.toUri().path?.let {

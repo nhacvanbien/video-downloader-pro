@@ -16,6 +16,14 @@ class GetVideoFormatOptionsUseCase {
         val byLabel = LinkedHashMap<String, VideoFormatOption>()
 
         for (format in videoInfo.formats.formats) {
+            // Skip formats with no meaningful metadata to label or pick by (see
+            // VideoFormatEntity.isUsable) — kept as a defensive filter here in case a
+            // video's format list ever mixes a handful of these with otherwise-good
+            // entries; the more important guard against a video made up *entirely* of
+            // such entries lives in DetectedVideosTabViewModel.pushNewVideoInfoToAll,
+            // since dropping every format here would leave an empty picker for that video.
+            if (!format.isUsable) continue
+
             val label = shortLabel(format.format)
             if (label.isEmpty()) continue
 
@@ -26,7 +34,9 @@ class GetVideoFormatOptionsUseCase {
             )
         }
 
-        return byLabel.toSortedMap().values.toList()
+        // Sorted low to high by resolution. toSortedMap() compared labels as plain
+        // strings, which put "1080P" before "240P" (lexicographic, not numeric).
+        return byLabel.values.sortedBy { qualityRank(it.label) }
     }
 
     /** Audio-only formats collapse to an empty label and are dropped by [invoke]. */
@@ -42,7 +52,7 @@ class GetVideoFormatOptionsUseCase {
             readable.contains("-") -> {
                 val left = readable.substringBefore("-")
                 if (left.lowercase().contains("hd") || left.contains("sd")) {
-                    left.trim()
+                    left.trim().uppercase()
                 } else {
                     readable.substringAfterLast("-").replace("p", "P").trim()
                 }
@@ -52,7 +62,26 @@ class GetVideoFormatOptionsUseCase {
         }
     }
 
+    /**
+     * Numeric labels (e.g. "720P") rank by their own number. "HD"/"SD" have no
+     * resolution digits to sort by, so they rank at the conventional pixel height
+     * that label implies — this interleaves them correctly next to numeric labels
+     * instead of always landing first/last regardless of actual quality. Anything
+     * else unrecognized (e.g. the "MP4"/"Error" fallbacks) sorts after all of these.
+     */
+    private fun qualityRank(label: String): Int {
+        label.takeWhile { it.isDigit() }.toIntOrNull()?.let { return it }
+
+        return when (label) {
+            "SD" -> SD_RANK
+            "HD" -> HD_RANK
+            else -> Int.MAX_VALUE
+        }
+    }
+
     private companion object {
         const val ERROR = "Error"
+        const val SD_RANK = 480
+        const val HD_RANK = 720
     }
 }
