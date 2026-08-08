@@ -17,32 +17,6 @@ import java.io.File
 //@OpenForTesting
 class IntentUtil  constructor(private val fileUtil: FileUtil) {
 
-    @Deprecated("This old method is deprecated")
-    fun openVideoFolder(context: Context?, path: String) {
-        context?.let {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            val photoURI = FileProvider.getUriForFile(
-                context,
-                context.applicationContext.packageName + ".provider",
-                File("${context.filesDir.path}/${FileUtil.FOLDER_NAME}")
-            )
-
-            intent.setDataAndType(photoURI, DocumentsContract.Document.MIME_TYPE_DIR)
-
-            if (intent.resolveActivity(it.packageManager) != null) {
-                it.startActivity(intent)
-            } else {
-                Toast.makeText(
-                    it,
-                    it.getString(R.string.settings_message_open_folder),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }
-        }
-    }
-
     fun shareVideo(context: Context, uri: Uri) {
 
         val file = if (uri.scheme == null || uri.scheme == "file") {

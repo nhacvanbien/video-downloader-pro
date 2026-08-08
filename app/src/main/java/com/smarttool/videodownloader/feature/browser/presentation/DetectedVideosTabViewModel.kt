@@ -1,26 +1,24 @@
 package com.smarttool.videodownloader.feature.browser.presentation
 
+import android.content.Context
 import android.net.Uri
 import android.webkit.CookieManager
 import androidx.databinding.Observable
 import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.databinding.ObservableField
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.base.BaseViewModel
 import com.smarttool.videodownloader.data.model.VideoInfoWrapper
 import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.data.remote.service.LoginRequiredException
 import com.smarttool.videodownloader.data.remote.service.VideoServiceLocal
-import com.smarttool.videodownloader.data.remote.service.YoutubedlHelper
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.feature.browser.domain.usecase.GetVideoDetectionThresholdUseCase
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
-import com.smarttool.videodownloader.core.ContextUtils
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.SingleLiveEvent
-import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.scheduler.BaseSchedulers
 import kotlinx.coroutines.Dispatchers
@@ -49,12 +47,13 @@ import timber.log.Timber
  *
  * Requests reach it through a [VideoSniffer], which every WebView host owns one of.
  */
-class DetectedVideosTabViewModel constructor(
-    private val preferenceHelper: PreferenceHelper,
+class DetectedVideosTabViewModel(
+    private val getVideoDetectionThreshold: GetVideoDetectionThresholdUseCase,
     private val baseSchedulers: BaseSchedulers,
     private val okHttpProxyClient: OkHttpProxyClient,
-    private val customProxyController: CustomProxyController,
-) : BaseViewModel() {
+    private val videoServiceLocal: VideoServiceLocal,
+    private val appContext: Context,
+) : ViewModel() {
     val selectedFormats = ObservableField<Map<String, String>>()
 
     val formatsTitles = ObservableField<Map<String, String>>()
@@ -76,7 +75,11 @@ class DetectedVideosTabViewModel constructor(
         ObservableField<DownloadButtonState>(DownloadButtonStateCanNotDownload())
 
     val executorReload = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
+    /** The page this detector watches; set once by its host through [attach]. */
     var webTabModel: WebTabViewModel? = null
+        private set
+
     val detectedVideosList = ObservableField(mutableSetOf<VideoInfo>())
 
     private val executorRegular = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
@@ -84,17 +87,7 @@ class DetectedVideosTabViewModel constructor(
     @Volatile
     private var verifyVideoLinkJobStorage = mutableMapOf<String, Job>()
 
-    private val videoServiceLocal = VideoServiceLocal(
-        customProxyController,
-        YoutubedlHelper(okHttpProxyClient, preferenceHelper)
-    )
-
-    override fun start() {
-        Timber.d("Video detector started")
-        viewModelScope.launch {
-            Timber.d("start: setListHost")
-            webTabModel?.setListHost()
-        }
+    init {
         regularLoadingList.addOnPropertyChangedCallback(object :
             OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -113,9 +106,22 @@ class DetectedVideosTabViewModel constructor(
         })
     }
 
-    override fun stop() {
-        Timber.d("Video detector stopped")
+    /**
+     * Binds the detector to the page it watches and primes the ad-host list it filters
+     * requests against. The host calls this once, right after building both view models.
+     */
+    fun attach(webTabModel: WebTabViewModel) {
+        Timber.d("Video detector attached")
+        this.webTabModel = webTabModel
+        viewModelScope.launch {
+            webTabModel.setListHost()
+        }
+    }
+
+    override fun onCleared() {
+        Timber.d("Video detector cleared")
         cancelAllCheckJobs()
+        super.onCleared()
     }
 
     fun onStartPage(url: String, userAgentString: String) {
@@ -461,8 +467,8 @@ class DetectedVideosTabViewModel constructor(
         return null
     }
 
-    private fun propagateCheckJob(url: String, headersMap: Map<String, String>) {
-        val treshold = preferenceHelper.getVideoDetectionTreshold()
+    private suspend fun propagateCheckJob(url: String, headersMap: Map<String, String>) {
+        val treshold = getVideoDetectionThreshold()
         var headers = headersMap.toMutableMap()
         val finlUrlPair = try {
             CookieUtils.getFinalRedirectURL(URL(Uri.parse(url).toString()), headers)
@@ -571,8 +577,7 @@ class DetectedVideosTabViewModel constructor(
                         mutableListOf(
                             VideoFormatEntity(
                                 formatId = "0",
-                                format = ContextUtils.getApplicationContext()
-                                    .getString(R.string.player_resolution),
+                                format = appContext.getString(R.string.player_resolution),
                                 ext = "mp4",
                                 url = downloadUrls.first().url.toString(),
                                 httpHeaders = downloadUrls.first().headers.toMap(),

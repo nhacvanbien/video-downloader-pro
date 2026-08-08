@@ -10,7 +10,8 @@ import com.smarttool.videodownloader.feature.library.domain.usecase.ObserveLibra
 import com.smarttool.videodownloader.feature.library.domain.usecase.ObservePrivateLibraryUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.RenameMediaUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.SetMediaPrivateUseCase
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.feature.library.domain.usecase.GetSortTypeUseCase
+import com.smarttool.videodownloader.feature.library.domain.usecase.SetSortTypeUseCase
 import com.smarttool.videodownloader.feature.library.domain.model.SortState
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,15 +36,19 @@ class LibraryViewModel(
     private val deleteMedia: DeleteMediaUseCase,
     private val renameMedia: RenameMediaUseCase,
     private val setMediaPrivate: SetMediaPrivateUseCase,
-    private val preferenceHelper: PreferenceHelper,
+    private val getSortType: GetSortTypeUseCase,
+    private val setSortType: SetSortTypeUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        LibraryUiState(
-            query = LibraryQuery(sort = SortState.getSortState(preferenceHelper.getTypeSort())),
-        ),
-    )
+    private val _uiState = MutableStateFlow(LibraryUiState())
     val uiState: StateFlow<LibraryUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val sort = SortState.getSortState(getSortType())
+            _uiState.update { it.copy(query = it.query.copy(sort = sort)) }
+        }
+    }
 
     val items: StateFlow<List<VideoTaskItem>> = _uiState
         .flatMapLatest { state ->
@@ -70,8 +75,8 @@ class LibraryViewModel(
     }
 
     fun onSortChange(sort: SortState) {
-        preferenceHelper.setTypeSort(sort.value)
         _uiState.update { it.copy(query = it.query.copy(sort = sort), sortSheetVisible = false) }
+        viewModelScope.launch { setSortType(sort.value) }
     }
 
     fun setSortSheetVisible(visible: Boolean) {

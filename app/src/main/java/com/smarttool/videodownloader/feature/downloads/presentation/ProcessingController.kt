@@ -131,8 +131,7 @@ class ProcessingController(
 
         webView = WebView(activity).also(::configureWebView)
 
-        detector.webTabModel = tabViewModel
-        detector.start()
+        detector.attach(tabViewModel)
 
         observeDetectionState()
         observeLoadPageEvent()
@@ -144,8 +143,9 @@ class ProcessingController(
         if (!started) return
         started = false
 
-        tabViewModel.stop()
-        detector.stop()
+        // Probes are stopped before the WebView goes away; the rest of the detector's
+        // teardown happens in its `onCleared`, when `viewModels.clear()` runs below.
+        detector.cancelAllCheckJobs()
         sniffer.cancelPendingProbes()
         detected = null
 

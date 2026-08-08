@@ -1,34 +1,25 @@
 package com.smarttool.videodownloader.feature.pin.data
 
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.feature.pin.domain.PinRepository
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import kotlinx.coroutines.flow.first
 
 class PinRepositoryImpl(
-    private val preferenceHelper: PreferenceHelper,
+    private val preferences: AppPreferencesDataSource,
 ) : PinRepository {
 
-    override fun isPinConfigured(): Boolean = preferenceHelper.getIsSetupPinCode()
+    override suspend fun isPinConfigured(): Boolean = preferences.isPinConfigured.first()
 
-    override fun savedPin(): String = preferenceHelper.getPinCode().orEmpty()
+    override suspend fun savedPin(): String = preferences.pinCode.first()
 
-    override fun savePin(pin: String) {
-        preferenceHelper.setIsSetupPinCode(true)
-        preferenceHelper.setPinCode(pin)
-    }
+    override suspend fun savePin(pin: String) = preferences.savePin(pin)
 
-    override fun securityQuestionIndex(): Int = preferenceHelper.getNumSecurityQuestion()
+    override suspend fun securityQuestionIndex(): Int = preferences.securityQuestionIndex.first()
 
-    override fun securityAnswer(): String = preferenceHelper.getSecurityAnswer().orEmpty()
+    override suspend fun securityAnswer(): String = preferences.securityAnswer.first()
 
-    override fun saveSecurityQuestion(index: Int, answer: String) {
-        preferenceHelper.setNumSecurityQuestion(index)
-        preferenceHelper.setSecurityAnswer(answer)
-    }
+    override suspend fun saveSecurityQuestion(index: Int, answer: String) =
+        preferences.saveSecurityQuestion(index, answer)
 
-    override fun clearPin() {
-        preferenceHelper.setIsSetupPinCode(false)
-        preferenceHelper.setNumSecurityQuestion(1)
-        preferenceHelper.setPinCode("")
-        preferenceHelper.setSecurityAnswer("")
-    }
+    override suspend fun clearPin() = preferences.clearPin()
 }

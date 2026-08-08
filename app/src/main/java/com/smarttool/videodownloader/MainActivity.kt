@@ -11,6 +11,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.compose.rememberNavController
 import com.ads.admob.data.ContentAd
 import com.ads.admob.helper.banner.BannerAdConfig
@@ -21,7 +22,6 @@ import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.LoadAdError
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
-import com.smarttool.videodownloader.base.BaseComposeActivity
 import com.smarttool.videodownloader.core.UpdateEvent
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ads.InterAdsManager
@@ -31,14 +31,16 @@ import com.smarttool.videodownloader.core.navigation.AppRoute
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
+import com.smarttool.videodownloader.core.withAppLocale
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
 import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.feature.main.presentation.MainViewModel
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 import kotlin.system.exitProcess
 
 /**
@@ -49,9 +51,9 @@ import kotlin.system.exitProcess
  * permission sheet (its result launchers belong to the Activity), and the ad SDK
  * surfaces, which are Views.
  */
-class MainActivity : BaseComposeActivity() {
+class MainActivity : AppCompatActivity() {
 
-    private val preferenceHelper: PreferenceHelper by inject()
+    private val mainViewModel: MainViewModel by koinViewModel()
     private val permissionChecker: MediaPermissionChecker by inject()
 
     private var selectedTab by mutableStateOf(MainTab.Browser)
@@ -81,6 +83,11 @@ class MainActivity : BaseComposeActivity() {
                 adPlacement = "banner_home",
             ),
         )
+    }
+
+    /** Applied here, not in [onCreate], so resources resolve in the picked language from the start. */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase.withAppLocale())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -182,10 +189,10 @@ class MainActivity : BaseComposeActivity() {
         EventBus.getDefault().post(UpdateEvent("hide_ads"))
 
         val dialogExitApp = DialogExitApp(this) {
-            preferenceHelper.increaseCountExitApp()
-
-            finishAffinity()
-            exitProcess(1)
+            mainViewModel.onExitConfirmed {
+                finishAffinity()
+                exitProcess(1)
+            }
         }
 
         dialogExitApp.show()

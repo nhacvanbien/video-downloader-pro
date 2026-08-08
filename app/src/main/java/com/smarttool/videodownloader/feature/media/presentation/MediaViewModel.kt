@@ -1,6 +1,7 @@
 package com.smarttool.videodownloader.feature.media.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.feature.media.domain.usecase.GetPlaybackSettingsUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetFillModeUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetLoopingUseCase
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /** Speeds the control cycles through, matching the View player's order. */
 val PLAYBACK_SPEEDS = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f)
@@ -23,7 +25,7 @@ class MediaViewModel(
     private val _uiState = MutableStateFlow(MediaUiState())
     val uiState: StateFlow<MediaUiState> = _uiState.asStateFlow()
 
-    fun load(title: String, showMoreAction: Boolean) {
+    suspend fun load(title: String, showMoreAction: Boolean) {
         val settings = getPlaybackSettings()
 
         _uiState.value = MediaUiState(
@@ -49,22 +51,22 @@ class MediaViewModel(
         val nextIndex = (PLAYBACK_SPEEDS.indexOf(current) + 1) % PLAYBACK_SPEEDS.size
         val next = PLAYBACK_SPEEDS[nextIndex]
 
-        setPlaybackSpeed(next)
         _uiState.update { it.copy(speed = next) }
+        viewModelScope.launch { setPlaybackSpeed(next) }
         return next
     }
 
     fun toggleLooping(): Boolean {
         val looping = !_uiState.value.looping
-        setLooping(looping)
         _uiState.update { it.copy(looping = looping) }
+        viewModelScope.launch { setLooping(looping) }
         return looping
     }
 
     fun toggleFillMode(): Boolean {
         val fill = !_uiState.value.fillMode
-        setFillMode(fill)
         _uiState.update { it.copy(fillMode = fill) }
+        viewModelScope.launch { setFillMode(fill) }
         return fill
     }
 }

@@ -11,17 +11,11 @@ import com.smarttool.videodownloader.data.downloader.generic_downloader.models.V
 @Dao
 interface VideoTaskItemDao {
 
-    @Query("SELECT * FROM VideoTaskItem WHERE is_security = 0")
-    fun getVideoTaskItem(): LiveData<List<VideoTaskItem>>
-
     @Query("SELECT * FROM VideoTaskItem")
     fun getAllVideoTaskItems(): List<VideoTaskItem>
 
     @Delete
     fun deleteVideoTaskItems(videoTaskItems: List<VideoTaskItem>)
-
-    @Query("SELECT * FROM VideoTaskItem WHERE is_security = 1")
-    fun getVideoSecurityTaskItem(): LiveData<List<VideoTaskItem>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertVideoTaskItem(videoTaskItem: VideoTaskItem)

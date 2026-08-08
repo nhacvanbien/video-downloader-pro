@@ -2,16 +2,16 @@ package com.smarttool.videodownloader.feature.media.domain
 
 /** Playback preferences that persist across sessions. */
 interface MediaPreferencesRepository {
-    fun playbackSpeed(): Float
+    suspend fun playbackSpeed(): Float
 
-    fun setPlaybackSpeed(speed: Float)
+    suspend fun setPlaybackSpeed(speed: Float)
 
-    fun isLooping(): Boolean
+    suspend fun isLooping(): Boolean
 
-    fun setLooping(looping: Boolean)
+    suspend fun setLooping(looping: Boolean)
 
     /** Fill mode plays fullscreen in landscape and hides the ad slot. */
-    fun isFillMode(): Boolean
+    suspend fun isFillMode(): Boolean
 
-    fun setFillMode(fill: Boolean)
+    suspend fun setFillMode(fill: Boolean)
 }

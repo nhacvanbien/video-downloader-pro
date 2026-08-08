@@ -20,10 +20,11 @@ import com.smarttool.videodownloader.feature.media.di.mediaModule
 import com.smarttool.videodownloader.feature.pin.di.pinModule
 import com.smarttool.videodownloader.feature.tab.di.tabModule
 import com.smarttool.videodownloader.feature.settings.di.settingsModule
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
+import com.smarttool.videodownloader.feature.main.di.mainModule
+import com.smarttool.videodownloader.feature.onboarding.di.onboardingModule
 import com.smarttool.videodownloader.feature.splash.presentation.SplashActivity
 import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.ContextUtils
 import com.smarttool.videodownloader.core.logging.CrashlyticsTree
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.SystemUtil
@@ -48,7 +49,7 @@ class VideoDownloaderApplication : Application() {
         lateinit var instance: VideoDownloaderApplication
     }
 
-    private val sharedPrefHelper: PreferenceHelper by inject()
+    private val preferences: AppPreferencesDataSource by inject()
 
     private val workerFactory: WorkerFactory by inject()
 
@@ -61,7 +62,6 @@ class VideoDownloaderApplication : Application() {
         Timber.plant(if (BuildConfig.DEBUG) Timber.DebugTree() else CrashlyticsTree())
         Timber.i("App starting: versionName=${BuildConfig.VERSION_NAME} versionCode=${BuildConfig.VERSION_CODE}")
 
-        ContextUtils.initApplicationContext(applicationContext)
         instance = this
         SystemUtil.setLocale(this)
 
@@ -79,6 +79,8 @@ class VideoDownloaderApplication : Application() {
                 mediaModule,
                 browserModule,
                 legacyViewModelModule,
+                onboardingModule,
+                mainModule,
             )
         }
 
@@ -107,8 +109,8 @@ class VideoDownloaderApplication : Application() {
     }
 
     private fun initializeFileUtils() {
-        val isExternal = sharedPrefHelper.getIsExternalUse()
-        val isAppDir = sharedPrefHelper.getIsAppDirUse()
+        val isExternal = preferences.isExternalStorageUsedBlocking(FileUtil.isExternalStorageWritable())
+        val isAppDir = preferences.isAppDirUsedBlocking()
 
         Timber.d("initializeFileUtils: isExternal=$isExternal isAppDir=$isAppDir")
 

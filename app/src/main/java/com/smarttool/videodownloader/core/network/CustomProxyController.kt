@@ -5,11 +5,17 @@ import java.net.PasswordAuthentication
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewFeature
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.google.gson.Gson
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 
-
+/**
+ * Sets up the process-wide proxy: system properties for plain sockets, plus a WebView
+ * override. Constructed once at app startup — a non-suspend context — so it reads and
+ * writes through [AppPreferencesDataSource]'s blocking accessors rather than owning a
+ * coroutine scope of its own.
+ */
 class CustomProxyController(
-    private val sharedPrefHelper: PreferenceHelper,
+    private val preferences: AppPreferencesDataSource,
 ) {
 
     init {
@@ -20,7 +26,7 @@ class CustomProxyController(
 
     fun getCurrentRunningProxy(): Proxy {
         return if (isProxyOn()) {
-            sharedPrefHelper.getCurrentProxy()
+            Proxy.fromMap(Gson().fromJson(preferences.proxyJsonBlocking(), Map::class.java))
         } else {
             Proxy.noProxy()
         }
@@ -45,7 +51,7 @@ class CustomProxyController(
                 ProxyController.getInstance().clearProxyOverride({ }) {}
             }
         } else {
-            sharedPrefHelper.setIsProxyOn(true)
+            preferences.setProxyOnBlocking(true)
 
             System.setProperty("http.proxyUser", proxy.user.trim())
             System.setProperty("http.proxyPassword", proxy.password.trim())
@@ -72,12 +78,12 @@ class CustomProxyController(
             }
         }
 
-        sharedPrefHelper.setCurrentProxy(proxy)
+        preferences.setProxyJsonBlocking(Gson().toJson(proxy.toMap()))
     }
 
 
     fun isProxyOn(): Boolean {
-        return sharedPrefHelper.getIsProxyOn()
+        return preferences.isProxyOnBlocking()
     }
 
 }

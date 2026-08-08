@@ -9,17 +9,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.VideoDownloaderApplication
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
-import com.smarttool.videodownloader.helper.PreferenceHelper
-import org.koin.compose.koinInject
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Onboarding permission step. Skipping is allowed — the grants are re-requested from
@@ -27,23 +24,13 @@ import org.koin.compose.koinInject
  */
 @Composable
 fun PermissionRoute(onContinue: () -> Unit) {
-    val preferenceHelper: PreferenceHelper = koinInject()
-    val checker: MediaPermissionChecker = koinInject()
+    val viewModel: PermissionViewModel = koinViewModel()
     val context = LocalContext.current
 
-    var state by remember {
-        mutableStateOf(
-            PermissionUiState(
-                showNotificationRow = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU,
-            ),
-        )
-    }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val refresh = {
-        state = state.copy(
-            storageGranted = checker.hasStorage(),
-            notificationGranted = checker.hasNotification(),
-        )
+    LaunchedEffect(Unit) {
+        viewModel.completed.collect { onContinue() }
     }
 
     val showGoToSettings = {
@@ -70,14 +57,14 @@ fun PermissionRoute(onContinue: () -> Unit) {
     val requestNotification = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
-        refresh()
+        viewModel.refreshGrants()
         if (!granted) showGoToSettings()
     }
 
     val requestMediaVideo = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
-        refresh()
+        viewModel.refreshGrants()
         if (!granted) showGoToSettings()
     }
 
@@ -91,26 +78,21 @@ fun PermissionRoute(onContinue: () -> Unit) {
     val requestLegacyStorage = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { results ->
-        refresh()
+        viewModel.refreshGrants()
         if (results.values.any { !it }) showGoToSettings()
     }
 
     // Also re-runs after the system settings round trip, which is the only way a grant
     // can change without one of the launchers above reporting it.
     LifecycleResumeEffect(Unit) {
-        refresh()
+        viewModel.refreshGrants()
         VideoDownloaderApplication.instance.appResumeAdHelper.setEnableAppResumeOnScreen()
         onPauseOrDispose { }
     }
 
-    val finishOnboarding = {
-        preferenceHelper.hidePermission()
-        onContinue()
-    }
-
     PermissionScreen(
         state = state,
-        onSkip = finishOnboarding,
+        onSkip = viewModel::complete,
         onRequestStorage = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 requestMediaImages.launch(Manifest.permission.READ_MEDIA_IMAGES)
@@ -128,6 +110,6 @@ fun PermissionRoute(onContinue: () -> Unit) {
                 requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         },
-        onContinue = finishOnboarding,
+        onContinue = viewModel::complete,
     )
 }

@@ -1,6 +1,7 @@
 package com.smarttool.videodownloader.feature.pin.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.feature.pin.domain.PinRepository
 import com.smarttool.videodownloader.feature.pin.domain.usecase.SavePinUseCase
 import com.smarttool.videodownloader.feature.pin.domain.usecase.VerifyPinUseCase
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 class PinViewModel(
     private val repository: PinRepository,
@@ -30,7 +32,7 @@ class PinViewModel(
      * @param changingPin true when reached from "change PIN", which forces the
      *   create/confirm flow even though a PIN already exists.
      */
-    fun start(changingPin: Boolean) {
+    suspend fun start(changingPin: Boolean) {
         isChangingPin = changingPin
         val verifying = repository.isPinConfigured() && !changingPin
 
@@ -58,9 +60,9 @@ class PinViewModel(
 
     private fun onComplete(entered: String) {
         when (_uiState.value.step) {
-            PinStep.Verify -> {
+            PinStep.Verify -> viewModelScope.launch {
                 if (verifyPin(entered)) {
-                    _events.trySend(PinEvent.Unlocked)
+                    _events.send(PinEvent.Unlocked)
                 } else {
                     _uiState.value = _uiState.value.copy(entered = "", showIncorrect = true)
                 }
@@ -74,8 +76,11 @@ class PinViewModel(
             PinStep.Confirm -> {
                 if (entered == firstEntry) {
                     if (isChangingPin) {
-                        savePin(entered)
-                        _events.trySend(PinEvent.PinChanged)
+                        // The event navigates away, so the PIN is persisted before it is sent.
+                        viewModelScope.launch {
+                            savePin(entered)
+                            _events.send(PinEvent.PinChanged)
+                        }
                     } else {
                         _events.trySend(PinEvent.PinChosen(entered))
                     }

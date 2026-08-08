@@ -1,10 +1,11 @@
 package com.smarttool.videodownloader.data.remote.service
 
+import android.content.Context
 import com.smarttool.videodownloader.data.model.VideoInfoWrapper
 import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.network.CustomProxyController
@@ -18,10 +19,6 @@ import org.jsoup.Jsoup
 import java.util.*
 import timber.log.Timber
 
-interface VideoService {
-    fun getVideoInfo(url: Request, isM3u8OrMpd: Boolean = false): VideoInfoWrapper?
-}
-
 /**
  * Thrown when yt-dlp reports that the target site requires the user to be logged-in
  * (e.g. Vimeo private/impersonation-gated videos) before the info/formats can be extracted.
@@ -29,7 +26,9 @@ interface VideoService {
 class LoginRequiredException(val host: String, message: String?) : Exception(message)
 
 open class VideoServiceLocal(
-    private val proxyController: CustomProxyController, private val helper: YoutubedlHelper
+    private val proxyController: CustomProxyController,
+    private val helper: YoutubedlHelper,
+    private val appContext: Context,
 ) {
     companion object {
         const val MP4_EXT = "mp4"
@@ -90,7 +89,8 @@ open class VideoServiceLocal(
             attachProxyToRequest(request, currentProxy)
         }
 
-        val tmpCookieFile = CookieUtils.addCookiesToRequest(url.url.toString(), request)
+        val tmpCookieFile =
+            CookieUtils.addCookiesToRequest(appContext, url.url.toString(), request)
 
         try {
             val info = YoutubeDL.getInstance().getInfo(request)
@@ -175,7 +175,7 @@ open class VideoServiceLocal(
 
 class YoutubedlHelper  constructor(
     private val okHttpProxyClient: OkHttpProxyClient,
-    private val sharedPrefHelper: PreferenceHelper
+    private val preferences: AppPreferencesDataSource,
 ) {
     companion object {
         private const val SUPPORTED_SITES_URL =
@@ -186,7 +186,7 @@ class YoutubedlHelper  constructor(
     private var isLoading = false
 
     fun isHostSupported(host: String): Boolean {
-        val isCheck = sharedPrefHelper.getIsCheckByList()
+        val isCheck = preferences.isCheckHostByListBlocking()
 
         if (!isCheck) {
             return true

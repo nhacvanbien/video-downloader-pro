@@ -11,7 +11,6 @@ class WebTab(
     private var url: String,
     private val title: String?,
     private var iconBytes: Bitmap? = null,
-    private val headers: Map<String, String> = emptyMap(),
     private var webview: WebView? = null,
     private var resultMsg: Message? = null,
     var id: String = UUID.randomUUID().toString()
@@ -30,20 +29,12 @@ class WebTab(
         return resultMsg
     }
 
-    fun flushMessage() {
-        resultMsg = null
-    }
-
     fun getWebView(): WebView? {
         return this.webview
     }
 
     fun setWebView(webview: WebView?) {
         this.webview = webview
-    }
-
-    fun getHeaders(): Map<String, String>? {
-        return this.headers
     }
 
     fun getUrl(): String {
@@ -58,21 +49,8 @@ class WebTab(
         return this.title ?: ""
     }
 
-    fun getFavicon(): Bitmap? {
-        return iconBytes
-    }
-
-    fun setFavicon(iconBytes: Bitmap?) {
-        this.iconBytes = iconBytes
-    }
-
-    fun isHome(): Boolean {
-        return this.id.contains("home")
-    }
-
-
     override fun toString(): String {
-        return "WebTab(url='$url', title=$title, iconBytes=$iconBytes, headers=$headers, webview=$webview, resultMsg=$resultMsg, id='$id')"
+        return "WebTab(url='$url', title=$title, iconBytes=$iconBytes, webview=$webview, resultMsg=$resultMsg, id='$id')"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -84,7 +62,6 @@ class WebTab(
         if (url != other.url) return false
         if (title != other.title) return false
         if (iconBytes != other.iconBytes) return false
-        if (headers != other.headers) return false
         if (webview != other.webview) return false
         if (resultMsg != other.resultMsg) return false
         if (id != other.id) return false
@@ -96,10 +73,9 @@ class WebTab(
         var result = url.hashCode()
         result = 31 * result + (title?.hashCode() ?: 0)
         result = 31 * result + (iconBytes?.hashCode() ?: 0)
-        result = 31 * result + headers.hashCode()
         result = 31 * result + (webview?.hashCode() ?: 0)
         result = 31 * result + (resultMsg?.hashCode() ?: 0)
-        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + id.hashCode()
         return result
     }
 }

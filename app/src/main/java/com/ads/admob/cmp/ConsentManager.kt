@@ -3,11 +3,11 @@ package com.ads.admob.cmp
 import android.content.Context
 import com.ads.admob.cmp.interfaces.OnConsentResponse
 
-class TevoConsentManager private constructor() {
+class ConsentManager private constructor() {
     companion object {
-        private val instance = TevoConsentManager()
+        private val instance = ConsentManager()
 
-        fun getInstance(context: Context): TevoConsentManager = instance
+        fun getInstance(context: Context): ConsentManager = instance
     }
 
     fun initReleaseConsent(onConsentResponse: OnConsentResponse) {

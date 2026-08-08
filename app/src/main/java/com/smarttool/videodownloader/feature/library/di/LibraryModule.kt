@@ -10,14 +10,18 @@ import com.smarttool.videodownloader.feature.downloads.domain.usecase.PauseDownl
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ResumeDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StartDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StopAndSaveDownloadUseCase
+import com.smarttool.videodownloader.feature.library.data.LibraryPreferencesRepositoryImpl
 import com.smarttool.videodownloader.feature.library.data.MediaLibraryRepositoryImpl
 import com.smarttool.videodownloader.feature.library.domain.usecase.DeleteMediaUseCase
+import com.smarttool.videodownloader.feature.library.domain.LibraryPreferencesRepository
 import com.smarttool.videodownloader.feature.library.domain.MediaLibraryRepository
+import com.smarttool.videodownloader.feature.library.domain.usecase.GetSortTypeUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.ObserveLibraryUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.ObservePrivateLibraryUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.PruneMissingFilesUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.RenameMediaUseCase
 import com.smarttool.videodownloader.feature.library.domain.usecase.SetMediaPrivateUseCase
+import com.smarttool.videodownloader.feature.library.domain.usecase.SetSortTypeUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.GetVideoFormatOptionsUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
@@ -33,12 +37,15 @@ val PrivateLibrary = named("privateLibrary")
 
 val libraryModule = module {
     single<MediaLibraryRepository> { MediaLibraryRepositoryImpl(get(), get()) }
+    single<LibraryPreferencesRepository> { LibraryPreferencesRepositoryImpl(get()) }
     factory { ObserveLibraryUseCase(get()) }
     factory { ObservePrivateLibraryUseCase(get()) }
     factory { DeleteMediaUseCase(get()) }
     factory { RenameMediaUseCase(get()) }
     factory { SetMediaPrivateUseCase(get()) }
     factory { PruneMissingFilesUseCase(get()) }
+    factory { GetSortTypeUseCase(get()) }
+    factory { SetSortTypeUseCase(get()) }
 
     single<DownloaderGateway> { AndroidDownloaderGateway(androidContext()) }
     single<DownloadsRepository> { DownloadsRepositoryImpl(get(), get()) }
@@ -53,6 +60,8 @@ val libraryModule = module {
     factory { DetectedVideoUiMapper(get()) }
 
     viewModel { ProcessingViewModel(get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { LibraryViewModel(false, get(), get(), get(), get(), get(), get()) }
-    viewModel(PrivateLibrary) { LibraryViewModel(true, get(), get(), get(), get(), get(), get()) }
+    viewModel { LibraryViewModel(false, get(), get(), get(), get(), get(), get(), get()) }
+    viewModel(PrivateLibrary) {
+        LibraryViewModel(true, get(), get(), get(), get(), get(), get(), get())
+    }
 }

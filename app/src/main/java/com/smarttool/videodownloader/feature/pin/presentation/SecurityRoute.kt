@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.feature.pin.presentation
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,13 +35,9 @@ fun SecurityRoute(
         Toast.makeText(context, context.getString(messageRes), Toast.LENGTH_SHORT).show()
     }
 
-    SecurityScreen(
-        questionIndex = state.questionIndex,
-        answer = state.answer,
-        onAnswerChange = viewModel::onAnswerChange,
-        onPickQuestion = { viewModel.setQuestionPickerVisible(true) },
-        onConfirm = {
-            when (viewModel.confirm(isRecovery, pendingPin)) {
+    LaunchedEffect(Unit) {
+        viewModel.results.collect { result ->
+            when (result) {
                 SecurityResult.EmptyAnswer -> toast(R.string.string_please_enter_your_answer)
 
                 SecurityResult.RecoveryIncorrect ->
@@ -53,7 +50,15 @@ fun SecurityRoute(
 
                 SecurityResult.Saved -> showSuccessDialog = true
             }
-        },
+        }
+    }
+
+    SecurityScreen(
+        questionIndex = state.questionIndex,
+        answer = state.answer,
+        onAnswerChange = viewModel::onAnswerChange,
+        onPickQuestion = { viewModel.setQuestionPickerVisible(true) },
+        onConfirm = { viewModel.confirm(isRecovery, pendingPin) },
         onBack = onBack,
     )
 

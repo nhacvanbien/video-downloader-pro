@@ -18,7 +18,7 @@ import com.smarttool.videodownloader.data.repository.ProgressRepository
 import com.smarttool.videodownloader.data.repository.ProgressRepositoryImpl
 import com.smarttool.videodownloader.data.repository.TabModelRepository
 import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.ui.SystemUiController
 import com.smarttool.videodownloader.core.coroutines.AppScope
 import com.smarttool.videodownloader.core.file.FileUtil
@@ -89,13 +89,13 @@ val appModule = module {
             .create(ConfigService::class.java)
     }
     single { YoutubedlHelper(get(), get()) }
-    single { VideoServiceLocal(get(), get()) }
-    single { AdBlockHostsRemoteDataSource(get(), get(), get()) }
+    single { VideoServiceLocal(get(), get(), androidContext()) }
+    single { AdBlockHostsRemoteDataSource(get(), get(), get(), androidContext()) }
 
     // --- Helpers ---
     single { AppScope() }
-    single { PreferenceHelper(androidContext()) }
-    single { FileUtil() }
+    single { AppPreferencesDataSource(androidContext(), get()) }
+    single { FileUtil(androidContext()) }
     single { SystemUiController() }
     single { IntentUtil(get()) }
     single { MediaPermissionChecker(androidContext()) }

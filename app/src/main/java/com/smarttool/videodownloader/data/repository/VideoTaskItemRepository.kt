@@ -8,10 +8,6 @@ class VideoTaskItemRepository  constructor(
     private val videoTaskItemDao: VideoTaskItemDao
 ) {
 
-    fun getAllVideoTaskItem(): LiveData<List<VideoTaskItem>> {
-        return videoTaskItemDao.getVideoTaskItem()
-    }
-
     fun getAllVideoTaskItems(): List<VideoTaskItem> {
         return videoTaskItemDao.getAllVideoTaskItems()
     }
@@ -47,10 +43,6 @@ class VideoTaskItemRepository  constructor(
                 "%" + textSearch.trim() + "%",
                 typeSort
             )
-    }
-
-    fun getAllVideoSecurityTaskItem(): LiveData<List<VideoTaskItem>> {
-        return videoTaskItemDao.getVideoSecurityTaskItem()
     }
 
     suspend fun insertVideoTaskItem(videoTaskItem: VideoTaskItem) {

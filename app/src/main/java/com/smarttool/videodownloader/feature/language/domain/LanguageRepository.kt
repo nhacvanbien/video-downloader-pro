@@ -5,9 +5,9 @@ import com.smarttool.videodownloader.feature.language.domain.model.AppLanguage
 interface LanguageRepository {
     fun availableLanguages(): List<AppLanguage>
 
-    fun currentLanguageCode(): String
+    suspend fun currentLanguageCode(): String
 
-    fun persistLanguage(code: String)
+    suspend fun persistLanguage(code: String)
 
-    fun markStartLanguageShown()
+    suspend fun markStartLanguageShown()
 }

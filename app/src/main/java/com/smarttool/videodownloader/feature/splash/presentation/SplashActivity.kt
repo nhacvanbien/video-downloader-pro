@@ -1,15 +1,17 @@
 package com.smarttool.videodownloader.feature.splash.presentation
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
-import com.ads.admob.cmp.TevoConsentManager
+import com.ads.admob.cmp.ConsentManager
 import com.ads.admob.cmp.interfaces.OnConsentResponse
 import com.ads.admob.data.ContentAd
 import com.ads.admob.helper.banner.BannerAdConfig
@@ -31,15 +33,14 @@ import com.smarttool.videodownloader.core.navigation.AppRoute
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
-import com.smarttool.videodownloader.base.BaseComposeActivity
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.core.withAppLocale
 import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
+import com.smarttool.videodownloader.feature.onboarding.domain.model.AppEntryPoint
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ads.InAppUpdate
 import com.smarttool.videodownloader.core.ads.InstallUpdatedListener
 import com.smarttool.videodownloader.core.ads.InterAdsManager
-import com.smarttool.videodownloader.core.SystemUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -47,11 +48,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
-import org.koin.android.ext.android.inject
 import timber.log.Timber
 
-class SplashActivity : BaseComposeActivity() {
-    private val preferenceHelper: PreferenceHelper by inject()
+class SplashActivity : AppCompatActivity() {
+    private val splashViewModel: SplashViewModel by koinViewModel()
 
     private val privateVideoViewModel: PrivateVideoViewModel by koinViewModel()
     private lateinit var inAppUpdate: InAppUpdate
@@ -78,8 +78,8 @@ class SplashActivity : BaseComposeActivity() {
 
     private val bannerContainer: FrameLayout get() = bannerBinding.frAdsBanner
 
-    private val isStartLanguageShowed
-        get() = preferenceHelper.getBoolean(PreferenceHelper.PREF_SHOWED_START_LANGUAGE) == true
+    /** Valid once [SplashViewModel.awaitLoaded] has returned; defaults to "already seen". */
+    private val isStartLanguageShowed get() = splashViewModel.uiState.value.startLanguageShown
 
     private val bannerAdHelper by lazy { initBannerAd() }
     private fun initBannerAd(): BannerAdHelper {
@@ -165,7 +165,12 @@ class SplashActivity : BaseComposeActivity() {
         }
     }
 
-    private val consentManager by lazy { TevoConsentManager.getInstance(this) }
+    private val consentManager by lazy { ConsentManager.getInstance(this) }
+
+    /** Applied here, not in [onCreate], so resources resolve in the picked language from the start. */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase.withAppLocale())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -228,20 +233,19 @@ class SplashActivity : BaseComposeActivity() {
      * starts and hands that to [MainActivity], which owns every screen from here on.
      */
     private fun startNextAct() {
-        val startDestination = when {
-            !isStartLanguageShowed -> AppRoute.LANGUAGE
+        lifecycleScope.launch {
+            val startDestination = when (splashViewModel.awaitLoaded().entryPoint) {
+                AppEntryPoint.Language -> AppRoute.LANGUAGE
+                AppEntryPoint.Intro -> AppRoute.INTRO
+                AppEntryPoint.Home -> AppRoute.MAIN
+            }
 
-            preferenceHelper.getBoolean(PreferenceHelper.PREF_SHOWED_ONBOARDING) != true ->
-                AppRoute.INTRO
-
-            else -> AppRoute.MAIN
+            startActivity(
+                MainActivity.newIntent(this@SplashActivity, startDestination)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
+            )
+            finish()
         }
-
-        startActivity(
-            MainActivity.newIntent(this, startDestination)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
-        )
-        finish()
     }
 
     private fun getRemoteConfig(onComplete: (Boolean) -> Unit) {
@@ -305,6 +309,15 @@ class SplashActivity : BaseComposeActivity() {
     }
 
     private fun checkRemoteConfigResult() {
+        // Which ads to preload, and whether the progress bar gates the hand-off, both
+        // depend on whether the language step is still ahead — so wait for that flag.
+        lifecycleScope.launch {
+            splashViewModel.awaitLoaded()
+            onRemoteConfigReady()
+        }
+    }
+
+    private fun onRemoteConfigReady() {
         preloadNativeLanguage()
         if (AdsConstant.showInterSplash) {
             interAdSplashHelper.requestAds(InterstitialAdParam.Request)

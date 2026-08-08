@@ -4,25 +4,19 @@ import android.webkit.WebView
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import androidx.lifecycle.ViewModel
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.base.BaseViewModel
-import com.smarttool.videodownloader.data.network.entity.HistoryItem
 import com.smarttool.videodownloader.data.remote.service.AdBlockHostsRemoteDataSource
 import com.smarttool.videodownloader.core.SingleLiveEvent
-import kotlinx.coroutines.Job
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 
-class WebTabViewModel constructor(
+class WebTabViewModel(
     private val adBlockHostsRemoteDataSource: AdBlockHostsRemoteDataSource,
-) : BaseViewModel() {
+) : ViewModel() {
     val isTabInputFocused = ObservableBoolean(false)
     val changeTabFocusEvent = SingleLiveEvent<Boolean>()
-    val thisTabIndex = ObservableInt(-1)
     val isDownloadDialogShown = ObservableBoolean(false)
-    var listTabSuggestions: ObservableField<MutableList<HistoryItem>> = ObservableField(
-        mutableListOf()
-    )
     val isShowProgress = ObservableBoolean(true)
     val progress = ObservableInt(0)
     val progressIcon = ObservableInt(R.drawable.ic_reload)
@@ -37,22 +31,6 @@ class WebTabViewModel constructor(
     val loadPageEvent = SingleLiveEvent<WebTab>()
 
     val tabUrl = ObservableField("")
-    private var tabSuggestionJob: Job? = null
-
-    override fun start() {
-//        isShowProgress.addOnPropertyChangedCallback(object :
-//            Observable.OnPropertyChangedCallback() {
-//            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-//                when (isShowProgress.get()) {
-//                    true -> progressIcon.set(R.drawable.ic_close)
-//                    false -> progressIcon.set(R.drawable.ic_reload)
-//                }
-//            }
-//        })
-    }
-
-    override fun stop() {
-    }
 
     suspend fun setListHost() {
         adBlockHostsRemoteDataSource.setListHost()

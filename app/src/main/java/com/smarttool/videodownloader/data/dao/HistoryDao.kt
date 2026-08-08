@@ -8,9 +8,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface HistoryDao {
 
-    @Query("SELECT * FROM HistoryItem")
-    fun getHistory(): LiveData<List<HistoryItem>>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertHistoryItem(item: HistoryItem)
 
@@ -19,20 +16,6 @@ interface HistoryDao {
 
     @Query("DELETE FROM HistoryItem WHERE isBookmark = 0")
     fun clear()
-
-    @Query(
-        """SELECT * FROM HistoryItem 
-       WHERE title LIKE :textSearch  AND isBookmark = 0
-       """
-    )
-    fun getLiveDataHistoryByTextSearch(textSearch: String?): LiveData<List<HistoryItem>>
-
-    @Query(
-        """SELECT * FROM HistoryItem 
-       WHERE title LIKE :textSearch  AND isBookmark = 1
-       """
-    )
-    fun getLiveDataBookmarkByTextSearch(textSearch: String?): LiveData<List<HistoryItem>>
 
     @Query(
         """SELECT * FROM HistoryItem

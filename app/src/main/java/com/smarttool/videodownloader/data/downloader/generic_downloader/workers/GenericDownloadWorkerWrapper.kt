@@ -8,7 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.smarttool.videodownloader.data.repository.ProgressRepository
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.notification.NotificationsHelper
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
@@ -30,7 +30,7 @@ open class GenericDownloadWorkerWrapper  constructor(
     lateinit var notificationsHelper: NotificationsHelper
     lateinit var proxyController: CustomProxyController
     lateinit var proxyOkHttpClient: OkHttpProxyClient
-    lateinit var sharedPrefHelper: PreferenceHelper
+    lateinit var preferences: AppPreferencesDataSource
 
     override fun onDownloadPrepare(item: VideoTaskItem?) {
         super.onDownloadPrepare(item)

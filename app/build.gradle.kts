@@ -179,6 +179,7 @@ dependencies {
     implementation(libs.ssp)
     implementation(libs.sdp)
     implementation(libs.security.crypto)
+    implementation(libs.datastore.preferences)
     implementation(libs.dotsindicator)
     implementation(libs.review)
     implementation(libs.app.update)

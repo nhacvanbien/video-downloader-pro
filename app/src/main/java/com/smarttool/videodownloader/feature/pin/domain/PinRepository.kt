@@ -1,17 +1,17 @@
 package com.smarttool.videodownloader.feature.pin.domain
 
 interface PinRepository {
-    fun isPinConfigured(): Boolean
+    suspend fun isPinConfigured(): Boolean
 
-    fun savedPin(): String
+    suspend fun savedPin(): String
 
-    fun savePin(pin: String)
+    suspend fun savePin(pin: String)
 
-    fun securityQuestionIndex(): Int
+    suspend fun securityQuestionIndex(): Int
 
-    fun securityAnswer(): String
+    suspend fun securityAnswer(): String
 
-    fun saveSecurityQuestion(index: Int, answer: String)
+    suspend fun saveSecurityQuestion(index: Int, answer: String)
 
-    fun clearPin()
+    suspend fun clearPin()
 }

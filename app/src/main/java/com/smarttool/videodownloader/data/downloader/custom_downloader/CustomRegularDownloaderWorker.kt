@@ -271,7 +271,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
         saveProgress(
             inf.id, Progress(0, 0), VideoTaskState.PENDING
         )
-        val threadCount = sharedPrefHelper.getRegularDownloaderThreadCount()
+        val threadCount = preferences.regularThreadCountBlocking()
         proxyOkHttpClient.getProxyOkHttpClient().let { okHttpClient ->
             CustomFileDownloader(URL(url),
                 File(outputFileName!!),

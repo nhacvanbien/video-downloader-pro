@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,6 +19,7 @@ import com.smarttool.videodownloader.feature.language.domain.model.AppLanguage
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetLocalizedStringUseCase
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetSystemLanguageUseCase
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -40,6 +42,7 @@ fun LanguageRoute(
 
     val context = LocalContext.current
     val activity = context.findComponentActivity()
+    val scope = rememberCoroutineScope()
 
     val titleRes = if (fromSplash && AdsConstant.newUILfo) {
         R.string.string_select_languages
@@ -85,19 +88,21 @@ fun LanguageRoute(
             if (fromSplash) headerTitle = localizedString(code, titleRes)
         },
         onConfirm = {
-            val selected = viewModel.confirm(markStartShown = fromSplash)
+            scope.launch {
+                val selected = viewModel.confirm(markStartShown = fromSplash)
 
-            if (selected == null) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.string_please_select_language),
-                    Toast.LENGTH_SHORT,
-                ).show()
-            } else {
-                activity.setLocale(selected.code)
-                SystemUtil.setPreLanguage(context, selected.code)
+                if (selected == null) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.string_please_select_language),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                } else {
+                    activity.setLocale(selected.code)
+                    SystemUtil.setPreLanguage(context, selected.code)
 
-                if (fromSplash) onApplied(selected) else onBack()
+                    if (fromSplash) onApplied(selected) else onBack()
+                }
             }
         },
         onBack = onBack,

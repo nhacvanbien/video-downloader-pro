@@ -3,5 +3,5 @@ package com.smarttool.videodownloader.feature.pin.domain.usecase
 import com.smarttool.videodownloader.feature.pin.domain.PinRepository
 
 class ResetPinUseCase(private val repository: PinRepository) {
-    operator fun invoke() = repository.clearPin()
+    suspend operator fun invoke() = repository.clearPin()
 }

@@ -73,14 +73,3 @@ fun AppTopBar(
         }
     }
 }
-
-/** Full-screen gradient backdrop used by every migrated screen. */
-@Composable
-fun GradientScreen(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Box(modifier = modifier.background(ScreenGradient)) {
-        content()
-    }
-}

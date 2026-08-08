@@ -1,21 +1,22 @@
 package com.smarttool.videodownloader.feature.media.data
 
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.feature.media.domain.MediaPreferencesRepository
-import com.smarttool.videodownloader.helper.PreferenceHelper
+import kotlinx.coroutines.flow.first
 
 class MediaPreferencesRepositoryImpl(
-    private val preferenceHelper: PreferenceHelper,
+    private val preferences: AppPreferencesDataSource,
 ) : MediaPreferencesRepository {
 
-    override fun playbackSpeed(): Float = preferenceHelper.getSpeedMedia()
+    override suspend fun playbackSpeed(): Float = preferences.playbackSpeed.first()
 
-    override fun setPlaybackSpeed(speed: Float) = preferenceHelper.setSpeedMedia(speed)
+    override suspend fun setPlaybackSpeed(speed: Float) = preferences.setPlaybackSpeed(speed)
 
-    override fun isLooping(): Boolean = preferenceHelper.getIsLoopMedia()
+    override suspend fun isLooping(): Boolean = preferences.playbackLooping.first()
 
-    override fun setLooping(looping: Boolean) = preferenceHelper.setIsLoopMedia(looping)
+    override suspend fun setLooping(looping: Boolean) = preferences.setPlaybackLooping(looping)
 
-    override fun isFillMode(): Boolean = preferenceHelper.getIsFillMedia()
+    override suspend fun isFillMode(): Boolean = preferences.playbackFillMode.first()
 
-    override fun setFillMode(fill: Boolean) = preferenceHelper.setIsFillMedia(fill)
+    override suspend fun setFillMode(fill: Boolean) = preferences.setPlaybackFillMode(fill)
 }

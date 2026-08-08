@@ -106,10 +106,6 @@ open class GenericDownloader {
             return String(byteArrayOutputStream.toByteArray())
         }
 
-        fun setAppDownloadListener(listener: IDownloadListener) {
-            downloadListener = listener
-        }
-
         fun addDownload(context: Context, videoInfo: VideoInfo) {
             val downloadWork = getWorkRequest()
 

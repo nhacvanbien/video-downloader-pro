@@ -8,7 +8,6 @@ import androidx.core.net.toUri
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
-import com.smarttool.videodownloader.helper.PreferenceHelper
 import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.smarttool.videodownloader.core.file.FileUtil
@@ -166,7 +165,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         val request = YoutubeDLRequest(url)
 
         cookieFile = CookieUtils.addCookiesToRequest(
-            url, request, inputData.getString(GenericDownloader.ORIGIN_KEY)
+            applicationContext, url, request, inputData.getString(GenericDownloader.ORIGIN_KEY)
         )
 
         tmpFile = File(
@@ -234,7 +233,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
         request.addOption("--progress")
 
-        val threadsCount = PreferenceHelper(applicationContext).getM3u8DownloaderThreadCount() + 1
+        val threadsCount = preferences.m3u8ThreadCountBlocking() + 1
         request.addOption("-N", threadsCount)
 
         request.addOption("--recode-video", "mp4")

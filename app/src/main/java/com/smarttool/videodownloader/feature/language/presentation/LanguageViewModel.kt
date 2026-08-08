@@ -32,7 +32,8 @@ class LanguageViewModel(
         _uiState.update { it.copy(selectedCode = code, showHintAnimation = false) }
     }
 
-    fun confirm(markStartShown: Boolean): AppLanguage? {
+    /** Suspends until the choice is persisted, so the caller can apply it right after. */
+    suspend fun confirm(markStartShown: Boolean): AppLanguage? {
         val state = _uiState.value
         val selected = state.languages.firstOrNull { it.code == state.selectedCode }
             ?: return null

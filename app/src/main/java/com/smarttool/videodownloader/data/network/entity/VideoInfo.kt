@@ -76,10 +76,6 @@ data class VideoInfo(
 
     val isMaster get() = isM3u8 && formats.formats.size > 1
 
-    fun isTikTokVideo(): Boolean {
-        return originalUrl.contains("tiktok.com")
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

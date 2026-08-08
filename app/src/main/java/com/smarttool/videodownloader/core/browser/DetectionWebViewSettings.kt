@@ -1,5 +1,6 @@
 package com.smarttool.videodownloader.core.browser
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -15,6 +16,7 @@ import android.webkit.WebView
  * [allowAutoplay] is the one real difference between the hosts — the browser lets the
  * page play, the off-screen probe must not.
  */
+@SuppressLint("SetJavaScriptEnabled")
 fun WebView.applyDetectionDefaults(allowAutoplay: Boolean) {
     setLayerType(View.LAYER_TYPE_HARDWARE, null)
     isScrollbarFadingEnabled = true

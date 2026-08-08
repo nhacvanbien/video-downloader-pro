@@ -23,15 +23,12 @@ class PrivateVideoViewModel constructor(
 
     val sortStateObservable: MutableLiveData<SortState> = MutableLiveData(SortState.NAME)
 
-    val fileTabLiveData: MutableLiveData<Int> = MutableLiveData(0)
-
     companion object {
         const val FILE_EXIST_ERROR_CODE = 1
         const val FILE_INVALID_ERROR_CODE = 2
     }
 
     val renameErrorEvent = SingleLiveEvent<Int>()
-    val shareEvent = SingleLiveEvent<Uri>()
 
     val searchCharObservable: MutableLiveData<String> = MutableLiveData("")
     val fileType: MutableLiveData<String> = MutableLiveData("")
@@ -168,11 +165,6 @@ class PrivateVideoViewModel constructor(
 
     }
 
-
-    fun queryVideoSecurityTaskItem(): LiveData<List<VideoTaskItem>> {
-        return videoTaskItemRepository.getAllVideoSecurityTaskItem()
-    }
-
     fun findVideoTaskItemByName(name: String): VideoTaskItem {
         return videoTaskItemRepository.findVideoTaskItemByName(name)
     }
@@ -180,9 +172,4 @@ class PrivateVideoViewModel constructor(
     suspend fun resetSecurityFlag() {
         videoTaskItemRepository.resetSecurityFlag()
     }
-
-    suspend fun findVideoByName(downloadFilename: String?): VideoTaskItem? =
-        withContext(Dispatchers.IO) {
-            downloadFilename?.let { findVideoTaskItemByName(it) }
-        }
 }

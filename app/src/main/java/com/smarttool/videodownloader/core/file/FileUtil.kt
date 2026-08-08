@@ -28,11 +28,10 @@ import java.util.Arrays
 import java.util.Date
 import java.util.Locale
 import kotlin.text.iterator
-import com.smarttool.videodownloader.core.ContextUtils
 import timber.log.Timber
 
 //@OpenForTesting
-class FileUtil  constructor() {
+class FileUtil constructor(private val appContext: Context) {
 
     companion object {
         var INITIIALIZED = false
@@ -72,22 +71,6 @@ class FileUtil  constructor() {
             }
         }
 
-        fun getFileCreationDate(context: Context, fileUri: Uri): String? {
-            return context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
-                val dateIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DATE_ADDED)
-                if (dateIndex != -1 && cursor.moveToFirst()) {
-                    val timestamp = cursor.getLong(dateIndex) * 1000L
-                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                        Date(
-                            timestamp
-                        )
-                    )
-                } else {
-                    null
-                }
-            }
-        }
-
         fun getFreeDiskSpace(path: File): Long {
             if (!path.exists()) {
                 throw IllegalArgumentException("Path does not exist")
@@ -108,7 +91,7 @@ class FileUtil  constructor() {
                 throw Error("File Util Not Initialized")
             }
 
-            val context = ContextUtils.getApplicationContext()
+            val context = appContext
 
             when {
                 IS_EXTERNAL_STORAGE_USE && !IS_APP_DATA_DIR_USE -> {
@@ -135,14 +118,12 @@ class FileUtil  constructor() {
                 throw Error("File Util Not Initialized")
             }
 
-            val context = ContextUtils.getApplicationContext()
-
-            return getTmpDataDir(context, IS_EXTERNAL_STORAGE_USE)
+            return getTmpDataDir(appContext, IS_EXTERNAL_STORAGE_USE)
         }
 
     val listFiles: Map<String, Pair<Long, Uri>>
         get() {
-            val context = ContextUtils.getApplicationContext()
+            val context = appContext
             val result = mutableMapOf<String, Pair<Long, Uri>>()
 
             val externalPrivateFilesObjs = getPrivateDownloadsDirFilesObj(context, true)
@@ -162,37 +143,6 @@ class FileUtil  constructor() {
             return result
 
         }
-
-
-    private fun loadThumbnailFromMediaStore(context: Context, uri: Uri): Bitmap? {
-        val videoId = getIdFromContentUri(context, uri) ?: return null
-        return MediaStore.Video.Thumbnails.getThumbnail(
-            context.contentResolver, videoId, MediaStore.Video.Thumbnails.MINI_KIND, null
-        )
-    }
-
-    private fun getVideoPreviewFromFile(file: File): Bitmap? {
-        val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(file.absolutePath)
-        val bitmap = retriever.frameAtTime
-        retriever.release()
-        return bitmap
-    }
-
-    private fun getIdFromContentUri(context: Context, uri: Uri): Long? {
-        // Check if the URI is a document URI
-        if (DocumentsContract.isDocumentUri(context, uri)) {
-            // Get the document ID
-            val docId = DocumentsContract.getDocumentId(uri)
-            // Split the document ID to get the last segment, which is the ID
-            return docId.split(":").last().toLongOrNull()
-        } else {
-            // Get the ID from the last segment of the URI
-            val pathSegments = uri.pathSegments
-
-            return pathSegments.last().toLongOrNull()
-        }
-    }
 
     fun isFileWithNameNotExists(context: Context, uri: Uri, newName: String): Boolean {
         return if (isFileApiSupportedByUri(context, uri)) {
@@ -635,7 +585,7 @@ class FileUtil  constructor() {
 
 
     private fun isExternalUri(uri: Uri): Boolean {
-        val context = ContextUtils.getApplicationContext()
+        val context = appContext
 
         val ext1 = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Downloads.EXTERNAL_CONTENT_URI

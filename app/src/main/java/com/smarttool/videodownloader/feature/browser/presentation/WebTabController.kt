@@ -210,9 +210,7 @@ class WebTabController(
         loadAd()
         registerServiceWorkerClient()
 
-        detector.webTabModel = tabViewModel
-        detector.start()
-        tabViewModel.start()
+        detector.attach(tabViewModel)
 
         ensureSelectedTabModel()
         observeDownloadOutcomes()
@@ -230,9 +228,9 @@ class WebTabController(
         if (!started) return
         started = false
 
+        // Probes are stopped before the WebView goes away; the rest of the detector's
+        // teardown happens in its `onCleared`, when `viewModels.clear()` runs below.
         detector.cancelAllCheckJobs()
-        tabViewModel.stop()
-        detector.stop()
         sniffer.cancelPendingProbes()
 
         webTab.getWebView()?.let { webView ->

@@ -5,6 +5,7 @@ import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideos
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
 import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
 import com.smarttool.videodownloader.feature.tab.presentation.TabModelViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -18,8 +19,8 @@ import org.koin.dsl.module
  */
 val legacyViewModelModule = module {
     viewModel { TabModelViewModel(get()) }
-    viewModel { BrowserSettingsViewModel(get()) }
+    viewModel { BrowserSettingsViewModel(get(), get()) }
     viewModel { WebTabViewModel(get()) }
     viewModel { PrivateVideoViewModel(get(), get()) }
-    viewModel { DetectedVideosTabViewModel(get(), get(), get(), get()) }
+    viewModel { DetectedVideosTabViewModel(get(), get(), get(), get(), androidContext()) }
 }

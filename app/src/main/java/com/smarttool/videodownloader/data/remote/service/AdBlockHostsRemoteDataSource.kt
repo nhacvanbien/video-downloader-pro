@@ -1,11 +1,11 @@
 package com.smarttool.videodownloader.data.remote.service
 
+import android.content.Context
 import android.net.Uri
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.data.dao.AdHostDao
 import com.smarttool.videodownloader.data.network.entity.AdHost
-import com.smarttool.videodownloader.helper.PreferenceHelper
-import com.smarttool.videodownloader.core.ContextUtils
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.feature.browser.domain.AdBlockerHelper
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onCompletion
@@ -31,16 +32,17 @@ const val AD_HOSTS_URLS_LIST_ADMIRAL = "https://v.firebog.net/hosts/Admiral.txt"
 const val TRACKING_BLACK_LIST = "https://v.firebog.net/hosts/Easyprivacy.txt"
 const val AD_HOSTS_URLS_AD_GUARD = "https://v.firebog.net/hosts/AdguardDNS.txt"
 
-class AdBlockHostsRemoteDataSource  constructor(
+class AdBlockHostsRemoteDataSource constructor(
     private val okHttpClient: OkHttpProxyClient,
-    private val sharedPrefHelper: PreferenceHelper,
+    private val preferences: AppPreferencesDataSource,
     private val adHostDao: AdHostDao,
+    private val appContext: Context,
 ) {
 
     private val hostsCache = mutableSetOf<AdHost>()
 
     suspend fun initialize(isUpdate: Boolean): Boolean {
-        val isPopulated = sharedPrefHelper.getIsPopulated()
+        val isPopulated = preferences.adHostsPopulated.first()
 
         if (isUpdate) {
             val freshHosts = fetchHosts()
@@ -92,7 +94,7 @@ class AdBlockHostsRemoteDataSource  constructor(
     }
 
     private suspend fun fetchHostsLocal(): Set<AdHost> {
-        val isPopulated = sharedPrefHelper.getIsPopulated()
+        val isPopulated = preferences.adHostsPopulated.first()
 
         if (isPopulated) {
             hostsCache.addAll(adHostDao.getAdHosts())
@@ -104,7 +106,7 @@ class AdBlockHostsRemoteDataSource  constructor(
                 adHostDao.insertAdHosts(adHosts)
             }.onCompletion {
                 if (it == null && counter > 80000) {
-                    sharedPrefHelper.setIsPopulated(true)
+                    preferences.setAdHostsPopulated(true)
                 }
             }.collect()
 
@@ -167,8 +169,7 @@ class AdBlockHostsRemoteDataSource  constructor(
 
     private suspend fun fetchHostsFromFileRaw(resource: Int): Flow<Set<AdHost>> {
         return flow {
-            val inputStream =
-                ContextUtils.getApplicationContext().resources.openRawResource(resource)
+            val inputStream = appContext.resources.openRawResource(resource)
 
             emit(readAdServersFromStream(inputStream))
         }
@@ -207,10 +208,6 @@ class AdBlockHostsRemoteDataSource  constructor(
         }
 
         return result
-    }
-
-    fun getCachedCount(): Int {
-        return hostsCache.size
     }
 
 

@@ -19,21 +19,6 @@ data class Proxy(
             return Proxy()
         }
 
-        fun fromServerMap(tmp: Map<*, *>): Proxy {
-            return Proxy(
-                id = tmp["id"].toString(),
-                host = tmp["proxy_address"].toString().replace("null", "").trim(),
-                port = tmp["port"].toString().replace(".0", "").trim(),
-                user = tmp["username"].toString(),
-                password = tmp["password"].toString(),
-                valid = tmp["valid"].toString() == "true",
-                lastVerify = tmp["last_verification"].toString(),
-                countryCode = tmp["country_code"].toString(),
-                cityName = tmp["city_name"].toString(),
-                createdAt = tmp["created_at"].toString(),
-            )
-        }
-
         fun fromMap(tmp: Map<*, *>) : Proxy {
             return Proxy(
                 id = tmp["id"].toString(),

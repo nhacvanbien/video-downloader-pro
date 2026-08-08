@@ -7,7 +7,6 @@ import android.util.Base64
 import androidx.work.*
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.core.ContextUtils
 import com.google.gson.Gson
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import kotlinx.coroutines.Job
@@ -89,7 +88,7 @@ class YoutubeDlDownloader : GenericDownloader() {
         }
 
         private fun runWorkerTask(context: Context, info: VideoInfo, taskData: OneTimeWorkRequest) {
-            val op = WorkManager.getInstance(ContextUtils.getApplicationContext())
+            val op = WorkManager.getInstance(context)
                 .cancelAllWorkByTag(info.id)
             try {
                 op.result.get()

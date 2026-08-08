@@ -2,7 +2,7 @@ package com.smarttool.videodownloader.core.ads
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import com.ads.admob.admob.TevoAdmobFactory
+import com.ads.admob.admob.AdmobFactory
 import com.ads.admob.data.ContentAd
 import com.ads.admob.listener.NativeAdCallback
 import com.google.android.gms.ads.AdError
@@ -38,8 +38,6 @@ object AdsConstant {
     var nativeAdsOnboardFullscreen1_1: MutableLiveData<ContentAd?> = MutableLiveData()
     var nativeAdsOnboardFullscreen1_2: MutableLiveData<ContentAd?> = MutableLiveData()
     var nativeAdsPermission: MutableLiveData<ContentAd?> = MutableLiveData()
-    var nativeAdsSmallAll: MutableLiveData<ContentAd?> = MutableLiveData()
-    var lastShownInter = 0L
 
     var newUILfo = true
     fun requestNativeLFO1(context: Context) {
@@ -205,7 +203,7 @@ private fun requestNativeAd(
     onClick: () -> Unit,
     adPlacement: String,
 ) {
-    TevoAdmobFactory.requestNativeAd(
+    AdmobFactory.requestNativeAd(
         context,
         idAd,
         adPlacement,

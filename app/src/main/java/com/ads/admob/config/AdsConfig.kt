@@ -9,22 +9,22 @@ data class EventConfig(
     val exchangeCurrency: String,
 )
 
-class TevoAdjustConfig private constructor() {
+class AdjustConfig private constructor() {
     class Build(
         private val appToken: String,
         private val isProduction: Boolean,
     ) {
-        fun build(): TevoAdjustConfig = TevoAdjustConfig()
+        fun build(): AdjustConfig = AdjustConfig()
     }
 }
 
-class TevoAdsConfig private constructor() {
-    class Builder(private val mexaAdjustConfig: TevoAdjustConfig) {
+class AdsConfig private constructor() {
+    class Builder(private val mexaAdjustConfig: AdjustConfig) {
         fun intervalBetweenInterstitial(value: Long): Builder = this
         fun buildVariantProduce(value: Boolean): Builder = this
         fun mediationProvider(value: NetworkProvider): Builder = this
         fun eventConfig(value: EventConfig): Builder = this
         fun listTestDevices(value: List<String>): Builder = this
-        fun build(): TevoAdsConfig = TevoAdsConfig()
+        fun build(): AdsConfig = AdsConfig()
     }
 }
