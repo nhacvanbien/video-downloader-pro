@@ -120,27 +120,28 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                                         Timber.d(
                                             "START MOOVING...  $sourcePath  $target"
                                         )
-                                        fileMovedSuccess = fileUtil.moveMedia(
+                                        val movedPath = fileUtil.moveMedia(
                                             applicationContext,
                                             sourcePath.toUri(),
                                             File(target).toUri()
                                         )
+                                        fileMovedSuccess = movedPath != null
                                         Timber.d(
                                             "END MOOVING...  $sourcePath  $target"
                                         )
-                                        if (!fileMovedSuccess) {
+                                        if (movedPath == null) {
                                             throw Error("File Move error")
                                         } else {
                                             sourcePath.parent?.let { File(it).deleteRecursively() }
 
-                                            item.filePath = target
+                                            item.filePath = movedPath
 
-                                            val result = extractFileName(target)
+                                            val result = extractFileName(movedPath)
 
                                             Timber.d("finishWork: $result")
 
                                             result?.let {
-                                                item.fileName = extractFileName(target)!!.first
+                                                item.fileName = extractFileName(movedPath)!!.first
                                             }
 
                                         }

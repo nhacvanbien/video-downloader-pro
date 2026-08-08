@@ -553,6 +553,13 @@ class WebTabViewHost(
 
         override fun onReceivedIcon(view: WebView?, icon: Bitmap?) = Unit
 
+        override fun onReceivedTitle(view: WebView?, title: String?) {
+            super.onReceivedTitle(view, title)
+            if (!title.isNullOrBlank()) {
+                tabViewModel.onEvent(WebTabPipelineContract.Event.TitleReceived(title))
+            }
+        }
+
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
 

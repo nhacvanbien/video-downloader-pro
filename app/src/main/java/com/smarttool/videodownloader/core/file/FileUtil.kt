@@ -150,12 +150,18 @@ class FileUtil constructor(private val appContext: Context) {
         }
     }
 
-    fun moveMedia(context: Context, from: Uri, to: Uri): Boolean {
+    /**
+     * Moves [from] to [to]. On the MediaStore path (API 29+ public Downloads), the destination
+     * display name may get deduplicated by [moveFileToDownloadsFolder] or MediaProvider itself,
+     * so the returned path reflects where the file actually ended up, not [to].
+     * Returns the final absolute path on success, or null on failure.
+     */
+    fun moveMedia(context: Context, from: Uri, to: Uri): String? {
         if (isFileApiSupportedByUri(context, to)) {
             Timber.d("moveMedia via File API: $from -> $to")
             val newFile = to.toFile()
 
-            return from.toFile().renameTo(newFile)
+            return if (from.toFile().renameTo(newFile)) newFile.absolutePath else null
         } else {
             Timber.d("moveMedia via MediaStore: $from -> $to")
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -599,7 +605,7 @@ class FileUtil constructor(private val appContext: Context) {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun moveFileToDownloadsFolder(
         contentResolver: ContentResolver, sourceFile: File, fileName: String
-    ): Boolean {
+    ): String? {
         // Check if there is enough free space in the Downloads folder
         val downloadsDirectory = folderDir
         val isFolderExternal = isExternalUri(folderDir.toUri())
@@ -652,8 +658,28 @@ class FileUtil constructor(private val appContext: Context) {
                     false
                 }
             }
+        } ?: false
+
+        if (!isMoved) {
+            return null
         }
-        return isMoved ?: false
+
+        // MediaProvider may rename the display name again on its own to resolve a collision,
+        // so re-query it instead of trusting `cleaned` for the final on-disk path.
+        val actualDisplayName = queryDisplayName(contentResolver, fileUri!!) ?: cleaned
+        return File(folderDir, actualDisplayName).absolutePath
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun queryDisplayName(contentResolver: ContentResolver, uri: Uri): String? {
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+        contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+            if (nameIndex >= 0 && cursor.moveToFirst()) {
+                return cursor.getString(nameIndex)
+            }
+        }
+        return null
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

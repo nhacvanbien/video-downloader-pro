@@ -120,10 +120,13 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
             if (firstPart != null && firstPart.exists()) {
                 try {
-                    val moved =
+                    val movedPath =
                         fileUtil.moveMedia(applicationContext, firstPart.toUri(), dist.toUri())
-                    if (moved) {
-                        finishWork(task.also { it.taskState = VideoTaskState.SUCCESS })
+                    if (movedPath != null) {
+                        finishWork(task.also {
+                            it.filePath = movedPath
+                            it.taskState = VideoTaskState.SUCCESS
+                        })
                     } else {
                         finishWork(task.also { it.taskState = VideoTaskState.ERROR })
                     }
@@ -377,7 +380,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                         val toUri =
                             Uri.fromFile(File(fixFileName("${downloadDir.absolutePath}/${finalFile.name}")))
 
-                        val moved = fileUtil.moveMedia(
+                        val movedPath = fileUtil.moveMedia(
                             this@YoutubeDlDownloaderWorker.applicationContext,
                             Uri.fromFile(finalFile),
                             toUri
@@ -387,23 +390,20 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                             this@YoutubeDlDownloaderWorker.cookieFile!!.delete()
                         }
 
-                        var movedFilePath = ""
+                        val movedFilePath = movedPath ?: ""
 
-                        if (moved) {
+                        if (movedPath != null) {
                             tmpFile.deleteRecursively()
-
-                            movedFilePath = toUri.path.toString()
-
                         }
 
                         finishWork(VideoTaskItem(url).also { f ->
                             f.filePath = movedFilePath
                             f.fileName = extractFileName(movedFilePath).first
                             f.title = task.title
-                            f.errorCode = if (moved) 0 else 1
+                            f.errorCode = if (movedPath != null) 0 else 1
                             f.percent = 100F
                             f.taskState =
-                                if (moved) VideoTaskState.SUCCESS else VideoTaskState.ERROR
+                                if (movedPath != null) VideoTaskState.SUCCESS else VideoTaskState.ERROR
                         })
                     } else {
                         val fixedList = tmpFile.listFiles()?.filter { !it.name.contains("part") }

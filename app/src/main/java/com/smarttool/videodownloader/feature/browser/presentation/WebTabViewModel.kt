@@ -167,6 +167,8 @@ class WebTabViewModel(
             is WebTabPipelineContract.Event.PageVisited ->
                 onPageVisited(event.url, event.viewTitle, event.userAgent)
 
+            is WebTabPipelineContract.Event.TitleReceived -> onTitleReceived(event.title)
+
             WebTabPipelineContract.Event.SaveUrlToHistoryBookmark -> saveUrlToHistoryBookmark()
 
             is WebTabPipelineContract.Event.DownloadImage -> onDownloadImage(event.imageUrl)
@@ -188,6 +190,12 @@ class WebTabViewModel(
     private fun applyStartPage(url: String, title: String?) {
         setTabTextInput(url)
         _uiState.update { it.copy(isShowProgress = true, currentTitle = title, tabUrl = url) }
+    }
+
+    /** Blank titles are skipped rather than overwriting the page-start placeholder with nothing. */
+    private fun onTitleReceived(title: String) {
+        if (title.isBlank()) return
+        _uiState.update { it.copy(currentTitle = title) }
     }
 
     private fun applyUpdateVisitedHistory(url: String) {

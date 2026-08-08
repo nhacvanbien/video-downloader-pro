@@ -71,6 +71,14 @@ interface WebTabPipelineContract {
         /** History-worthy navigation, deduped internally against the last URL/title saved. */
         data class PageVisited(val url: String, val viewTitle: String?, val userAgent: String) : Event
 
+        /**
+         * Fired from `WebChromeClient.onReceivedTitle` once the page's real `<title>` is
+         * parsed. [OnPageStarted]/[StartPage]'s `view.title` is captured before that happens
+         * and is the URL itself on most sites, so [State.currentTitle] needs this follow-up
+         * update to ever hold the actual page title.
+         */
+        data class TitleReceived(val title: String) : Event
+
         data object SaveUrlToHistoryBookmark : Event
         data class DownloadImage(val imageUrl: String) : Event
     }
