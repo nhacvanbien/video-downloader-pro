@@ -11,7 +11,6 @@ import com.ads.admob.helper.appoppen.AppResumeAdHelper
 import com.google.android.gms.ads.AdActivity
 import com.google.firebase.FirebaseApp
 import com.smarttool.videodownloader.android.BuildConfig
-import com.smarttool.videodownloader.core.SystemUtil
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.di.appModule
@@ -63,7 +62,6 @@ class VideoDownloaderApplication : Application() {
         Timber.i("App starting: versionName=${BuildConfig.VERSION_NAME} versionCode=${BuildConfig.VERSION_CODE}")
 
         instance = this
-        SystemUtil.setLocale(this)
 
         startKoin {
             if (BuildConfig.DEBUG) androidLogger()

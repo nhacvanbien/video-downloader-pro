@@ -20,7 +20,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.smarttool.videodownloader.VideoDownloaderApplication
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.android.databinding.LayoutBottomSheetPermissionBinding
-import com.smarttool.videodownloader.core.SystemUtil
 
 /**
  * The "grant storage, then notifications" bottom sheet the browser and the processing
@@ -102,8 +101,6 @@ class StoragePermissionSheet(
         val behavior = dialog.behavior
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
         behavior.addBottomSheetCallback(KeepExpandedCallback(behavior))
-
-        SystemUtil.setLocale(activity)
 
         layout.btnClose.setOnClickListener { dialog.dismiss() }
         layout.btnNotification.setOnClickListener {

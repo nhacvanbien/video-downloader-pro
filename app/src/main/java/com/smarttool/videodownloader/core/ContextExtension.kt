@@ -2,18 +2,19 @@ package com.smarttool.videodownloader.core
 
 import android.content.Context
 import android.content.res.Configuration
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import java.util.Locale
 
 /**
  * Returns [this] context reconfigured for the language the user picked, falling back to
  * the system one when nothing is saved.
  *
- * Activities apply it in `attachBaseContext` so every resource they resolve is already in
- * that language, instead of mutating the shared `Resources` afterwards the way the
- * deprecated `updateConfiguration` path did.
+ * Activities apply it in `attachBaseContext` so legacy, non-Compose screens (which never
+ * recompose) still resolve resources in the right language. Compose screens get the same
+ * language live, without an Activity recreation, via `AppLocaleProvider`.
  */
-fun Context.withAppLocale(): Context {
-    val language = SystemUtil.getPreLanguage(this)
+fun Context.withAppLocale(preferences: AppPreferencesDataSource): Context {
+    val language = preferences.currentLanguageBlocking()
     val locale = if (language.isEmpty()) Locale.getDefault() else Locale.forLanguageTag(language)
 
     Locale.setDefault(locale)
@@ -23,16 +24,4 @@ fun Context.withAppLocale(): Context {
     configuration.setLayoutDirection(locale)
 
     return createConfigurationContext(configuration)
-}
-
-fun Context.setLocale(language: String?) {
-    val configuration = resources.configuration
-    val locale = if (language.isNullOrEmpty()) {
-        Locale.getDefault()
-    } else {
-        Locale(language)
-    }
-    configuration.setLocale(locale)
-    configuration.setLayoutDirection(locale)
-    createConfigurationContext(configuration)
 }

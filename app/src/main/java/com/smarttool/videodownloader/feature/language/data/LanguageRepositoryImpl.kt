@@ -14,6 +14,8 @@ class LanguageRepositoryImpl(
 
     override suspend fun currentLanguageCode(): String = preferences.currentLanguage.first()
 
+    override fun currentLanguageCodeBlocking(): String = preferences.currentLanguageBlocking()
+
     override suspend fun persistLanguage(code: String) = preferences.setCurrentLanguage(code)
 
     override suspend fun markStartLanguageShown() = preferences.setShowedStartLanguage(true)

@@ -27,11 +27,13 @@ import com.smarttool.videodownloader.core.UpdateEvent
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ads.InterAdsManager
 import com.smarttool.videodownloader.core.ads.showInterAll
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.navigation.AppNavHost
 import com.smarttool.videodownloader.core.navigation.AppRoute
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
+import com.smarttool.videodownloader.core.ui.theme.AppLocaleProvider
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.core.withAppLocale
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
@@ -58,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 
     private val mainViewModel: MainViewModel by koinViewModel()
     private val permissionChecker: MediaPermissionChecker by inject()
+    private val preferences: AppPreferencesDataSource by inject()
 
     private var selectedTab by mutableStateOf(MainTab.Browser)
 
@@ -88,9 +91,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /** Applied here, not in [onCreate], so resources resolve in the picked language from the start. */
+    /** Applied here, not in [onCreate], so legacy View-based screens resolve resources
+     *  in the picked language from the start. Compose picks up live changes via
+     *  [AppLocaleProvider] instead, without recreating the Activity. */
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(newBase.withAppLocale())
+        super.attachBaseContext(newBase.withAppLocale(preferences))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -121,18 +126,20 @@ class MainActivity : AppCompatActivity() {
 
             SideEffect { openNativeFull = { navController.navigate(AppRoute.NATIVE_FULL) } }
 
-            AppTheme {
-                AppNavHost(
-                    navController = navController,
-                    startDestination = startDestination(),
-                    selectedTab = selectedTab,
-                    mainBannerAd = bannerBinding.root,
-                    processingHost = processingHost,
-                    webTabHost = webTabHost,
-                    onSelectTab = { selectedTab = it },
-                    showInterstitial = { onDone -> showInterAll(onDone) },
-                    onExitRequested = ::showDialogExitApp,
-                )
+            AppLocaleProvider {
+                AppTheme {
+                    AppNavHost(
+                        navController = navController,
+                        startDestination = startDestination(),
+                        selectedTab = selectedTab,
+                        mainBannerAd = bannerBinding.root,
+                        processingHost = processingHost,
+                        webTabHost = webTabHost,
+                        onSelectTab = { selectedTab = it },
+                        showInterstitial = { onDone -> showInterAll(onDone) },
+                        onExitRequested = ::showDialogExitApp,
+                    )
+                }
             }
         }
     }

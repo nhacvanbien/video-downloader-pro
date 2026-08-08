@@ -33,6 +33,7 @@ import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ads.InAppUpdate
 import com.smarttool.videodownloader.core.ads.InstallUpdatedListener
 import com.smarttool.videodownloader.core.ads.InterAdsManager
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.navigation.AppRoute
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.core.ui.widget.CustomSeekbarSplash
@@ -53,6 +54,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 class SplashActivity : AppCompatActivity() {
     private val splashViewModel: SplashViewModel by koinViewModel()
 
+    private val preferences: AppPreferencesDataSource by inject()
     private val pruneMissingFiles: PruneMissingFilesUseCase by inject()
     private lateinit var inAppUpdate: InAppUpdate
 
@@ -167,9 +169,8 @@ class SplashActivity : AppCompatActivity() {
 
     private val consentManager by lazy { ConsentManager.getInstance(this) }
 
-    /** Applied here, not in [onCreate], so resources resolve in the picked language from the start. */
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(newBase.withAppLocale())
+        super.attachBaseContext(newBase.withAppLocale(preferences))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

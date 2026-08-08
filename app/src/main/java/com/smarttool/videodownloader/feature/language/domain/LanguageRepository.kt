@@ -7,6 +7,8 @@ interface LanguageRepository {
 
     suspend fun currentLanguageCode(): String
 
+    fun currentLanguageCodeBlocking(): String
+
     suspend fun persistLanguage(code: String)
 
     suspend fun markStartLanguageShown()

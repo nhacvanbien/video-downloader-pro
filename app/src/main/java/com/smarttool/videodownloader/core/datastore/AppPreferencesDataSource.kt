@@ -82,6 +82,9 @@ class AppPreferencesDataSource(
     suspend fun setCurrentLanguage(code: String) =
         write(AppPreferenceKeys.CURRENT_LANGUAGE, code)
 
+    /** Synchronous read for `Activity.attachBaseContext`, which cannot suspend. */
+    fun currentLanguageBlocking(): String = latest()[AppPreferenceKeys.CURRENT_LANGUAGE] ?: ""
+
     // --- Settings ---------------------------------------------------------------
 
     val rated: Flow<Boolean> = read(AppPreferenceKeys.RATED, false)

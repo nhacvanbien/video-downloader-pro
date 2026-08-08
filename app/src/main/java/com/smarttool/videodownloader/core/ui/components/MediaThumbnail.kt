@@ -23,6 +23,7 @@ import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.theme.AppGray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 /**
  * Thumbnail for a downloaded file. Video frames are extracted off the main thread
@@ -43,7 +44,7 @@ fun MediaThumbnail(
                 if (isImage) {
                     decodeScaledImage(filePath)
                 } else {
-                    Uri.parse(filePath).path?.let {
+                    filePath.toUri().path?.let {
                         ThumbnailUtils.createVideoThumbnail(
                             it,
                             MediaStore.Images.Thumbnails.MINI_KIND,

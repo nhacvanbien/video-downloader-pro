@@ -45,13 +45,11 @@ data class ProgressInfo(
     @ColumnInfo(name = "infoLine")
     var infoLine: String = ""
 ) {
-    // НЕ ТРОГАТЬ VAR!!!! иначе пиздец с миграцией
     var progress: Int = 0
         get() {
             return (progressDownloaded * 100f / progressTotal).toInt()
         }
 
-    // НЕ ТРОГАТЬ VAR!!!! иначе пиздец с миграцией
     var progressSize: String = ""
         get() {
             return FileUtil.getFileSizeReadable(progressDownloaded.toDouble()) + "/" + FileUtil.getFileSizeReadable(
@@ -59,7 +57,6 @@ data class ProgressInfo(
             ) + " - $downloadStatusFormatted"
         }
 
-    // НЕ ТРОГАТЬ VAR!!!! иначе пиздец с миграцией
     var downloadStatusFormatted: String = ""
         get() = when (downloadStatus) {
             VideoTaskState.DOWNLOADING -> "downloading"

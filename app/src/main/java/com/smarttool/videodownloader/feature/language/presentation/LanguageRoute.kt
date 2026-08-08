@@ -10,10 +10,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.SystemUtil
 import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.setLocale
 import com.smarttool.videodownloader.core.ui.components.findComponentActivity
+import com.smarttool.videodownloader.feature.language.domain.LanguageRepository
 import com.smarttool.videodownloader.feature.language.domain.model.AppLanguage
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetLocalizedStringUseCase
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetSystemLanguageUseCase
@@ -37,6 +36,7 @@ fun LanguageRoute(
     val viewModel: LanguageViewModel = koinViewModel()
     val systemLanguage: GetSystemLanguageUseCase = koinInject()
     val localizedString: GetLocalizedStringUseCase = koinInject()
+    val languageRepository: LanguageRepository = koinInject()
 
     val context = LocalContext.current
     val activity = context.findComponentActivity()
@@ -48,7 +48,11 @@ fun LanguageRoute(
     }
 
     val initialCode = remember {
-        if (fromSplash) systemLanguage() else SystemUtil.getPreLanguage(context)
+        if (fromSplash) {
+            systemLanguage()
+        } else {
+            languageRepository.currentLanguageCodeBlocking().ifEmpty { systemLanguage() }
+        }
     }
 
     var headerTitle by remember { mutableStateOf(localizedString(initialCode, titleRes)) }
@@ -71,9 +75,9 @@ fun LanguageRoute(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is LanguageContract.Effect.Confirmed -> {
-                    activity.setLocale(effect.language.code)
-                    SystemUtil.setPreLanguage(context, effect.language.code)
-
+                    // The ViewModel already persisted the choice; AppLocaleProvider (wrapping
+                    // the NavHost) picks that up and recomposes in place, so there's no
+                    // Activity recreation and no jump back to the graph's start destination.
                     if (fromSplash) onApplied(effect.language) else onBack()
                 }
 
