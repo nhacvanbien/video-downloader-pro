@@ -4,14 +4,18 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Base64
-import androidx.work.*
-import com.smarttool.videodownloader.data.network.entity.ProgressInfo
-import com.smarttool.videodownloader.data.network.entity.VideoInfo
+import androidx.work.BackoffPolicy
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
+import com.smarttool.videodownloader.data.network.entity.ProgressInfo
+import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import kotlinx.coroutines.Job
-import java.util.concurrent.TimeUnit
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 
 class YoutubeDlDownloader : GenericDownloader() {

@@ -13,8 +13,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.SystemUtil
 import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.ui.components.findComponentActivity
 import com.smarttool.videodownloader.core.setLocale
+import com.smarttool.videodownloader.core.ui.components.findComponentActivity
 import com.smarttool.videodownloader.feature.language.domain.model.AppLanguage
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetLocalizedStringUseCase
 import com.smarttool.videodownloader.feature.language.domain.usecase.GetSystemLanguageUseCase

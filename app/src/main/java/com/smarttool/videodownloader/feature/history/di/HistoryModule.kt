@@ -4,10 +4,10 @@ import com.smarttool.videodownloader.feature.history.data.HistoryRepositoryImpl
 import com.smarttool.videodownloader.feature.history.domain.repository.HistoryRepository
 import com.smarttool.videodownloader.feature.history.domain.usecase.AddBookmarkUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.ClearHistoryUseCase
-import com.smarttool.videodownloader.feature.history.domain.usecase.SaveHistoryEntryUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.DeleteHistoryEntryUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.ObserveBookmarksUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.ObserveHistoryUseCase
+import com.smarttool.videodownloader.feature.history.domain.usecase.SaveHistoryEntryUseCase
 import com.smarttool.videodownloader.feature.history.presentation.HistoryMode
 import com.smarttool.videodownloader.feature.history.presentation.HistoryViewModel
 import kotlinx.coroutines.Dispatchers

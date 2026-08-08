@@ -1,7 +1,7 @@
 package com.smarttool.videodownloader.feature.browser.domain
 
 import android.webkit.WebResourceResponse
-import java.io.*
+import java.io.ByteArrayInputStream
 
 
 object AdBlockerHelper {

@@ -4,10 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.data.RoomConverter
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
-import com.smarttool.videodownloader.core.file.FileUtil
-import java.util.*
+import java.util.UUID
 
 @Entity(tableName = "ProgressInfo")
 @TypeConverters(RoomConverter::class)

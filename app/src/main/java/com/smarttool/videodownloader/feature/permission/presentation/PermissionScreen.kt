@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,7 +51,13 @@ fun PermissionScreen(
     onRequestNotification: () -> Unit,
     onContinue: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ScreenGradient)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 13.dp),
             verticalAlignment = Alignment.CenterVertically,

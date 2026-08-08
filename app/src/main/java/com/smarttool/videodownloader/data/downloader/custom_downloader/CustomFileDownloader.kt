@@ -4,6 +4,7 @@ import okhttp3.Headers.Companion.toHeaders
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import timber.log.Timber
 import java.io.File
 import java.io.RandomAccessFile
 import java.net.URL
@@ -16,7 +17,6 @@ import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicLongArray
-import timber.log.Timber
 
 interface DownloadListener {
     fun onSuccess()

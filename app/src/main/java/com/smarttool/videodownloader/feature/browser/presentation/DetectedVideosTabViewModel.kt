@@ -9,18 +9,22 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.SingleLiveEvent
+import com.smarttool.videodownloader.core.browser.BrowserUserAgent
+import com.smarttool.videodownloader.core.network.OkHttpProxyClient
+import com.smarttool.videodownloader.core.scheduler.BaseSchedulers
 import com.smarttool.videodownloader.data.model.VideoInfoWrapper
 import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.data.remote.service.LoginRequiredException
 import com.smarttool.videodownloader.data.remote.service.VideoServiceLocal
-import com.smarttool.videodownloader.feature.browser.domain.usecase.GetVideoDetectionThresholdUseCase
-import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewModel
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
-import com.smarttool.videodownloader.core.SingleLiveEvent
-import com.smarttool.videodownloader.core.network.OkHttpProxyClient
-import com.smarttool.videodownloader.core.scheduler.BaseSchedulers
+import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonState
+import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
+import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanNotDownload
+import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
+import com.smarttool.videodownloader.feature.browser.domain.usecase.GetVideoDetectionThresholdUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -30,16 +34,11 @@ import kotlinx.coroutines.withContext
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.Request
 import okhttp3.Response
+import timber.log.Timber
 import java.io.InterruptedIOException
 import java.net.HttpCookie
 import java.net.URL
 import java.util.concurrent.Executors
-import com.smarttool.videodownloader.core.browser.BrowserUserAgent
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonState
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanNotDownload
-import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
-import timber.log.Timber
 
 /**
  * The video-detection pipeline: takes the requests a page makes, works out which of them

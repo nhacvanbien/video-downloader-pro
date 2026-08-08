@@ -1,6 +1,7 @@
 package com.smarttool.videodownloader.core.navigation
 
 import android.net.Uri
+import com.smarttool.videodownloader.core.navigation.AppRoute.GUIDE
 
 /**
  * Every destination in the single-Activity graph.

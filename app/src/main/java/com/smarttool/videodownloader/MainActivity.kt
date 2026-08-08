@@ -7,11 +7,11 @@ import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.View
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.compose.rememberNavController
 import com.ads.admob.data.ContentAd
 import com.ads.admob.helper.banner.BannerAdConfig
@@ -30,18 +30,18 @@ import com.smarttool.videodownloader.core.navigation.AppNavHost
 import com.smarttool.videodownloader.core.navigation.AppRoute
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
+import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.core.withAppLocale
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
-import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingController
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
 import com.smarttool.videodownloader.feature.main.presentation.MainViewModel
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 import kotlin.system.exitProcess
+import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 
 /**
  * The app's only screen host. Everything except the splash lives in [AppNavHost].

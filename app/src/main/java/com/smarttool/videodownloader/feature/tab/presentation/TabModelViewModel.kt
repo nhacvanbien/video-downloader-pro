@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.data.repository.TabModelRepository
+import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import timber.log.Timber
 
 class TabModelViewModel constructor(

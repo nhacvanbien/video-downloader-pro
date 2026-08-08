@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.AppTopBar
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
 import com.smarttool.videodownloader.core.ui.components.RetainedAndroidView
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
 import com.smarttool.videodownloader.core.ui.components.SheetCornerRadius
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
 import com.smarttool.videodownloader.core.ui.theme.AppGray
@@ -46,9 +46,8 @@ import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.SearchFieldHint
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.core.ui.theme.TextSub
-import com.smarttool.videodownloader.data.network.entity.ProgressInfo
-import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
+import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 
 @Composable
 fun ProcessingScreen(

@@ -4,14 +4,14 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.smarttool.videodownloader.data.repository.ProgressRepository
 import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.file.FileUtil
+import com.smarttool.videodownloader.core.network.CustomProxyController
+import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.notification.NotificationsHelper
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.GenericDownloadWorker
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.GenericDownloadWorkerWrapper
-import com.smarttool.videodownloader.core.network.CustomProxyController
-import com.smarttool.videodownloader.core.network.OkHttpProxyClient
+import com.smarttool.videodownloader.data.repository.ProgressRepository
 
 class DaggerWorkerFactory  constructor(
     private val progress: ProgressRepository,

@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -38,11 +40,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.NativeAdFullContainer
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextSub
-import com.smarttool.videodownloader.core.ads.AdsConstant
 import kotlinx.coroutines.delay
 
 private val DotInactive = Color(0xFFCBD4E1)
@@ -81,7 +83,7 @@ fun IntroScreen(
 
         val currentPage = pages.getOrNull(pagerState.currentPage)
         if (currentPage is IntroPage.Slide) {
-            Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+            Column(modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -193,6 +195,7 @@ private fun IntroAdPage(
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .statusBarsPadding()
                     .padding(16.dp)
                     .size(20.dp)
                     .clickable(onClick = onNext),

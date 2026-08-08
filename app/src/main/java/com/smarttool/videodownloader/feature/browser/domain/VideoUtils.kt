@@ -1,7 +1,7 @@
 package com.smarttool.videodownloader.feature.browser.domain
 
-import com.smarttool.videodownloader.feature.browser.domain.model.ContentType
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
+import com.smarttool.videodownloader.feature.browser.domain.model.ContentType
 import okhttp3.Headers
 import okhttp3.Request
 import timber.log.Timber

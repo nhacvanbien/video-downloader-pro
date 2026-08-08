@@ -1,8 +1,8 @@
 package com.smarttool.videodownloader.data
 
 import androidx.room.TypeConverter
-import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.google.gson.Gson
+import com.smarttool.videodownloader.data.network.entity.VideoInfo
 
 class RoomConverter {
 

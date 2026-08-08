@@ -1,8 +1,8 @@
 package com.smarttool.videodownloader.feature.library.presentation
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,9 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ads.AdsConstant
+import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.ui.components.MediaThumbnail
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
 import com.smarttool.videodownloader.core.ui.components.SheetCornerRadius
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
@@ -44,10 +47,8 @@ import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.SearchFieldHint
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.core.ui.theme.TextSub
-import com.smarttool.videodownloader.feature.library.domain.model.MediaFilter
-import com.smarttool.videodownloader.core.ads.AdsConstant
-import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
+import com.smarttool.videodownloader.feature.library.domain.model.MediaFilter
 
 @Composable
 fun LibraryScreen(
@@ -67,7 +68,16 @@ fun LibraryScreen(
     trailingAction: @Composable (() -> Unit)? = null,
     selectionActions: SelectionActions? = null,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    // Nested inside MainScreen's Downloaded tab, `onBack` is null and MainScreen already
+    // insets the tab content; standalone (private area / select-video), it's a top-level
+    // route that must reserve the system bars itself.
+    val insetModifier = if (onBack != null) {
+        Modifier.statusBarsPadding().navigationBarsPadding()
+    } else {
+        Modifier
+    }
+
+    Column(modifier = Modifier.fillMaxSize().then(insetModifier)) {
         LibraryToolbar(
             title = title,
             state = state,

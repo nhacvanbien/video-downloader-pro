@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.feature.browser.domain.model.PopularSite
 import com.smarttool.videodownloader.feature.browser.domain.usecase.GetPopularSitesUseCase
+import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
-import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

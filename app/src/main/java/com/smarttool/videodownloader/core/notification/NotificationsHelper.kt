@@ -1,6 +1,5 @@
 package com.smarttool.videodownloader.core.notification
 
-import com.smarttool.videodownloader.android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -12,16 +11,18 @@ import android.os.Build
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.smarttool.videodownloader.MainActivity
-import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
+import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloaderWorker
+import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import timber.log.Timber
+import java.io.File
+
 class NotificationsHelper  constructor(
     private val context: Context,
     private val videoTaskItemRepository: VideoTaskItemRepository

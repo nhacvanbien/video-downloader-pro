@@ -30,7 +30,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.net.toUri
 import androidx.databinding.Observable
 import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.lifecycle.lifecycleScope
@@ -56,20 +55,20 @@ import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.core.ui.SystemUiController
+import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.network.entity.HistoryItem
-import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
 import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateCanDownload
 import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButtonStateLoading
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
+import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosPresenter
 import com.smarttool.videodownloader.feature.downloads.presentation.DownloadButtonUiState
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingViewModel
-import com.smarttool.videodownloader.feature.downloads.domain.usecase.SanitizeFileNameUseCase
 import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
 import com.smarttool.videodownloader.feature.history.domain.usecase.SaveHistoryEntryUseCase
 import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
@@ -84,10 +83,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
-import timber.log.Timber
 
 /**
  * The browser tab: WebView, ad-blocking and video-detection wiring, download sheet.

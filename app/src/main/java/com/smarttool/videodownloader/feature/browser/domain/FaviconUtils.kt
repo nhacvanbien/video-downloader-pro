@@ -7,8 +7,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.use
 import org.jsoup.Jsoup
-import java.io.ByteArrayOutputStream
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
 
 
 class FaviconUtils {

@@ -7,15 +7,15 @@ import android.util.Base64
 import androidx.core.net.toUri
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
-import com.smarttool.videodownloader.core.network.Proxy
-import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
+import com.google.gson.Gson
 import com.smarttool.videodownloader.core.file.FileUtil
+import com.smarttool.videodownloader.core.network.Proxy
+import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
-import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.GenericDownloadWorkerWrapper
-import com.google.gson.Gson
+import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
+import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import com.yausername.youtubedl_android.YoutubeDLResponse
@@ -29,12 +29,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import java.io.File
 import java.util.Date
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.coroutines.resume
-import timber.log.Timber
 
 class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParameters) :
     GenericDownloadWorkerWrapper(appContext, workerParams) {

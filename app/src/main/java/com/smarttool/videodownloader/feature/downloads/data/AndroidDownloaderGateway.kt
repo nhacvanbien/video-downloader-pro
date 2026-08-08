@@ -1,11 +1,11 @@
 package com.smarttool.videodownloader.feature.downloads.data
 
 import android.content.Context
+import com.smarttool.videodownloader.data.downloader.custom_downloader.CustomRegularDownloader
+import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloader
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.feature.downloads.domain.DownloaderGateway
-import com.smarttool.videodownloader.data.downloader.custom_downloader.CustomRegularDownloader
-import com.smarttool.videodownloader.data.downloader.youtubedl_downloader.YoutubeDlDownloader
 
 /**
  * Routes each operation to the engine that owns the item: regular HTTP downloads go

@@ -5,18 +5,18 @@ import android.util.Base64
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.IDownloadListener
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.Video
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
-import com.google.gson.Gson
+import timber.log.Timber
 import java.io.File
 import java.io.Serializable
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-import timber.log.Timber
 
 abstract class GenericDownloadWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams), IDownloadListener {

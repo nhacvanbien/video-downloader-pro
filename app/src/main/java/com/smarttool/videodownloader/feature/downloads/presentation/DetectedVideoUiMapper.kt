@@ -1,8 +1,8 @@
 package com.smarttool.videodownloader.feature.downloads.presentation
 
+import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.GetVideoFormatOptionsUseCase
-import com.smarttool.videodownloader.core.file.FileUtil
 
 /**
  * Builds the sheet model for a detected video. [titles] and [selectedFormats] carry

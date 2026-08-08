@@ -1,16 +1,16 @@
 package com.smarttool.videodownloader.feature.downloads.data
 
+import com.smarttool.videodownloader.core.file.FileUtil
+import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.repository.ProgressRepository
 import com.smarttool.videodownloader.feature.downloads.domain.DownloadsRepository
-import com.smarttool.videodownloader.core.file.FileUtil
-import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 private const val POLL_INTERVAL_MILLIS = 1000L

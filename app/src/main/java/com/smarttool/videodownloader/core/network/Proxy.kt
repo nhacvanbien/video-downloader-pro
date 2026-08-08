@@ -1,7 +1,5 @@
 package com.smarttool.videodownloader.core.network
 
-import kotlin.collections.get
-
 data class Proxy(
     val id: String = "",
     val host: String = "",

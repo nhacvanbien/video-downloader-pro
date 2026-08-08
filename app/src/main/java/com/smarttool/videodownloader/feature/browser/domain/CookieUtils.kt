@@ -2,7 +2,6 @@ package com.smarttool.videodownloader.feature.browser.domain
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import com.yausername.youtubedl_android.YoutubeDLRequest

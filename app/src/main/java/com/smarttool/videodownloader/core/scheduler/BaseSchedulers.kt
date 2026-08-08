@@ -1,8 +1,8 @@
 package com.smarttool.videodownloader.core.scheduler
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.CoroutineDispatcher
 import java.util.concurrent.Executors
 
 interface BaseSchedulers {

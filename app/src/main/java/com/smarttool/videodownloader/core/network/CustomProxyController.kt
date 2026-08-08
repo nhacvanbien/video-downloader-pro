@@ -1,12 +1,12 @@
 package com.smarttool.videodownloader.core.network
 
-import java.net.Authenticator
-import java.net.PasswordAuthentication
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewFeature
 import com.google.gson.Gson
 import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
+import java.net.Authenticator
+import java.net.PasswordAuthentication
 
 /**
  * Sets up the process-wide proxy: system properties for plain sockets, plus a WebView

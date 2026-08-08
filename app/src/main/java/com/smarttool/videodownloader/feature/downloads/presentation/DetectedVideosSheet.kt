@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.MediaThumbnail
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
@@ -37,7 +38,6 @@ import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.core.ui.theme.TextSub
 import com.smarttool.videodownloader.feature.downloads.domain.model.VideoFormatOption
-import com.smarttool.videodownloader.core.ads.AdsConstant
 
 /**
  * Picker for the videos detected on the current page — the Compose replacement for

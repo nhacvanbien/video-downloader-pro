@@ -7,16 +7,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -55,10 +53,7 @@ fun TabsScreen(
     onCloseAll: () -> Unit,
     onNewTab: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .windowInsetsTopHeight(WindowInsets.statusBars))
+    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient).statusBarsPadding()) {
         Row(
             modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -91,7 +86,7 @@ fun TabsScreen(
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp).navigationBarsPadding(),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {

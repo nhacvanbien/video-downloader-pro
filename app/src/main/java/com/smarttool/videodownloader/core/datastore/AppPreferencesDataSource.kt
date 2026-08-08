@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
-import java.io.IOException
 import timber.log.Timber
+import java.io.IOException
 
 /**
  * The single place the app's preferences are stored, backed by Preferences DataStore.

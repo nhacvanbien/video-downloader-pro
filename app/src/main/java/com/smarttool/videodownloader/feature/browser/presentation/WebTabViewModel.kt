@@ -6,8 +6,8 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.ViewModel
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.data.remote.service.AdBlockHostsRemoteDataSource
 import com.smarttool.videodownloader.core.SingleLiveEvent
+import com.smarttool.videodownloader.data.remote.service.AdBlockHostsRemoteDataSource
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 

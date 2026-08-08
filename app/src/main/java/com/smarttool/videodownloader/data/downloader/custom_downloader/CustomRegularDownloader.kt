@@ -2,13 +2,17 @@ package com.smarttool.videodownloader.data.downloader.custom_downloader
 
 import android.content.Context
 import android.util.Base64
-import androidx.work.*
+import androidx.work.BackoffPolicy
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import org.json.JSONObject
-import java.util.concurrent.TimeUnit
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 // TODO REFACTORING !!!!!
 class CustomRegularDownloader : GenericDownloader() {

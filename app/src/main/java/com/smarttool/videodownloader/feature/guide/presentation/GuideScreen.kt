@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -45,7 +47,7 @@ fun GuideScreen(
     val stepOneImage = if (isHomeGuide) R.drawable.img_step_1 else R.drawable.img_step_1_process
     val stepTwoImage = if (isHomeGuide) R.drawable.img_step_2 else R.drawable.img_step_2_process
 
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient).statusBarsPadding()) {
         AppTopBar(title = stringResource(R.string.string_guide), onBack = onBack)
 
         Column(
@@ -54,6 +56,7 @@ fun GuideScreen(
                 .padding(bottom = 5.dp)
                 .clip(RoundedCornerShape(topStart = SheetCornerRadius, topEnd = SheetCornerRadius))
                 .background(AppWhite)
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp),
         ) {

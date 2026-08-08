@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -69,7 +71,7 @@ fun HistoryScreen(
     val isBookmarkMode = state.mode == HistoryMode.BOOKMARK
 
     Box(modifier = Modifier.fillMaxSize().background(ScreenBackground)) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
             HistoryTopBar(
                 state = state,
                 isBookmarkMode = isBookmarkMode,
@@ -125,7 +127,10 @@ fun HistoryScreen(
                         onClick = onAddBookmark,
                         containerColor = Primary,
                         contentColor = AppWhite,
-                        modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp),
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .navigationBarsPadding()
+                            .padding(20.dp),
                     ) {
                         Icon(painterResource(R.drawable.ic_add), contentDescription = null)
                     }

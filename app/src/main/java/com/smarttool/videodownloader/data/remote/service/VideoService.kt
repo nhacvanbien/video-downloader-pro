@@ -1,23 +1,23 @@
 package com.smarttool.videodownloader.data.remote.service
 
 import android.content.Context
+import com.google.common.net.InternetDomainName
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
+import com.smarttool.videodownloader.core.network.CustomProxyController
+import com.smarttool.videodownloader.core.network.OkHttpProxyClient
+import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.data.model.VideoInfoWrapper
 import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
 import com.smarttool.videodownloader.data.network.entity.VideoInfo
-import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
-import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.feature.browser.domain.CookieUtils
-import com.smarttool.videodownloader.core.network.CustomProxyController
-import com.smarttool.videodownloader.core.network.OkHttpProxyClient
-import com.google.common.net.InternetDomainName
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import com.yausername.youtubedl_android.mapper.VideoFormat
 import okhttp3.Request
 import org.jsoup.Jsoup
-import java.util.*
 import timber.log.Timber
+import java.util.Locale
 
 /**
  * Thrown when yt-dlp reports that the target site requires the user to be logged-in

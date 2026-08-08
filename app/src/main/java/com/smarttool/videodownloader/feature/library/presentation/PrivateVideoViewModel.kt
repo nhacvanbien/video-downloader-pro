@@ -1,16 +1,15 @@
 package com.smarttool.videodownloader.feature.library.presentation
 
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
-import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
-import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.SingleLiveEvent
-import com.smarttool.videodownloader.feature.library.domain.model.SortState
+import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
+import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
+import com.smarttool.videodownloader.feature.library.domain.model.SortState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

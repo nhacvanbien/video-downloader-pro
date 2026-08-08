@@ -7,20 +7,20 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import com.smarttool.videodownloader.data.repository.ProgressRepository
 import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.file.FileUtil
-import com.smarttool.videodownloader.core.notification.NotificationsHelper
-import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
-import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
+import com.smarttool.videodownloader.core.notification.NotificationsHelper
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.NotificationReceiver
+import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
+import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
+import com.smarttool.videodownloader.data.repository.ProgressRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.resume
 import timber.log.Timber
+import kotlin.coroutines.resume
 
 open class GenericDownloadWorkerWrapper  constructor(
     appContext: Context, workerParams: WorkerParameters

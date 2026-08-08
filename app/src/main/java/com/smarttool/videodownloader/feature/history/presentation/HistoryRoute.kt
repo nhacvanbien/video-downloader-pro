@@ -10,9 +10,9 @@ import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ui.components.NativeAdContainer
-import com.smarttool.videodownloader.data.repository.TabModelRepository
 import com.smarttool.videodownloader.core.ui.dialogs.DialogAddBookmark
 import com.smarttool.videodownloader.core.ui.dialogs.DialogConfirmDelete
+import com.smarttool.videodownloader.data.repository.TabModelRepository
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

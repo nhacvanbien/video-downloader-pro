@@ -1,11 +1,12 @@
 package com.smarttool.videodownloader.feature.settings.presentation
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.VideoDownloaderApplication
@@ -14,9 +15,7 @@ import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.AppConstant
 import com.smarttool.videodownloader.core.ui.components.findComponentActivity
 import com.vimalcvs.materialrating.DialogManager
-import androidx.fragment.app.FragmentActivity
 import org.koin.androidx.compose.koinViewModel
-import androidx.core.net.toUri
 
 /**
  * The Settings tab.

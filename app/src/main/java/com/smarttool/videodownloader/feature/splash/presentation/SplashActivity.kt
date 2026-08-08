@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,29 +25,29 @@ import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.LoadAdError
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
-import com.smarttool.videodownloader.core.ui.widget.CustomSeekbarSplash
-import com.smarttool.videodownloader.core.ui.widget.ProgressCallback
 import com.smarttool.videodownloader.MainActivity
-import com.smarttool.videodownloader.core.navigation.AppRoute
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.android.databinding.LayoutBannerContainerBinding
-import com.smarttool.videodownloader.core.ui.theme.AppTheme
-import com.smarttool.videodownloader.core.withAppLocale
-import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
-import com.smarttool.videodownloader.feature.onboarding.domain.model.AppEntryPoint
 import com.smarttool.videodownloader.core.ads.AdsConstant
 import com.smarttool.videodownloader.core.ads.InAppUpdate
 import com.smarttool.videodownloader.core.ads.InstallUpdatedListener
 import com.smarttool.videodownloader.core.ads.InterAdsManager
+import com.smarttool.videodownloader.core.navigation.AppRoute
+import com.smarttool.videodownloader.core.ui.theme.AppTheme
+import com.smarttool.videodownloader.core.ui.widget.CustomSeekbarSplash
+import com.smarttool.videodownloader.core.ui.widget.ProgressCallback
+import com.smarttool.videodownloader.core.withAppLocale
+import com.smarttool.videodownloader.feature.library.presentation.PrivateVideoViewModel
+import com.smarttool.videodownloader.feature.onboarding.domain.model.AppEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 import timber.log.Timber
+import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 
 class SplashActivity : AppCompatActivity() {
     private val splashViewModel: SplashViewModel by koinViewModel()

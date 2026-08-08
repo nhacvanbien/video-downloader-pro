@@ -3,10 +3,10 @@ package com.smarttool.videodownloader.data.remote.service
 import android.content.Context
 import android.net.Uri
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.data.dao.AdHostDao
-import com.smarttool.videodownloader.data.network.entity.AdHost
 import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
+import com.smarttool.videodownloader.data.dao.AdHostDao
+import com.smarttool.videodownloader.data.network.entity.AdHost
 import com.smarttool.videodownloader.feature.browser.domain.AdBlockerHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -21,11 +21,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import okhttp3.Request
+import timber.log.Timber
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import timber.log.Timber
 
 const val AD_HOSTS_URL_LIST_ADAWAY = "https://adaway.org/hosts.txt"
 const val AD_HOSTS_URLS_LIST_ADMIRAL = "https://v.firebog.net/hosts/Admiral.txt"

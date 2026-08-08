@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabController
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabRoute
@@ -29,7 +30,6 @@ import com.smarttool.videodownloader.feature.permission.presentation.PermissionR
 import com.smarttool.videodownloader.feature.pin.presentation.PinRoute
 import com.smarttool.videodownloader.feature.pin.presentation.SecurityRoute
 import com.smarttool.videodownloader.feature.tab.presentation.TabsRoute
-import com.smarttool.videodownloader.android.R
 
 /** PIN screen opened to change an existing code rather than unlock. */
 const val PIN_ACTION_CHANGE = "changePinCode"

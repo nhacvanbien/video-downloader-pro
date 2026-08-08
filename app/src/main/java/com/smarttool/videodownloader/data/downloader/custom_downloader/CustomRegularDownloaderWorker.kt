@@ -5,20 +5,19 @@ import android.content.Context
 import android.util.Base64
 import androidx.core.net.toUri
 import androidx.work.WorkerParameters
-import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.GenericDownloadWorkerWrapper
 import com.smarttool.videodownloader.data.downloader.generic_downloader.workers.Progress
+import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import java.io.File
 import java.net.URL
 import java.util.Date
-import kotlin.collections.iterator
 import kotlin.coroutines.resume
-import timber.log.Timber
 
 class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerParameters) :
     GenericDownloadWorkerWrapper(appContext, workerParams) {

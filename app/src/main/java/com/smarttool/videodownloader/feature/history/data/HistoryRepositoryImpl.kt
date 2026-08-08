@@ -1,10 +1,10 @@
 package com.smarttool.videodownloader.feature.history.data
 
+import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.data.dao.HistoryDao
+import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
 import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
 import com.smarttool.videodownloader.feature.history.domain.repository.HistoryRepository
-import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
-import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn

@@ -1,7 +1,6 @@
 package com.smarttool.videodownloader.core.ads
 
 import android.content.Context
-import android.content.Intent
 import android.net.ConnectivityManager
 import android.view.View
 import androidx.fragment.app.Fragment
