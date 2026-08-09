@@ -116,6 +116,15 @@ class WebTabViewHost(
 
     private var started = false
 
+    /**
+     * Lives for the Activity's whole lifetime, not per session: [start] is called again
+     * for every tab switch, and [processingViewModel] (hence its `downloads` flow) is
+     * backed by the same shared repository across sessions. Session-scoped sets here
+     * would see already-terminal downloads as new on every switch and re-toast them.
+     */
+    private val notifiedSuccess = mutableSetOf<String>()
+    private val notifiedError = mutableSetOf<String>()
+
     // ------------------------------------------------------------------ lifecycle
 
     /**
@@ -269,9 +278,6 @@ class WebTabViewHost(
      * flow re-emitting the same terminal state on every tick.
      */
     private fun observeDownloadOutcomes() {
-        val notifiedSuccess = mutableSetOf<String>()
-        val notifiedError = mutableSetOf<String>()
-
         activity.lifecycleScope.launch {
             processingViewModel.downloads.collect { downloads ->
                 for (info in downloads) {

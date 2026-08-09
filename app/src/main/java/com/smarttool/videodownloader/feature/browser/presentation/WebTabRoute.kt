@@ -45,7 +45,15 @@ fun WebTabRoute(
         onBack()
     }
 
-    BackHandler { closeTab() }
+    // Mirrors Chrome: back while the omnibox is focused dismisses editing first, the
+    // same press only leaves the tab once the suggestions overlay is already gone.
+    BackHandler {
+        if (tabViewModel.uiState.value.isTabInputFocused) {
+            tabViewModel.onEvent(WebTabPipelineContract.Event.ChangeTabFocus(false))
+        } else {
+            closeTab()
+        }
+    }
 
     val tabState by tabViewModel.uiState.collectAsStateWithLifecycle()
     val detectorState by detector.uiState.collectAsStateWithLifecycle()
@@ -60,20 +68,27 @@ fun WebTabRoute(
         tabCount = tabState.tabCount,
         downloadButtonState = detectorState.downloadButtonState.toUiState(),
         isFullscreen = tabState.isFullscreen,
+        isUrlFocused = tabState.isTabInputFocused,
+        suggestions = tabState.suggestions,
     )
+
+    fun submitUrl(input: String) {
+        if (input.isNotEmpty()) {
+            detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
+            tabViewModel.onEvent(WebTabPipelineContract.Event.LoadPage(input))
+        }
+    }
 
     WebTabScreen(
         state = state,
         webView = host.webViewContainer,
         fullscreenContainer = host.fullscreenContainer,
         onUrlChange = { tabViewModel.onEvent(WebTabPipelineContract.Event.UrlChange(it)) },
-        onSubmitUrl = {
-            val submittedUrl = tabViewModel.uiState.value.tabUrl
-            if (submittedUrl.isNotEmpty()) {
-                detector.onEvent(DetectedVideosContract.Event.CancelAllChecks)
-                tabViewModel.onEvent(WebTabPipelineContract.Event.OpenPage(submittedUrl))
-            }
+        onUrlFocusChange = {
+            tabViewModel.onEvent(WebTabPipelineContract.Event.ChangeTabFocus(it))
         },
+        onSubmitUrl = { submitUrl(tabViewModel.uiState.value.tabUrl) },
+        onSuggestionClick = { submitUrl(it) },
         onBack = ::closeTab,
         onNavigateBack = host::navigateBack,
         onNavigateForward = host::navigateForward,

@@ -1,6 +1,7 @@
 package com.smarttool.videodownloader.feature.browser.presentation
 
 import com.smarttool.videodownloader.feature.downloads.presentation.DownloadButtonUiState
+import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
 
 /** Rendering shape `WebTabRoute` builds by combining `WebTabViewModel`'s and
  * `DetectedVideosTabViewModel`'s state — not owned/mutated by either ViewModel itself. */
@@ -16,4 +17,7 @@ data class WebTabUiState(
     val downloadButtonState: DownloadButtonUiState = DownloadButtonUiState.Disabled,
     /** True while a page element is playing fullscreen; the browser chrome hides. */
     val isFullscreen: Boolean = false,
+    /** True while the address bar has focus; drives the suggestions dropdown. */
+    val isUrlFocused: Boolean = false,
+    val suggestions: List<HistoryEntry> = emptyList(),
 )

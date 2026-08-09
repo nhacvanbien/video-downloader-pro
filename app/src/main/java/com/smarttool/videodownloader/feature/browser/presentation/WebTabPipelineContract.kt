@@ -6,6 +6,7 @@ import com.smarttool.videodownloader.core.presentation.UiEffect
 import com.smarttool.videodownloader.core.presentation.UiEvent
 import com.smarttool.videodownloader.core.presentation.UiState
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
+import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
 
 /**
  * Named `Pipeline` rather than `WebTabContract` to keep it distinct from the browser
@@ -27,6 +28,8 @@ interface WebTabPipelineContract {
         val tabCount: Int = 0,
         /** True while a page element is playing fullscreen; the browser chrome hides. */
         val isFullscreen: Boolean = false,
+        /** History entries matching [tabUrl], shown as an address-bar dropdown while focused. */
+        val suggestions: List<HistoryEntry> = emptyList(),
     ) : UiState
 
     sealed interface Event : UiEvent {

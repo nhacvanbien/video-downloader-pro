@@ -8,6 +8,7 @@ import androidx.core.net.toUri
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
+import com.smarttool.videodownloader.core.file.FileNameCleaner
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.core.network.TikTokExtractionSupport
@@ -118,7 +119,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             )
             val firstPart = partsFolder.listFiles()?.firstOrNull()
 
-            val dist = File(fileUtil.folderDir.absolutePath, "${task.title}.mp4")
+            val dist = File(fileUtil.folderDir.absolutePath, "${safeStorageName(task)}.mp4")
 
             if (firstPart != null && firstPart.exists()) {
                 try {
@@ -161,7 +162,12 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
         Timber.i("Start youtube-dl download: taskId=$taskId format=${vFormat.formatId} url=$url")
 
-        val name = task.title
+        // task.title is the raw page/video caption and may contain '/' or other path
+        // separators (e.g. "và/hoặc"); yt-dlp's -o template treats those as directory
+        // boundaries and fails with "Unable to create directory". Storage path must use
+        // the sanitized name; notifications keep showing the readable title.
+        val storageName = safeStorageName(task)
+        val displayName = task.title.ifBlank { storageName }
         val downloadDir = fileUtil.folderDir
 
         notificationsHelper.hideNotification(taskId.hashCode())
@@ -231,7 +237,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                             showProgress(
                                 taskId,
                                 taskId,
-                                name,
+                                displayName,
                                 99,
                                 "Downloading Live Stream... $downloadedTmpFolderSize",
                                 tmpFile
@@ -275,14 +281,14 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             }
         }
 
-        showProgress(taskId, taskId, name, 0, "Fetching info, Please wait...", tmpFile)
+        showProgress(taskId, taskId, displayName, 0, "Fetching info, Please wait...", tmpFile)
         runBlocking {
             saveProgress(taskId,
                 line = LineInfo(taskId, 0.0, 0.0, sourceLine = "Fetching info, Please wait..."),
                 task.also { it.taskState = VideoTaskState.PREPARE })
         }
 
-        request.addOption("-o", "${tmpFile.absolutePath}/${name}.%(ext)s")
+        request.addOption("-o", "${tmpFile.absolutePath}/${storageName}.%(ext)s")
 
 
         val videoOnly = vFormat.vcodec != "none" && vFormat.acodec == "none"
@@ -301,7 +307,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         try {
             val interval = 1000
 
-            showProgress(taskId, taskId, name, 0, "Starting...", tmpFile)
+            showProgress(taskId, taskId, displayName, 0, "Starting...", tmpFile)
             runBlocking {
                 saveProgress(taskId,
                     line = LineInfo(taskId, 0.0, 0.0, sourceLine = "Starting..."),
@@ -363,7 +369,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                                     saveProgress(taskId, lineInfo, task)
                                 }
                                 showProgress(
-                                    taskId, taskId, name, pr.toInt(), line ?: "", tmpFile
+                                    taskId, taskId, displayName, pr.toInt(), line ?: "", tmpFile
                                 )
                                 val freeSpace = FileUtil.getFreeDiskSpace(fileUtil.folderDir)
                                 if (freeSpace < TRESHOLD) {
@@ -440,7 +446,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                         }
                     }
                 } catch (e: Throwable) {
-                    handleError(taskId, url, progressCached, e, tmpFile.name, name)
+                    handleError(taskId, url, progressCached, e, tmpFile.name, displayName)
                 }
             }
         } catch (e: Throwable) {
@@ -448,8 +454,18 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             if (this@YoutubeDlDownloaderWorker.cookieFile != null) {
                 this@YoutubeDlDownloaderWorker.cookieFile!!.delete()
             }
-            handleError(taskId, url, progressCached, e, tmpFile.name, name)
+            handleError(taskId, url, progressCached, e, tmpFile.name, displayName)
         }
+    }
+
+    /**
+     * Filesystem-safe stem for on-disk paths (tmp dir, -o template, stop-and-save target).
+     * task.fileName is expected to already be sanitized upstream (FileNameCleaner), this
+     * only falls back to cleaning task.title itself in case that never happened.
+     */
+    private fun safeStorageName(task: VideoTaskItem): String {
+        val stem = File(task.fileName).nameWithoutExtension
+        return stem.ifBlank { FileNameCleaner.cleanFileName(task.title) }
     }
 
     fun extractFileName(path: String): Triple<String, String, String> {
@@ -628,11 +644,16 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
         notificationsHelper.hideNotification(taskId.hashCode())
         if (item != null) {
-            showNotification(
-                taskId.hashCode() + 1, notificationsHelper.createNotificationBuilder(item.also {
-                    it.mId = taskId.toString()
-                }).second
-            )
+            if (item.taskState == VideoTaskState.CANCELED) {
+                notificationsHelper.hideNotification(taskId.hashCode() + 1)
+            } else {
+                showNotification(
+                    taskId.hashCode() + 1,
+                    notificationsHelper.createNotificationBuilder(item.also {
+                        it.mId = taskId.toString()
+                    }).second
+                )
+            }
         }
 
         disposable?.cancel()

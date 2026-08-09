@@ -14,7 +14,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,7 +50,7 @@ fun MainBottomBar(
                         .selectable(
                             selected = isSelected,
                             interactionSource = interactionSource,
-                            indication = ripple(),
+                            indication = null,
                             role = Role.Tab,
                             onClick = { onSelect(tab) },
                         )

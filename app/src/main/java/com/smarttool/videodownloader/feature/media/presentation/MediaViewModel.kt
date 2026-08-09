@@ -1,11 +1,16 @@
 package com.smarttool.videodownloader.feature.media.presentation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.smarttool.videodownloader.data.repository.VideoTaskItemRepository
+import com.smarttool.videodownloader.feature.library.domain.usecase.DeleteMediaUseCase
+import com.smarttool.videodownloader.feature.library.domain.usecase.RenameMediaUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.GetPlaybackSettingsUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetFillModeUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetLoopingUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetPlaybackSpeedUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Speeds the control cycles through, matching the View player's order. */
 val PLAYBACK_SPEEDS = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f)
@@ -23,6 +29,9 @@ class MediaViewModel(
     private val setPlaybackSpeed: SetPlaybackSpeedUseCase,
     private val setLooping: SetLoopingUseCase,
     private val setFillMode: SetFillModeUseCase,
+    private val videoTaskItemRepository: VideoTaskItemRepository,
+    private val deleteMedia: DeleteMediaUseCase,
+    private val renameMedia: RenameMediaUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MediaContract.State())
@@ -33,18 +42,32 @@ class MediaViewModel(
 
     fun onEvent(event: MediaContract.Event) {
         when (event) {
-            is MediaContract.Event.Load -> load(event.title, event.showMoreAction)
+            is MediaContract.Event.Load -> load(event.title, event.showMoreAction, event.filePath)
             is MediaContract.Event.PlaybackStateChanged -> onPlaybackStateChanged(event.isPlaying)
             is MediaContract.Event.Progress -> onProgress(event.positionMs, event.durationMs)
             MediaContract.Event.CycleSpeed -> cycleSpeed()
             MediaContract.Event.ToggleLooping -> toggleLooping()
             MediaContract.Event.ToggleFillMode -> toggleFillMode()
+            MediaContract.Event.ToggleFullscreen -> toggleFullscreen()
+            MediaContract.Event.ShowMoreMenu -> _uiState.update { it.copy(moreMenuVisible = true) }
+            MediaContract.Event.HideMoreMenu -> _uiState.update { it.copy(moreMenuVisible = false) }
+            is MediaContract.Event.Rename -> rename(event.context, event.newName)
+            MediaContract.Event.Delete -> delete()
         }
     }
 
-    private fun load(title: String, showMoreAction: Boolean) {
+    private fun load(title: String, showMoreAction: Boolean, filePath: String) {
         viewModelScope.launch {
             val settings = getPlaybackSettings()
+
+            val item = if (showMoreAction) {
+                withContext(Dispatchers.IO) {
+                    videoTaskItemRepository.getAllVideoTaskItems()
+                        .firstOrNull { it.filePath == filePath }
+                }
+            } else {
+                null
+            }
 
             _uiState.value = MediaContract.State(
                 title = title,
@@ -52,7 +75,42 @@ class MediaViewModel(
                 looping = settings.looping,
                 fillMode = settings.fillMode,
                 showMoreAction = showMoreAction,
+                item = item,
             )
+        }
+    }
+
+    private fun toggleFullscreen() {
+        _uiState.update { it.copy(isFullscreen = !it.isFullscreen) }
+    }
+
+    private fun rename(context: Context, newName: String) {
+        val item = _uiState.value.item ?: return
+
+        viewModelScope.launch {
+            val isImage = item.mimeType.startsWith("image")
+            val success = renameMedia(context, item, newName, isImage)
+
+            if (success) {
+                _uiState.update {
+                    it.copy(
+                        moreMenuVisible = false,
+                        item = item.copy(fileName = newName, title = newName),
+                    )
+                }
+            } else {
+                _effect.trySend(MediaContract.Effect.RenameFailed)
+            }
+        }
+    }
+
+    private fun delete() {
+        val item = _uiState.value.item ?: return
+
+        viewModelScope.launch {
+            deleteMedia(item)
+            _uiState.update { it.copy(moreMenuVisible = false) }
+            _effect.trySend(MediaContract.Effect.Deleted)
         }
     }
 

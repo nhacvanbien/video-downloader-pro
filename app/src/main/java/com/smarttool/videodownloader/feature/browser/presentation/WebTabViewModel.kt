@@ -10,6 +10,7 @@ import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import com.smarttool.videodownloader.feature.browser.domain.usecase.DownloadImageUseCase
 import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
+import com.smarttool.videodownloader.feature.history.domain.usecase.ObserveHistoryUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.SaveHistoryEntryUseCase
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
@@ -17,22 +18,29 @@ import com.smarttool.videodownloader.feature.tab.domain.usecase.GetSelectedTabUs
 import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.OpenTabUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import timber.log.Timber
 
+private const val MAX_SUGGESTIONS = 8
+
 /**
  * Owns the browser tab's whole business state: navigation, history, the tab list count,
  * fullscreen flag, and image downloads. [WebTabViewHost] only holds the raw `WebView` and
  * forwards every callback here — nothing is decided outside this class.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class WebTabViewModel(
     private val adBlockHostsRemoteDataSource: AdBlockHostsRemoteDataSource,
     observeTabs: ObserveTabsUseCase,
@@ -42,6 +50,7 @@ class WebTabViewModel(
     private val saveHistoryEntry: SaveHistoryEntryUseCase,
     private val okHttpProxyClient: OkHttpProxyClient,
     private val downloadImage: DownloadImageUseCase,
+    observeHistory: ObserveHistoryUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WebTabPipelineContract.State())
@@ -59,6 +68,17 @@ class WebTabViewModel(
             observeTabs().collect { tabs ->
                 _uiState.update { it.copy(tabCount = tabs.size) }
             }
+        }
+
+        // Mirrors Chrome's omnibox: re-queried on every keystroke against the typed text,
+        // rendered only while [WebTabPipelineContract.State.isTabInputFocused] (an empty
+        // query matches everything, surfacing recent history when the field is tapped empty).
+        viewModelScope.launch {
+            _uiState.map { it.tabUrl }.distinctUntilChanged()
+                .flatMapLatest { query -> observeHistory(query) }
+                .collect { entries ->
+                    _uiState.update { it.copy(suggestions = entries.take(MAX_SUGGESTIONS)) }
+                }
         }
     }
 

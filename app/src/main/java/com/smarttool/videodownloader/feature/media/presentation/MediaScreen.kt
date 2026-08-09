@@ -1,5 +1,6 @@
 package com.smarttool.videodownloader.feature.media.presentation
 
+import android.content.res.Configuration
 import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -21,6 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,6 +41,11 @@ import java.util.concurrent.TimeUnit
  * Video playback chrome. [playerView] is the ExoPlayer `PlayerView` the activity owns
  * — Compose has no player surface, so the real View is hosted via [RetainedAndroidView] and
  * only the controls around it are composed.
+ *
+ * The header hides whenever the device is actually held in landscape (not just when
+ * [MediaContract.State.isFullscreen] was toggled explicitly) — physically rotating the
+ * phone gets the same cinema-style layout a tap on the fullscreen control would, matching
+ * how most video players react to rotation regardless of how landscape was reached.
  */
 @Composable
 fun MediaScreen(
@@ -48,7 +58,11 @@ fun MediaScreen(
     onCycleSpeed: () -> Unit,
     onToggleLoop: () -> Unit,
     onToggleFill: () -> Unit,
+    onToggleFullscreen: () -> Unit,
 ) {
+    val isLandscape =
+        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,7 +70,7 @@ fun MediaScreen(
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {
-        if (!state.fillMode) {
+        if (!isLandscape) {
             MediaHeader(
                 title = state.title,
                 showMoreAction = state.showMoreAction,
@@ -67,15 +81,37 @@ fun MediaScreen(
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             RetainedAndroidView(view = playerView, modifier = Modifier.fillMaxSize())
+
+            // The header's back arrow is gone in landscape; without this a user with
+            // gesture navigation off has no way out of the player short of rotating back.
+            if (isLandscape) {
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.35f))
+                        .clickable(onClick = onBack),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_arrow_back),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
         }
 
         MediaControls(
             state = state,
+            isLandscape = isLandscape,
             onPlayPause = onPlayPause,
             onSeek = onSeek,
             onCycleSpeed = onCycleSpeed,
             onToggleLoop = onToggleLoop,
             onToggleFill = onToggleFill,
+            onToggleFullscreen = onToggleFullscreen,
         )
     }
 }
@@ -119,11 +155,13 @@ private fun MediaHeader(
 @Composable
 private fun MediaControls(
     state: MediaContract.State,
+    isLandscape: Boolean,
     onPlayPause: () -> Unit,
     onSeek: (Long) -> Unit,
     onCycleSpeed: () -> Unit,
     onToggleLoop: () -> Unit,
     onToggleFill: () -> Unit,
+    onToggleFullscreen: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
         Slider(
@@ -177,6 +215,17 @@ private fun MediaControls(
                 painter = painterResource(if (state.fillMode) R.drawable.ic_fit else R.drawable.ic_fill),
                 contentDescription = null,
                 modifier = Modifier.size(22.dp).clickable(onClick = onToggleFill),
+            )
+
+            Image(
+                painter = painterResource(
+                    if (isLandscape) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen,
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .size(22.dp)
+                    .clickable(onClick = onToggleFullscreen),
             )
         }
     }

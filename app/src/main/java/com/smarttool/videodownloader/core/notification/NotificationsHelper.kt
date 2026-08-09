@@ -47,7 +47,7 @@ class NotificationsHelper  constructor(
             context, NOTIFICATION_CHANNEL_ID
         ).setOnlyAlertOnce(true)
 
-        builder.setContentTitle(File(task.fileName).name).setContentText(task.lineInfo)
+        builder.setContentTitle(task.fileName).setContentText(task.lineInfo)
             .setSmallIcon(android.R.drawable.stat_sys_download).setOngoing(false)
             .setProgress(100, taskPercent.toInt(), false).addAction(notificationActionOpen(false))
 

@@ -203,9 +203,11 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
                         notificationsHelper.createNotificationBuilder(item.also {
                             it.mId = taskId
                         })
-                    showNotification(
-                        notificationIdPair.first, notificationIdPair.second
-                    )
+                    if (item.taskState != VideoTaskState.CANCELED) {
+                        showNotification(
+                            notificationIdPair.first, notificationIdPair.second
+                        )
+                    }
                     if (item.taskState == VideoTaskState.ERROR) {
                         Timber.w("Download finished with error: $item")
                         getContinuation().resume(Result.failure())

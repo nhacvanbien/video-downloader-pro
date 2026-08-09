@@ -7,6 +7,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import com.smarttool.videodownloader.core.file.FileNameCleaner
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import okhttp3.Headers.Companion.toHeaders
@@ -75,7 +76,7 @@ data class VideoInfo(
         }
 
     val name
-        get() = "${fileName.ifBlank { title }}.$ext"
+        get() = "${fileName.ifBlank { FileNameCleaner.cleanFileName(title) }}.$ext"
 
     val isM3u8
         get() = originalUrl.contains(".m3u8") || originalUrl.contains(".mpd") || formats.formats.any { url ->

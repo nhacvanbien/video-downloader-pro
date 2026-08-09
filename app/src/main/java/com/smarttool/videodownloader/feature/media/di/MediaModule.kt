@@ -16,5 +16,5 @@ val mediaModule = module {
     factory { SetPlaybackSpeedUseCase(get()) }
     factory { SetLoopingUseCase(get()) }
     factory { SetFillModeUseCase(get()) }
-    viewModel { MediaViewModel(get(), get(), get(), get()) }
+    viewModel { MediaViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }
