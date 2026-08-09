@@ -39,4 +39,6 @@ object AppPreferenceKeys {
 
     val TYPE_SORT = intPreferencesKey("TYPE_SORT")
     val COUNT_EXIT = intPreferencesKey("count_exit")
+
+    val TIKTOK_DEVICE_ID = stringPreferencesKey("TIKTOK_DEVICE_ID")
 }

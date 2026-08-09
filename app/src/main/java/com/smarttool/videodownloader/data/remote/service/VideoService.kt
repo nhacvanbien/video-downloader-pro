@@ -6,6 +6,8 @@ import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.network.Proxy
+import com.smarttool.videodownloader.core.network.TikTokExtractionSupport
+import com.smarttool.videodownloader.core.network.TikTokExtractionSupport.applyTikTokDeviceId
 import com.smarttool.videodownloader.data.model.VideoInfoWrapper
 import com.smarttool.videodownloader.data.network.entity.VideFormatEntityList
 import com.smarttool.videodownloader.data.network.entity.VideoFormatEntity
@@ -29,6 +31,7 @@ open class VideoServiceLocal(
     private val proxyController: CustomProxyController,
     private val helper: YoutubedlHelper,
     private val appContext: Context,
+    private val preferences: AppPreferencesDataSource,
 ) {
     companion object {
         const val MP4_EXT = "mp4"
@@ -89,11 +92,24 @@ open class VideoServiceLocal(
             attachProxyToRequest(request, currentProxy)
         }
 
-        val tmpCookieFile =
+        // TikTok's bot-check appears to key off cookies from the (headless, muted, no
+        // real user interaction) sniffing WebView, which TikTok's server can fingerprint
+        // as automated — carrying that cookie jar into the extraction request keeps
+        // re-asserting the same flagged identity. A cookie-less request looks like a
+        // fresh, unknown client instead, same as yt-dlp's own default (no `--cookies`
+        // unless explicitly configured).
+        val tmpCookieFile = if (TikTokExtractionSupport.isTikTokHost(url.url.host)) {
+            null
+        } else {
             CookieUtils.addCookiesToRequest(appContext, url.url.toString(), request)
+        }
+
+        request.applyTikTokDeviceId(url.url.host, preferences.tikTokDeviceIdBlocking())
 
         try {
-            val info = YoutubeDL.getInstance().getInfo(request)
+            val info = TikTokExtractionSupport.retryTikTokExtraction(url.url.host) {
+                YoutubeDL.getInstance().getInfo(request)
+            }
             val formats = info.formats?.map {
                 videoEntityFromFormat(
                     it
@@ -127,7 +143,7 @@ open class VideoServiceLocal(
         } catch (e: Throwable) {
             throw e
         } finally {
-            tmpCookieFile.delete()
+            tmpCookieFile?.delete()
         }
     }
 

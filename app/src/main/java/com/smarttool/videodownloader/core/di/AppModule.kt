@@ -89,7 +89,7 @@ val appModule = module {
             .create(ConfigService::class.java)
     }
     single { YoutubedlHelper(get(), get()) }
-    single { VideoServiceLocal(get(), get(), androidContext()) }
+    single { VideoServiceLocal(get(), get(), androidContext(), get()) }
     single { AdBlockHostsRemoteDataSource(get(), get(), get(), androidContext()) }
 
     // --- Helpers ---

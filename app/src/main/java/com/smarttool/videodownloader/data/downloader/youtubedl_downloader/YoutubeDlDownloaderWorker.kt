@@ -10,6 +10,8 @@ import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.network.Proxy
+import com.smarttool.videodownloader.core.network.TikTokExtractionSupport
+import com.smarttool.videodownloader.core.network.TikTokExtractionSupport.applyTikTokDeviceId
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
@@ -166,10 +168,18 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         notificationsHelper.hideNotification(taskId.hashCode() + 1)
 
         val request = YoutubeDLRequest(url)
+        val tikTokHost = url.toUri().host
 
-        cookieFile = CookieUtils.addCookiesToRequest(
-            applicationContext, url, request, inputData.getString(GenericDownloader.ORIGIN_KEY)
-        )
+        // See VideoService.handleYoutubeDlUrl for why TikTok skips the cookie jar.
+        cookieFile = if (TikTokExtractionSupport.isTikTokHost(tikTokHost)) {
+            null
+        } else {
+            CookieUtils.addCookiesToRequest(
+                applicationContext, url, request, inputData.getString(GenericDownloader.ORIGIN_KEY)
+            )
+        }
+
+        request.applyTikTokDeviceId(tikTokHost, preferences.tikTokDeviceIdBlocking())
 
         tmpFile = File(
             "${fileUtil.tmpDir}/$taskId"
@@ -312,6 +322,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             disposable = workerScope.launch {
                 try {
                     val dlResponse: YoutubeDLResponse =
+                        TikTokExtractionSupport.retryTikTokExtraction(tikTokHost) {
                         YoutubeDL.getInstance().execute(request, taskId) { pr, _, line ->
                             if (line.contains("[download] Destination:")) {
                                 isDownloadJustStarted = true
@@ -364,6 +375,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                                     return@execute
                                 }
                             }
+                        }
                         }
 
                     // Seems like youtubedlp has a bug and sometimes skip removing of merged fragments

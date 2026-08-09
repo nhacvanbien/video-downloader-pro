@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.smarttool.videodownloader.core.coroutines.AppScope
+import com.smarttool.videodownloader.core.network.TikTokExtractionSupport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -203,6 +204,19 @@ class AppPreferencesDataSource(
 
     fun setProxyOnBlocking(isOn: Boolean) =
         writeBlocking(AppPreferenceKeys.IS_PROXY_TURN_ON, isOn)
+
+    /**
+     * Stable per-install id for TikTok's mobile-API extractor-arg (see
+     * [com.smarttool.videodownloader.core.network.TikTokExtractionSupport]). Generated once
+     * and persisted — TikTok is more likely to treat a device id that stays the same across
+     * requests as genuine than one that changes every call.
+     */
+    fun tikTokDeviceIdBlocking(): String {
+        latest()[AppPreferenceKeys.TIKTOK_DEVICE_ID]?.let { return it }
+        val generated = TikTokExtractionSupport.generateDeviceId()
+        writeBlocking(AppPreferenceKeys.TIKTOK_DEVICE_ID, generated)
+        return generated
+    }
 
     // --- Internals --------------------------------------------------------------
 
