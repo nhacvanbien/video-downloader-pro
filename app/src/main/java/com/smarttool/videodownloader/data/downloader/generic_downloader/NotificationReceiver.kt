@@ -15,7 +15,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == ACTION_SEND_NOTIFICATION) {
-            val notification = intent.getParcelableExtra<Notification>(EXTRA_NOTIFICATION)
+            val notification = intent.getParcelableExtra(EXTRA_NOTIFICATION, Notification::class.java)
             val id = intent.getIntExtra(EXTRA_ID, DEFAULT_ID)
             if (ActivityCompat.checkSelfPermission(
                     context,

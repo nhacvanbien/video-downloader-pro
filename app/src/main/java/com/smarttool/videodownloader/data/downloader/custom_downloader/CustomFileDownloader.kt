@@ -196,12 +196,12 @@ class CustomFileDownloader(
         }
     }
 
-    override fun onChunkProgressUpdate(downloadedBytes: Long, allBytes: Long, chunkIndex: Int) {
+    override fun onChunkProgressUpdate(downloadedBytes: Long, allBytesChunk: Long, chunkIndex: Int) {
         copiedBytesChunks[chunkIndex] = downloadedBytes
 
         onProgressUpdate(totalCopiedBytes, totalBytesAll.get())
 
-        listener?.onChunkProgressUpdate(downloadedBytes, allBytes, chunkIndex)
+        listener?.onChunkProgressUpdate(downloadedBytes, allBytesChunk, chunkIndex)
     }
 
     override fun onChunkFailure(e: Throwable, index: Chunk) {

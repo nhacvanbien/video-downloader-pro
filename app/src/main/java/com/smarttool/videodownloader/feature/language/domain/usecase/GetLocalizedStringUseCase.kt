@@ -15,9 +15,14 @@ class GetLocalizedStringUseCase(private val context: Context) {
 
         val locale = if (languageCode.contains("-")) {
             val parts = languageCode.split("-")
-            Locale(parts[0], parts[1])
+            Locale.Builder()
+                .setLanguage(parts[0])
+                .setRegion(parts[1])
+                .build()
         } else {
-            Locale(languageCode)
+            Locale.Builder()
+                .setLanguage(languageCode)
+                .build()
         }
 
         val config = context.resources.configuration

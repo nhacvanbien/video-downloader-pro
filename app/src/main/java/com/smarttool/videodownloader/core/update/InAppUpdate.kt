@@ -46,6 +46,7 @@ class InAppUpdate(
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun startUpdate(info: AppUpdateInfo, type: Int) {
         appUpdateManager.startUpdateFlowForResult(info, type, parentActivity, MY_REQUEST_CODE)
         currentType = type

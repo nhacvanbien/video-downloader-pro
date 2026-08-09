@@ -56,7 +56,7 @@ val appModule = module {
     // --- Database ---
     single {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, "videoDownloader")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
     single<HistoryDao> { get<AppDatabase>().historyDao() }

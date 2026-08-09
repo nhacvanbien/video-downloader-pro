@@ -22,6 +22,7 @@ const val DB_VERSION = 2
 @Database(
     entities = [HistoryItem::class, AdHost::class, ProgressInfo::class, VideoTaskItem::class, TabModel::class],
     version = DB_VERSION,
+    exportSchema = true,
 )
 @TypeConverters(FormatsConverter::class, DownloadUrlsConverter::class)
 abstract class AppDatabase : RoomDatabase() {

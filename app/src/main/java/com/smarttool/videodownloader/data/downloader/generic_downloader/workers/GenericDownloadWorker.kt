@@ -124,11 +124,11 @@ abstract class GenericDownloadWorker(appContext: Context, workerParams: WorkerPa
                 val headers = Gson().fromJson<Map<String, String>>(
                     rawHeaders, Map::class.java
                 )
-                if (action.isNullOrEmpty() || action.isBlank() || task.url == null) {
+                if (action.isNullOrBlank() || task.url == null) {
                     continuation.resumeWithException(Throwable("ACTION or TASK is null"))
+                } else {
+                    handleAction(action, task, headers, isFileRemove)
                 }
-
-                handleAction(action!!, task, headers, isFileRemove)
             } catch (e: Throwable) {
                 Timber.e(e, "Download work failed")
                 continuation.resumeWithException(e)

@@ -1,9 +1,10 @@
 package com.smarttool.videodownloader.core.ui.components
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
 import android.net.Uri
-import android.provider.MediaStore
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,8 @@ import com.smarttool.videodownloader.core.ui.theme.AppGray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
+import java.io.File
+import android.util.Size
 
 /**
  * Thumbnail for a downloaded file, or for a detected-but-not-yet-downloaded video's
@@ -55,12 +58,7 @@ fun MediaThumbnail(
                 } else if (isImage) {
                     decodeScaledImage(filePath)
                 } else {
-                    filePath.toUri().path?.let {
-                        ThumbnailUtils.createVideoThumbnail(
-                            it,
-                            MediaStore.Images.Thumbnails.MINI_KIND,
-                        )
-                    }
+                    createVideoThumbnail(filePath)
                 }
             }.getOrNull()
         }
@@ -83,6 +81,18 @@ fun MediaThumbnail(
             )
         }
     }
+}
+
+@SuppressLint("NewApi")
+private fun createVideoThumbnail(filePath: String): Bitmap? = when {
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+        ThumbnailUtils.createVideoThumbnail(
+            File(filePath),
+            Size(TARGET_WIDTH_PX, TARGET_WIDTH_PX),
+            null,
+        )
+    }
+    else -> null
 }
 
 /**

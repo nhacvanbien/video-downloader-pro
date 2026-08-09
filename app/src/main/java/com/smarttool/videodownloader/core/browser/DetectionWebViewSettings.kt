@@ -36,7 +36,6 @@ fun WebView.applyDetectionDefaults(allowAutoplay: Boolean) {
         useWideViewPort = true
         domStorageEnabled = true
         javaScriptEnabled = true
-        databaseEnabled = true
         cacheMode = WebSettings.LOAD_NO_CACHE
         javaScriptCanOpenWindowsAutomatically = true
         userAgentString = BrowserUserAgent.MOBILE
