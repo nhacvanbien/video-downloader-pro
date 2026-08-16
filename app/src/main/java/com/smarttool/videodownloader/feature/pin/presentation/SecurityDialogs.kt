@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ui.theme.AppLocaleProvider
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
@@ -35,45 +36,50 @@ fun SecurityQuestionPickerDialog(
     onDismiss: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(AppWhite)
-                .padding(16.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.string_security_question),
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 16.sp),
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Dialog content composes in its own window, whose AbstractComposeView re-provides
+        // LocalContext from the Activity — discarding the override installed around the main
+        // composition. Without this the dialog keeps the launch-time language.
+        AppLocaleProvider {
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(AppWhite)
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.string_security_question),
+                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 16.sp),
+                    color = TextPrimary,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
 
-            QUESTION_INDICES.forEach { index ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(index) }
-                        .padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(securityQuestionRes(index)),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
-                        color = TextPrimary,
-                        modifier = Modifier.weight(1f),
-                    )
+                QUESTION_INDICES.forEach { index ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(index) }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(securityQuestionRes(index)),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
+                            color = TextPrimary,
+                            modifier = Modifier.weight(1f),
+                        )
 
-                    Image(
-                        painter = painterResource(
-                            if (index == selectedIndex) {
-                                R.drawable.ic_dot_selected
-                            } else {
-                                R.drawable.ic_dot_normal
-                            },
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp),
-                    )
+                        Image(
+                            painter = painterResource(
+                                if (index == selectedIndex) {
+                                    R.drawable.ic_dot_selected
+                                } else {
+                                    R.drawable.ic_dot_normal
+                                },
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
                 }
             }
         }
@@ -83,39 +89,44 @@ fun SecurityQuestionPickerDialog(
 @Composable
 fun PinSetSuccessDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(AppWhite)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_check),
-                contentDescription = null,
-                modifier = Modifier.size(56.dp),
-            )
-
-            Text(
-                text = stringResource(R.string.string_your_pin_code_amp_security_question_has_been_set),
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
-                color = TextPrimary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(vertical = 16.dp),
-            )
-
-            Text(
-                text = stringResource(R.string.string_ok),
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp),
-                color = AppWhite,
-                textAlign = TextAlign.Center,
+        // Dialog content composes in its own window, whose AbstractComposeView re-provides
+        // LocalContext from the Activity — discarding the override installed around the main
+        // composition. Without this the dialog keeps the launch-time language.
+        AppLocaleProvider {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(120.dp))
-                    .background(Primary)
-                    .clickable(onClick = onDismiss)
-                    .padding(vertical = 12.dp),
-            )
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(AppWhite)
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_check),
+                    contentDescription = null,
+                    modifier = Modifier.size(56.dp),
+                )
+
+                Text(
+                    text = stringResource(R.string.string_your_pin_code_amp_security_question_has_been_set),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
+                    color = TextPrimary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(vertical = 16.dp),
+                )
+
+                Text(
+                    text = stringResource(R.string.string_ok),
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp),
+                    color = AppWhite,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(120.dp))
+                        .background(Primary)
+                        .clickable(onClick = onDismiss)
+                        .padding(vertical = 12.dp),
+                )
+            }
         }
     }
 }

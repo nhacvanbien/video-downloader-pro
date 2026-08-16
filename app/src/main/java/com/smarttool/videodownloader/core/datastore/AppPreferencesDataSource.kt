@@ -173,6 +173,27 @@ class AppPreferencesDataSource(
 
     suspend fun setSortType(type: Int) = write(AppPreferenceKeys.TYPE_SORT, type)
 
+    // --- Downloads ----------------------------------------------------------------
+
+    val wifiOnly: Flow<Boolean> = read(AppPreferenceKeys.WIFI_ONLY, false)
+
+    suspend fun setWifiOnly(enabled: Boolean) = write(AppPreferenceKeys.WIFI_ONLY, enabled)
+
+    val searchEngineId: Flow<String> = read(AppPreferenceKeys.SEARCH_ENGINE_ID, "google")
+
+    suspend fun setSearchEngineId(id: String) = write(AppPreferenceKeys.SEARCH_ENGINE_ID, id)
+
+    val downloadLocationSubfolder: Flow<String> =
+        read(AppPreferenceKeys.DOWNLOAD_LOCATION_SUBFOLDER, "")
+
+    suspend fun setDownloadLocationSubfolder(name: String) =
+        write(AppPreferenceKeys.DOWNLOAD_LOCATION_SUBFOLDER, name)
+
+    /** Synchronous read for [com.smarttool.videodownloader.core.file.FileUtil], which is used
+     * from download workers that cannot suspend. */
+    fun downloadLocationSubfolderBlocking(): String =
+        latest()[AppPreferenceKeys.DOWNLOAD_LOCATION_SUBFOLDER] ?: ""
+
     // --- App usage --------------------------------------------------------------
 
     suspend fun incrementExitCount() = dataStore.editSafely {

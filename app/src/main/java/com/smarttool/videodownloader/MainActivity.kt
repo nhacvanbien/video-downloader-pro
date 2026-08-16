@@ -18,7 +18,6 @@ import com.smarttool.videodownloader.core.navigation.AppNavHost
 import com.smarttool.videodownloader.core.navigation.AppRoute
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
 import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
-import com.smarttool.videodownloader.core.ui.dialogs.DialogExitApp
 import com.smarttool.videodownloader.core.ui.theme.AppLocaleProvider
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
 import com.smarttool.videodownloader.core.withAppLocale
@@ -96,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                         processingHost = processingHost,
                         webTabHost = webTabHost,
                         onSelectTab = { selectedTab = it },
-                        onExitRequested = ::showDialogExitApp,
+                        onExitRequested = { mainViewModel.onEvent(MainContract.Event.ConfirmExit) },
                     )
                 }
             }
@@ -117,19 +116,13 @@ class MainActivity : AppCompatActivity() {
             false,
         ) == true
 
-        if (isFinished) {
-            val hadError = intent.getBooleanExtra(
-                YoutubeDlDownloaderWorker.IS_FINISHED_DOWNLOAD_ACTION_ERROR_KEY,
-                false,
-            )
-            return if (hadError) MainTab.Processing else MainTab.Downloaded
-        }
+        if (isFinished) return MainTab.Downloads
 
         val hasKey = intent?.hasExtra(
             YoutubeDlDownloaderWorker.IS_FINISHED_DOWNLOAD_ACTION_KEY,
         ) == true
 
-        return if (hasKey) MainTab.Processing else MainTab.Browser
+        return if (hasKey) MainTab.Downloads else MainTab.Browser
     }
 
     /** The browser registers its WebView for a context menu; only the Activity is asked. */
@@ -158,14 +151,6 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         processingHost.release()
         webTabHost.release()
-    }
-
-    private fun showDialogExitApp() {
-        val dialogExitApp = DialogExitApp(this) {
-            mainViewModel.onEvent(MainContract.Event.ConfirmExit)
-        }
-
-        dialogExitApp.show()
     }
 
     companion object {

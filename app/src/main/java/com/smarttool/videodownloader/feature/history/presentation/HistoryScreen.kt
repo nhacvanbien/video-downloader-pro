@@ -30,36 +30,37 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ui.theme.AppGray
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Error
+import com.smarttool.videodownloader.core.ui.theme.Muted
 import com.smarttool.videodownloader.core.ui.theme.Primary
+import com.smarttool.videodownloader.core.ui.theme.PriInk
 import com.smarttool.videodownloader.core.ui.theme.SearchFieldHint
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
-
-private val ScreenBackground = Brush.verticalGradient(
-    0f to Primary,
-    0.3f to Color(0xFFFFF6ED),
-    1f to AppWhite,
-)
 
 @Composable
 fun HistoryScreen(
     state: HistoryContract.State,
     onBack: () -> Unit,
+    onModeChange: (HistoryMode) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearchActiveChange: (Boolean) -> Unit,
     onEntryClick: (HistoryEntry) -> Unit,
@@ -69,15 +70,18 @@ fun HistoryScreen(
 ) {
     val isBookmarkMode = state.mode == HistoryMode.BOOKMARK
 
-    Box(modifier = Modifier.fillMaxSize().background(ScreenBackground)) {
+    Box(modifier = Modifier.fillMaxSize().background(ScreenBg)) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
             HistoryTopBar(
                 state = state,
-                isBookmarkMode = isBookmarkMode,
                 onBack = onBack,
                 onSearchQueryChange = onSearchQueryChange,
                 onSearchActiveChange = onSearchActiveChange,
             )
+
+            if (!state.isSearchActive) {
+                ModeSwitch(mode = state.mode, onModeChange = onModeChange)
+            }
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 if (state.entries.isEmpty()) {
@@ -87,7 +91,7 @@ fun HistoryScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                            .background(AppWhite),
+                            .background(Surface),
                     ) {
                         LazyColumn(
                             modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
@@ -103,16 +107,15 @@ fun HistoryScreen(
                         }
 
                         if (!isBookmarkMode) {
-                            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(AppGray))
+                            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Border))
                             Text(
                                 text = stringResource(R.string.clear_history),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = Primary,
+                                color = Error,
                                 modifier = Modifier
                                     .padding(horizontal = 12.dp, vertical = 12.dp)
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(120.dp))
-                                    .background(Color(0xFFF9F9F9))
                                     .clickable(onClick = onClearHistory)
                                     .padding(vertical = 12.dp),
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -125,7 +128,7 @@ fun HistoryScreen(
                     FloatingActionButton(
                         onClick = onAddBookmark,
                         containerColor = Primary,
-                        contentColor = AppWhite,
+                        contentColor = PriInk,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .navigationBarsPadding()
@@ -142,19 +145,18 @@ fun HistoryScreen(
 @Composable
 private fun HistoryTopBar(
     state: HistoryContract.State,
-    isBookmarkMode: Boolean,
     onBack: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearchActiveChange: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 13.dp),
+        modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 13.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_arrow_back),
             contentDescription = null,
-            tint = AppWhite,
+            tint = TextColor,
             modifier = Modifier
                 .size(26.dp)
                 .clickable { if (state.isSearchActive) onSearchActiveChange(false) else onBack() }
@@ -171,22 +173,70 @@ private fun HistoryTopBar(
         } else {
             Text(
                 text = stringResource(
-                    if (isBookmarkMode) R.string.string_bookmark else R.string.string_history,
+                    if (state.mode == HistoryMode.BOOKMARK) {
+                        R.string.string_bookmark
+                    } else {
+                        R.string.string_history
+                    },
                 ),
                 style = MaterialTheme.typography.titleLarge,
-                color = AppWhite,
+                color = TextColor,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                modifier = Modifier.weight(1f).padding(end = 5.dp),
+                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
             )
 
             Icon(
                 painter = painterResource(R.drawable.ic_search),
                 contentDescription = null,
-                tint = AppWhite,
+                tint = TextColor,
                 modifier = Modifier.size(20.dp).clickable { onSearchActiveChange(true) },
             )
         }
     }
+}
+
+@Composable
+private fun ModeSwitch(mode: HistoryMode, onModeChange: (HistoryMode) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        ModeSwitchTab(
+            labelRes = R.string.string_history,
+            selected = mode == HistoryMode.HISTORY,
+            onClick = { onModeChange(HistoryMode.HISTORY) },
+            modifier = Modifier.weight(1f),
+        )
+        ModeSwitchTab(
+            labelRes = R.string.string_bookmark,
+            selected = mode == HistoryMode.BOOKMARK,
+            onClick = { onModeChange(HistoryMode.BOOKMARK) },
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun ModeSwitchTab(
+    labelRes: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = stringResource(labelRes),
+        style = MaterialTheme.typography.bodyMedium.copy(
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+        ),
+        color = if (selected) PriInk else Muted,
+        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        modifier = modifier
+            .clip(ShapeMd)
+            .background(if (selected) Primary else Surface)
+            .border(1.dp, if (selected) Primary else Border, ShapeMd)
+            .clickable(onClick = onClick)
+            .padding(vertical = 9.dp),
+    )
 }
 
 @Composable
@@ -204,7 +254,7 @@ private fun SearchField(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(120.dp))
-            .background(AppWhite)
+            .background(Surface)
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -321,7 +371,7 @@ private fun EmptyState(isBookmarkMode: Boolean) {
                 },
             ),
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-            color = Color(0xFF808080),
+            color = Muted,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
     }

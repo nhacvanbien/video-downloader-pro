@@ -34,6 +34,7 @@ open class GenericDownloader {
         const val DOWNLOAD_ID_KEY = "DOWNLOAD_ID_KEY"
         const val TASK_ID_KEY = "TASK_ID"
         const val NOTIFICATION_ID_KEY = "NOTIFICATION_ID"
+        const val IS_PRIVATE_KEY = "IS_PRIVATE_KEY"
 
         var downloadListener: IDownloadListener? = null
 

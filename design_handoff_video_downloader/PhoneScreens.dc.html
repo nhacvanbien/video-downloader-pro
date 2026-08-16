@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;gap:26px;flex-wrap:wrap;font-family:var(--font-body);">
+
+  <!-- ===================== PHONE 1 — BROWSER HOME ===================== -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding-left:6px;">Browser Home</div>
+    <div style="width:300px;background:#0c0c0f;border-radius:42px;padding:7px;box-shadow:0 34px 70px -26px rgba(20,18,40,.55);">
+      <div style="background:var(--bg);border-radius:35px;overflow:hidden;height:604px;display:flex;flex-direction:column;color:var(--text);position:relative;">
+
+        <!-- status bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 22px 4px;font-family:var(--font-num);font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span style="display:flex;align-items:center;gap:7px;">
+            <span style="display:flex;align-items:flex-end;gap:1.5px;height:10px;"><i style="width:2.5px;height:4px;background:var(--text);display:block;"></i><i style="width:2.5px;height:6px;background:var(--text);display:block;"></i><i style="width:2.5px;height:8px;background:var(--text);display:block;"></i><i style="width:2.5px;height:10px;background:var(--text);display:block;"></i></span>
+            <span style="width:20px;height:10px;border:1.5px solid var(--text);border-radius:3px;position:relative;display:inline-block;"><i style="position:absolute;inset:1.5px;right:6px;background:var(--text);display:block;"></i></span>
+          </span>
+        </div>
+
+        <!-- app bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px 6px;">
+          <span style="font-family:var(--font-head);font-size:21px;font-weight:700;letter-spacing:-.01em;">Trình duyệt</span>
+          <span style="width:38px;height:38px;border-radius:var(--r-md);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="3" y1="6" x2="17" y2="6"></line><line x1="3" y1="14" x2="17" y2="14"></line><circle cx="13" cy="6" r="2.6" fill="var(--bg)"></circle><circle cx="7" cy="14" r="2.6" fill="var(--bg)"></circle></svg>
+          </span>
+        </div>
+
+        <!-- paste / search bar -->
+        <div style="margin:2px 18px 0;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 12px 12px 14px;box-shadow:var(--elev);">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="9" r="6"></circle><line x1="13.5" y1="13.5" x2="18" y2="18"></line></svg>
+          <span style="flex:1;color:var(--muted);font-size:14px;">Dán liên kết hoặc tìm kiếm</span>
+          <button style="background:var(--pri);color:var(--pri-ink);border:none;border-radius:calc(var(--r-md) - 4px);padding:7px 13px;font-family:var(--font-body);font-weight:700;font-size:13px;">Dán</button>
+        </div>
+        <div style="margin:9px 20px 0;font-size:11px;color:var(--muted);line-height:1.4;">Chỉ tải nội dung bạn có quyền sử dụng.</div>
+
+        <!-- platform chips -->
+        <div style="margin:16px 18px 0;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Nền tảng phổ biến</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-sm);border:var(--chip-bd);background:var(--pri-soft);color:var(--pri);font-size:12.5px;font-weight:600;"><i style="width:7px;height:7px;border-radius:2px;background:var(--accent);display:block;"></i>YouTube</span>
+            <span style="display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-sm);border:var(--chip-bd);background:var(--surface);color:var(--text);font-size:12.5px;font-weight:600;"><i style="width:7px;height:7px;border-radius:2px;background:var(--muted);display:block;"></i>TikTok</span>
+            <span style="display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-sm);border:var(--chip-bd);background:var(--surface);color:var(--text);font-size:12.5px;font-weight:600;"><i style="width:7px;height:7px;border-radius:2px;background:var(--muted);display:block;"></i>Instagram</span>
+            <span style="display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-sm);border:var(--chip-bd);background:var(--surface);color:var(--text);font-size:12.5px;font-weight:600;"><i style="width:7px;height:7px;border-radius:2px;background:var(--muted);display:block;"></i>Facebook</span>
+            <span style="display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-sm);border:var(--chip-bd);background:var(--surface);color:var(--text);font-size:12.5px;font-weight:600;"><i style="width:7px;height:7px;border-radius:2px;background:var(--muted);display:block;"></i>X</span>
+            <span style="display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-sm);border:var(--chip-bd);background:var(--surface);color:var(--text);font-size:12.5px;font-weight:600;"><i style="width:7px;height:7px;border-radius:2px;background:var(--muted);display:block;"></i>Vimeo</span>
+          </div>
+        </div>
+
+        <!-- recent -->
+        <div style="margin:18px 18px 0;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Gần đây</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:10px;box-shadow:var(--elev);">
+              <div style="width:66px;height:44px;border-radius:var(--r-sm);flex-shrink:0;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px),var(--pri-soft);"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">Hướng dẫn dựng phim cơ bản trong 10 phút</div>
+                <div style="font-family:var(--font-num);font-size:11px;color:var(--muted);margin-top:3px;">youtube.com · 10:24</div>
+              </div>
+              <span style="width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--pri);flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="3" x2="10" y2="13"></line><polyline points="6,9.5 10,13.5 14,9.5"></polyline><line x1="4.5" y1="17" x2="15.5" y2="17"></line></svg>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:10px;box-shadow:var(--elev);">
+              <div style="width:66px;height:44px;border-radius:var(--r-sm);flex-shrink:0;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px),var(--pri-soft);"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">Playlist nhạc tập trung — Lo-fi buổi sáng</div>
+                <div style="font-family:var(--font-num);font-size:11px;color:var(--muted);margin-top:3px;">soundcloud.com · 42:07</div>
+              </div>
+              <span style="width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--pri);flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="3" x2="10" y2="13"></line><polyline points="6,9.5 10,13.5 14,9.5"></polyline><line x1="4.5" y1="17" x2="15.5" y2="17"></line></svg>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- bottom nav -->
+        <div style="margin-top:auto;display:flex;align-items:center;justify-content:space-around;padding:9px 12px 14px;background:var(--surface);border-top:1px solid var(--border);">
+          <span style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--pri);font-size:10px;font-weight:700;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7.5"></circle><line x1="3.5" y1="11" x2="18.5" y2="11"></line><ellipse cx="11" cy="11" rx="3.4" ry="7.5"></ellipse></svg>
+            Trình duyệt</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:600;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="11" y1="3.5" x2="11" y2="13.5"></line><polyline points="6.5,10 11,14.5 15.5,10"></polyline><line x1="5" y1="18" x2="17" y2="18"></line></svg>
+            Tải xuống</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:600;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="18" y2="7"></line><line x1="4" y1="15" x2="18" y2="15"></line><circle cx="14" cy="7" r="2.6" fill="var(--surface)"></circle><circle cx="8" cy="15" r="2.6" fill="var(--surface)"></circle></svg>
+            Cài đặt</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PHONE 2 — PROGRESS ===================== -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding-left:6px;">Progress · Đang chờ Wi-Fi</div>
+    <div style="width:300px;background:#0c0c0f;border-radius:42px;padding:7px;box-shadow:0 34px 70px -26px rgba(20,18,40,.55);">
+      <div style="background:var(--bg);border-radius:35px;overflow:hidden;height:604px;display:flex;flex-direction:column;color:var(--text);position:relative;">
+
+        <!-- status bar (mobile data — no wifi) -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 22px 4px;font-family:var(--font-num);font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span style="display:flex;align-items:center;gap:7px;">
+            <span style="font-family:var(--font-num);font-size:10px;font-weight:700;">4G</span>
+            <span style="display:flex;align-items:flex-end;gap:1.5px;height:10px;"><i style="width:2.5px;height:4px;background:var(--text);display:block;"></i><i style="width:2.5px;height:6px;background:var(--text);display:block;"></i><i style="width:2.5px;height:8px;background:var(--text);display:block;"></i><i style="width:2.5px;height:10px;background:var(--muted);display:block;opacity:.4;"></i></span>
+            <span style="width:20px;height:10px;border:1.5px solid var(--text);border-radius:3px;position:relative;display:inline-block;"><i style="position:absolute;inset:1.5px;right:9px;background:var(--text);display:block;"></i></span>
+          </span>
+        </div>
+
+        <!-- app bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px 8px;">
+          <span style="font-family:var(--font-head);font-size:21px;font-weight:700;letter-spacing:-.01em;">Tải xuống</span>
+          <span style="width:38px;height:38px;border-radius:var(--r-md);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="3" y1="6" x2="17" y2="6"></line><line x1="6" y1="10" x2="14" y2="10"></line><line x1="8.5" y1="14" x2="11.5" y2="14"></line></svg>
+          </span>
+        </div>
+
+        <!-- WAITING FOR WIFI BANNER -->
+        <div style="margin:2px 18px 0;background:var(--warn-soft);border:1px solid color-mix(in oklch,var(--warn) 40%,transparent);border-radius:var(--r-md);padding:12px 13px;display:flex;flex-direction:column;gap:9px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="var(--warn-ink)" stroke-width="1.8" stroke-linecap="round" style="margin-top:1px;flex-shrink:0;"><rect x="3" y="13" width="3" height="5" rx="1" fill="var(--warn-ink)" stroke="none"></rect><rect x="9.5" y="9" width="3" height="9" rx="1" fill="var(--warn-ink)" stroke="none"></rect><rect x="16" y="4" width="3" height="14" rx="1" fill="none"></rect></svg>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;color:var(--warn-ink);">Đang chờ Wi-Fi</div>
+              <div style="font-size:11.5px;color:var(--warn-ink);opacity:.85;margin-top:2px;line-height:1.4;">3 mục sẽ tự động tiếp tục khi có Wi-Fi. Chúng tôi không dùng dữ liệu di động của bạn nếu chưa cho phép.</div>
+            </div>
+          </div>
+          <button style="align-self:flex-start;background:transparent;border:none;color:var(--warn-ink);font-family:var(--font-body);font-weight:700;font-size:12.5px;padding:0;text-decoration:underline;text-underline-offset:3px;">Tải bằng dữ liệu di động</button>
+        </div>
+
+        <!-- download list -->
+        <div style="flex:1;overflow:hidden;padding:14px 18px 0;display:flex;flex-direction:column;gap:11px;">
+
+          <!-- card: in progress -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;box-shadow:var(--elev);display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:11px;">
+              <div style="width:52px;height:52px;border-radius:var(--r-sm);flex-shrink:0;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px),var(--pri-soft);"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;">Hướng dẫn dựng phim cơ bản</div>
+                <div style="font-family:var(--font-num);font-size:11px;color:var(--muted);margin-top:3px;">1080p · MP4 · 245 MB</div>
+              </div>
+              <span style="width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><rect x="5" y="4" width="3.5" height="12" rx="1"></rect><rect x="11.5" y="4" width="3.5" height="12" rx="1"></rect></svg>
+              </span>
+            </div>
+            <div style="height:6px;border-radius:999px;background:var(--border);overflow:hidden;"><div style="width:62%;height:100%;background:var(--accent);border-radius:999px;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--font-num);font-size:11px;"><span style="color:var(--text);font-weight:700;">62% · 4.2 MB/s</span><span style="color:var(--muted);">còn 0:48</span></div>
+          </div>
+
+          <!-- card: waiting for wifi -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;box-shadow:var(--elev);display:flex;flex-direction:column;gap:10px;opacity:.92;">
+            <div style="display:flex;align-items:center;gap:11px;">
+              <div style="width:52px;height:52px;border-radius:var(--r-sm);flex-shrink:0;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px),var(--pri-soft);"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;">Playlist nhạc tập trung buổi sáng</div>
+                <div style="font-family:var(--font-num);font-size:11px;color:var(--muted);margin-top:3px;">720p · MP4 · 180 MB</div>
+              </div>
+              <span style="width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,4 16,10 6,16" fill="currentColor" stroke="none"></polygon></svg>
+              </span>
+            </div>
+            <div style="height:6px;border-radius:999px;background:var(--border);overflow:hidden;"><div style="width:20%;height:100%;background:color-mix(in oklch,var(--warn) 70%,var(--border));border-radius:999px;"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--warn-ink);"><i style="width:6px;height:6px;border-radius:999px;background:var(--warn);display:block;"></i>Đang chờ Wi-Fi</span>
+              <span style="font-family:var(--font-num);font-size:11px;color:var(--muted);">đã tải 20%</span>
+            </div>
+          </div>
+
+          <!-- card: completed -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;box-shadow:var(--elev);display:flex;align-items:center;gap:11px;">
+            <div style="width:52px;height:52px;border-radius:var(--r-sm);flex-shrink:0;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px),var(--pri-soft);"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;">Bản tin công nghệ tháng 8</div>
+              <div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="var(--success)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10.5 8,14.5 16,6"></polyline></svg><span style="font-family:var(--font-num);font-size:11px;color:var(--success);font-weight:700;">Hoàn tất · 245 MB</span></div>
+            </div>
+            <span style="width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;">
+              <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="10" r="2"></circle><circle cx="14.5" cy="5" r="2"></circle><circle cx="14.5" cy="15" r="2"></circle><line x1="7.7" y1="9" x2="12.8" y2="6"></line><line x1="7.7" y1="11" x2="12.8" y2="14"></line></svg>
+            </span>
+          </div>
+
+        </div>
+
+        <!-- bottom nav -->
+        <div style="display:flex;align-items:center;justify-content:space-around;padding:9px 12px 14px;background:var(--surface);border-top:1px solid var(--border);">
+          <span style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:600;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7.5"></circle><line x1="3.5" y1="11" x2="18.5" y2="11"></line><ellipse cx="11" cy="11" rx="3.4" ry="7.5"></ellipse></svg>
+            Trình duyệt</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--pri);font-size:10px;font-weight:700;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="11" y1="3.5" x2="11" y2="13.5"></line><polyline points="6.5,10 11,14.5 15.5,10"></polyline><line x1="5" y1="18" x2="17" y2="18"></line></svg>
+            Tải xuống</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:600;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="18" y2="7"></line><line x1="4" y1="15" x2="18" y2="15"></line><circle cx="14" cy="7" r="2.6" fill="var(--surface)"></circle><circle cx="8" cy="15" r="2.6" fill="var(--surface)"></circle></svg>
+            Cài đặt</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:660,&quot;height&quot;:700}}"></script>
+</body>
+</html>

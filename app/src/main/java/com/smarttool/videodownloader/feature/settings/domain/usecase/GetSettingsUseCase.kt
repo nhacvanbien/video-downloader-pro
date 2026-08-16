@@ -7,5 +7,8 @@ class GetSettingsUseCase(private val repository: SettingsRepository) {
     suspend operator fun invoke(): SettingsInfo = SettingsInfo(
         downloadLocation = repository.downloadLocation(),
         isRated = repository.isRated(),
+        wifiOnly = repository.wifiOnly(),
+        searchEngine = repository.searchEngine(),
+        downloadLocationSubfolder = repository.downloadLocationSubfolder(),
     )
 }

@@ -24,5 +24,8 @@ interface ProcessingContract {
 
         /** Anything else — nothing to probe, so the download button resets. */
         data object ResetDetection : Effect
+
+        /** "Wi-Fi Only" is on and the device is off Wi-Fi — the start was skipped. */
+        data object WaitingForWifi : Effect
     }
 }

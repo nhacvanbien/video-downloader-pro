@@ -37,8 +37,26 @@ class MediaLibraryRepositoryImpl(
     override suspend fun delete(item: VideoTaskItem) =
         videoTaskItemRepository.deleteVideoTaskItem(item)
 
-    override suspend fun setPrivate(id: String, isPrivate: Boolean) =
-        videoTaskItemRepository.updateIsCheckSecurity(id, isPrivate)
+    override suspend fun setPrivate(
+        context: Context,
+        item: VideoTaskItem,
+        isPrivate: Boolean,
+        onProgress: (Float) -> Unit,
+    ): Boolean = withContext(Dispatchers.IO) {
+        val newPath = if (isPrivate) {
+            fileUtil.moveToPrivateStorage(context, item.filePath, onProgress)
+        } else {
+            fileUtil.moveOutOfPrivateStorage(
+                context,
+                item.filePath,
+                item.mimeType.startsWith("image"),
+                onProgress,
+            )
+        } ?: return@withContext false
+
+        videoTaskItemRepository.updateSecurityAndPath(item.mId, isPrivate, newPath)
+        true
+    }
 
     override suspend fun renameVideo(
         context: Context,

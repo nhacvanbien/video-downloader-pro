@@ -146,6 +146,7 @@ class CustomRegularDownloader : GenericDownloader() {
 
             data.putString(TITLE_KEY, videoInfo.title)
             data.putString(FILENAME_KEY, fileName)
+            data.putBoolean(IS_PRIVATE_KEY, videoInfo.isPrivate)
 
             return data
         }

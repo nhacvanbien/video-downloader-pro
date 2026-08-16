@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,11 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.AppTopBar
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
 import com.smarttool.videodownloader.core.ui.components.SheetCornerRadius
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.theme.Muted
+import com.smarttool.videodownloader.core.ui.theme.Surface
 
-private val StepTextColor = Color(0xFF404040)
+private val StepTextColor = Muted
 
 @Composable
 fun GuideScreen(
@@ -47,7 +47,7 @@ fun GuideScreen(
     val stepOneImage = if (isHomeGuide) R.drawable.img_step_1 else R.drawable.img_step_1_process
     val stepTwoImage = if (isHomeGuide) R.drawable.img_step_2 else R.drawable.img_step_2_process
 
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient).statusBarsPadding()) {
+    Column(modifier = Modifier.fillMaxSize().background(ScreenBg).statusBarsPadding()) {
         AppTopBar(title = stringResource(R.string.string_guide), onBack = onBack)
 
         Column(
@@ -55,7 +55,7 @@ fun GuideScreen(
                 .fillMaxSize()
                 .padding(bottom = 5.dp)
                 .clip(RoundedCornerShape(topStart = SheetCornerRadius, topEnd = SheetCornerRadius))
-                .background(AppWhite)
+                .background(Surface)
                 .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp),

@@ -144,6 +144,7 @@ class YoutubeDlDownloader : GenericDownloader() {
 
             data.putString(ORIGIN_KEY, videoInfo.originalUrl)
             data.putString(DOWNLOAD_ID_KEY, videoInfo.id)
+            data.putBoolean(IS_PRIVATE_KEY, videoInfo.isPrivate)
 
             if (videoInfo.formats.formats.firstOrNull() != null && videoInfo.formats.formats.isNotEmpty()) {
                 val stringHeaders =

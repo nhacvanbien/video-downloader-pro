@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">लोड हो रहा है...</string>
     <string name="string_applied_language">अनुप्रयुक्त भाषा...</string>
-    <string name="string_this_action_can_contain_ads">इस क्रिया में विज्ञापन हो सकते हैं</string>
     <string name="string_loading">लोड हो रहा है (%s%%)...</string>
     <string name="string_languages">भाषाएँ</string>
     <string name="string_please_select_language">कृपया भाषा चुनें</string>
@@ -31,15 +29,7 @@
     <string name="string_content_terms_of_service">इस एप्लिकेशन का उपयोग करके, आप हमारी सेवा की शर्तों और गोपनीयता नीति से सहमत होते हैं। कृपया उन्हें ध्यान से पढ़ें।</string>
     <string name="string_agree">सहमत</string>
     <string name="string_rate">रेट करें</string>
-    <string name="string_not_now">अभी नहीं</string>
-    <string name="string_thank_for_rate">एप्लिकेशन को रेट करने के लिए धन्यवाद</string>
-    <string name="string_please_feedback">कृपया प्रतिक्रिया दें</string>
-    <string name="string_stay">रहें</string>
-    <string name="string_exit">बाहर जाएं</string>
-    <string name="exit_app">क्या आप बाहर जाना चाहते हैं?</string>
-    <string name="string_are_you_sure_you_want_to_exit">क्या आप सुनिश्चित हैं कि आप बाहर जाना चाहते हैं?</string>
     <string name="string_browser">ब्राउज़र</string>
-    <string name="string_processing">प्रोसेस हो रहा है</string>
     <string name="string_downloaded">डाउनलोड किया गया</string>
     <string name="string_settings">सेटिंग्स</string>
     <string name="string_download_location">डाउनलोड स्थान</string>
@@ -60,17 +50,13 @@
     <string name="string_tiktok">टिकटॉक</string>
     <string name="string_vimeo">विमेओ</string>
     <string name="string_dailymotion">Dailymotion</string>
-    <string name="player_resolution">वीडियो रिज़ॉल्यूशन जैसा कि प्लेयर में है</string>
     <string name="string_download_successful">डाउनलोड सफल !!!</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">आपका डाउनलोड पूरा हो गया है। अब आप अपनी फाइल एक्सेस कर सकते हैं</string>
     <string name="string_cancel">रद्द करें</string>
-    <string name="string_open">खोलें</string>
     <string name="string_confirm_delete">हटाने की पुष्टि करें</string>
     <string name="string_are_you_sure_want_to_delete_photo">क्या आप वाकई फोटो को हटाना चाहते हैं?</string>
     <string name="string_delete">हटाएं</string>
     <string name="download_open_in_app">एप्लिकेशन में खोलें</string>
     <string name="download_watch_in_app">एप्लिकेशन में वीडियो देखें</string>
-    <string name="app_download_channel_id" translatable="false">डाउनलोड_चैनल_आईडी</string>
     <string name="string_close_all">सभी बंद करें</string>
     <string name="string_num_tabs">%s टैब</string>
     <string name="string_go_see_the_sites">वेबसाइट देखें! आप जिन पृष्ठों पर जाते हैं, वे यहां दिखाए जाएंगे!</string>
@@ -102,9 +88,7 @@
     <string name="go_to_setting">सेटिंग्स में जाएं</string>
     <string name="string_save_to_bookmarks_successfully">बुकमार्क में सफलतापूर्वक सहेजा गया</string>
     <string name="string_notification">सूचना</string>
-    <string name="settings_message_open_folder">आपके डिवाइस पर कोई फाइल एक्सप्लोरर ऐप इंस्टॉल नहीं है</string>
     <string name="video_share_message">आपके डिवाइस पर कोई वीडियो प्लेयर ऐप इंस्टॉल नहीं है</string>
-    <string name="cookies_cleared">कुकीज साफ कर दी गईं</string>
     <string name="string_paste">पेस्ट करें</string>
     <string name="string_paste_link_here">यहां लिंक पेस्ट करें</string>
     <string name="string_remove_from_private">प्राइवेट से हटाएं</string>
@@ -151,17 +135,43 @@
     <string name="string_error_deleting_file">फाइल हटाने में त्रुटि!</string>
     <string name="string_step_1_process"><![CDATA[<b>चरण 1:</b>]]> ऐप खोलें और लिंक कॉपी करें।</string>
     <string name="string_step_2_process"><![CDATA[<b>चरण 2:</b>]]> ऐप पर वापस जाएं, "लिंक पेस्ट करें" चुनें और डाउनलोड करें।</string>
-    <string name="string_name_contains_special_characters">नाम में विशेष अक्षर हैं!</string>
     <string name="string_popular_apps">लोकप्रिय ऐप्स</string>
     <string name="string_x">X (ट्विटर)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">वीडियो डाउनलोड करें</string>
-    <string name="string_select_type">प्रकार चुनें</string>
     <string name="string_start">प्रारंभ</string>
     <string name="txt_continue">जारी रखें</string>
     <string name="clear_history">इतिहास साफ़ करें</string>
     <string name="string_download_failed">डाउनलोड असफल !!!</string>
     <string name="string_downloading">डाउनलोड हो रहा है</string>
     <string name="string_select_languages">भाषा चुनें</string>
+    <string name="string_audio">ऑडियो</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_download_failed_short">डाउनलोड विफल</string>
+    <string name="string_download_size">डाउनलोड आकार: %s</string>
+    <string name="string_downloads">डाउनलोड</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
+    <string name="string_got_it">समझ गया</string>
+    <string name="string_login_required_to_download">इस वीडियो को डाउनलोड करने से पहले कृपया ब्राउज़र में %1$s में लॉगिन करें</string>
+    <string name="string_no_media_found">कोई मीडिया नहीं मिला</string>
+    <string name="string_no_media_found_desc">पेज अभी भी लोड हो रहा हो सकता है, लॉगिन की आवश्यकता हो सकती है, या अभी तक समर्थित न हो।</string>
+    <string name="string_num_selected">%s चयनित</string>
+    <string name="string_press_back_again_to_exit">बाहर निकलने के लिए फिर से बैक दबाएं</string>
+    <string name="string_report_issue">समस्या की रिपोर्ट करें</string>
+    <string name="string_retry">पुनः प्रयास करें</string>
+    <string name="string_retry_download">डाउनलोड पुनः प्रयास करें</string>
+    <string name="string_save_to_private_folder">प्राइवेट फ़ोल्डर में सहेजें</string>
+    <string name="string_search_downloads">डाउनलोड खोजें</string>
+    <string name="string_search_engine">सर्च इंजन</string>
+    <string name="string_select_items">आइटम चुनें</string>
+    <string name="string_waiting_for_wifi">Wi-Fi की प्रतीक्षा हो रही है...</string>
+    <string name="string_wifi_only">केवल Wi-Fi</string>
+    <string name="string_wifi_only_desc">डाउनलोड करने से पहले Wi-Fi की प्रतीक्षा करें</string>
+    <string name="string_yahoo">Yahoo</string>
 
+    <string name="string_download_location_folder_hint">फ़ोल्डर का नाम</string>
+    <string name="string_moving_to_private">निजी में ले जाया जा रहा है</string>
+    <string name="string_moving_out_of_private">निजी से बाहर ले जाया जा रहा है</string>
+    <string name="string_do_not_close_app">यह पूरा होने तक कृपया ऐप खुला रखें।</string>
+    <string name="string_moving_file_count">%2$s में से %1$s फ़ाइल</string>
 </resources>

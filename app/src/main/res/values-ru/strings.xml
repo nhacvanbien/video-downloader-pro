@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">Загрузка....</string>
     <string name="string_applied_language">Прикладной язык...</string>
-    <string name="string_this_action_can_contain_ads">Это действие может содержать рекламу</string>
     <string name="string_loading">Загрузка (%s%%)...</string>
     <string name="string_languages">Языки</string>
     <string name="string_please_select_language">Пожалуйста, выберите язык</string>
@@ -31,15 +29,7 @@
     <string name="string_content_terms_of_service">Используя это приложение, вы соглашаетесь с нашими условиями обслуживания и политикой конфиденциальности. Пожалуйста, внимательно ознакомьтесь с ними.</string>
     <string name="string_agree">Согласен</string>
     <string name="string_rate">Оценить</string>
-    <string name="string_not_now">Не сейчас</string>
-    <string name="string_thank_for_rate">Спасибо за оценку приложения</string>
-    <string name="string_please_feedback">Пожалуйста, оставьте отзыв</string>
-    <string name="string_stay">Остаться</string>
-    <string name="string_exit">Выход</string>
-    <string name="exit_app">Вы хотите выйти?</string>
-    <string name="string_are_you_sure_you_want_to_exit">Вы уверены, что хотите выйти?</string>
     <string name="string_browser">Браузер</string>
-    <string name="string_processing">Обработка</string>
     <string name="string_downloaded">Загружено</string>
     <string name="string_settings">Настройки</string>
     <string name="string_download_location">Место загрузки</string>
@@ -60,17 +50,13 @@
     <string name="string_tiktok">TikTok</string>
     <string name="string_vimeo">Vimeo</string>
     <string name="string_dailymotion">Dailymotion</string>
-    <string name="player_resolution">Разрешение видео в плеере</string>
     <string name="string_download_successful">Загрузка завершена успешно!!!</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">Ваша загрузка завершена. Теперь вы можете получить доступ к вашему файлу</string>
     <string name="string_cancel">Отменить</string>
-    <string name="string_open">Открыть</string>
     <string name="string_confirm_delete">Подтвердите удаление</string>
     <string name="string_are_you_sure_want_to_delete_photo">Вы уверены, что хотите удалить фото?</string>
     <string name="string_delete">Удалить</string>
     <string name="download_open_in_app">Открыть в приложении</string>
     <string name="download_watch_in_app">Смотреть в приложении</string>
-    <string name="app_download_channel_id" translatable="false">download_channel_id</string>
     <string name="string_close_all">Закрыть все</string>
     <string name="string_num_tabs">%s Вкладок</string>
     <string name="string_go_see_the_sites">Перейдите на сайты! Страницы, которые вы посетите, появятся здесь!</string>
@@ -102,9 +88,7 @@
     <string name="go_to_setting">Перейти в настройки</string>
     <string name="string_save_to_bookmarks_successfully">Успешно сохранено в закладки</string>
     <string name="string_notification">Уведомление</string>
-    <string name="settings_message_open_folder">Файловый менеджер не найден на устройстве</string>
     <string name="video_share_message">На устройстве не найдено приложений для видео</string>
-    <string name="cookies_cleared">Куки очищены</string>
     <string name="string_paste">Вставить</string>
     <string name="string_paste_link_here">Вставьте ссылку сюда</string>
     <string name="string_remove_from_private">Удалить из приватной папки</string>
@@ -151,17 +135,43 @@
     <string name="string_error_deleting_file">Ошибка при удалении файла!</string>
     <string name="string_step_1_process"><![CDATA[<b>Шаг 1:</b>]]> Откройте приложение и скопируйте ссылку.</string>
     <string name="string_step_2_process"><![CDATA[<b>Шаг 2:</b>]]> Вернитесь в приложение и выберите «Вставить ссылку», чтобы загрузить.</string>
-    <string name="string_name_contains_special_characters">Имя содержит специальные символы!</string>
     <string name="string_popular_apps">Популярные приложения</string>
     <string name="string_x">X (Твиттер)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Скачать видео</string>
-    <string name="string_select_type">Выбрать тип</string>
     <string name="string_start">Начать</string>
     <string name="txt_continue">ПРОДОЛЖИТЬ</string>
     <string name="clear_history">Очистить историю</string>
     <string name="string_download_failed">Ошибка загрузки !!!</string>
     <string name="string_downloading">Загрузка</string>
     <string name="string_select_languages">Выбрать язык</string>
+    <string name="string_audio">Аудио</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_download_failed_short">Не удалось загрузить</string>
+    <string name="string_download_size">Размер загрузки: %s</string>
+    <string name="string_downloads">Загрузки</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
+    <string name="string_got_it">Понятно</string>
+    <string name="string_login_required_to_download">Войдите в %1$s в браузере перед загрузкой этого видео</string>
+    <string name="string_no_media_found">Медиафайлы не найдены</string>
+    <string name="string_no_media_found_desc">Страница может ещё загружаться, требовать входа в аккаунт или пока не поддерживается.</string>
+    <string name="string_num_selected">Выбрано: %s</string>
+    <string name="string_press_back_again_to_exit">Нажмите \"Назад\" ещё раз для выхода</string>
+    <string name="string_report_issue">Сообщить о проблеме</string>
+    <string name="string_retry">ПОВТОРИТЬ</string>
+    <string name="string_retry_download">Повторить загрузку</string>
+    <string name="string_save_to_private_folder">Сохранить в приватную папку</string>
+    <string name="string_search_downloads">Поиск по загрузкам</string>
+    <string name="string_search_engine">Поисковая система</string>
+    <string name="string_select_items">Выбрать элементы</string>
+    <string name="string_waiting_for_wifi">Ожидание Wi-Fi…</string>
+    <string name="string_wifi_only">Только Wi-Fi</string>
+    <string name="string_wifi_only_desc">Ждать Wi-Fi перед загрузкой</string>
+    <string name="string_yahoo">Yahoo</string>
 
+    <string name="string_download_location_folder_hint">Имя папки</string>
+    <string name="string_moving_to_private">Перемещение в приватное</string>
+    <string name="string_moving_out_of_private">Перемещение из приватного</string>
+    <string name="string_do_not_close_app">Не закрывайте приложение, пока это не завершится.</string>
+    <string name="string_moving_file_count">Файл %1$s из %2$s</string>
 </resources>

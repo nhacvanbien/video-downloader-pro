@@ -104,6 +104,7 @@ fun LanguageRoute(
             viewModel.onEvent(LanguageContract.Event.Select(code))
             if (fromSplash) headerTitle = localizedString(code, titleRes)
         },
+        onSearch = { query -> viewModel.onEvent(LanguageContract.Event.Search(query)) },
         onConfirm = {
             viewModel.onEvent(LanguageContract.Event.Confirm(markStartShown = fromSplash))
         },

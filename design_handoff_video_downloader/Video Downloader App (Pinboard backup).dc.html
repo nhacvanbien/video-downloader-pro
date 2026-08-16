@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#f2f0ef;}
+  a{color:oklch(0.55 0.2 18);text-decoration:none;}
+  a:hover{color:oklch(0.45 0.18 18);}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;}
+  .tag-p0{background:oklch(0.95 0.05 25);color:oklch(0.5 0.2 25);}
+  .tag-p1{background:oklch(0.96 0.05 80);color:oklch(0.48 0.12 65);}
+  .tag-p2{background:oklch(0.94 0.01 250);color:oklch(0.5 0.02 250);}
+  .scr-label{font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:700;color:var(--text);}
+  .sec-h{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px;}
+  .sec-p{font-size:13px;color:var(--muted);margin:0 0 20px;max-width:640px;line-height:1.5;}
+  .ph{width:272px;background:#0c0c0f;border-radius:36px;padding:6px;flex-shrink:0;}
+  .scr{background:var(--bg);border-radius:30px;overflow:hidden;height:566px;display:flex;flex-direction:column;color:var(--text);position:relative;font-family:var(--font-body);}
+  .sb{display:flex;justify-content:space-between;align-items:center;padding:9px 18px 2px;font-family:var(--font-num);font-size:11px;font-weight:700;}
+  .bn{margin-top:auto;display:flex;align-items:center;justify-content:space-around;padding:8px 10px 12px;background:var(--surface);border-top:1px solid var(--border);}
+  .bn i{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:9.5px;font-weight:700;font-style:normal;}
+  .bn i.on{color:var(--pri);}
+</style>
+</helmet>
+
+<div style="--bg:oklch(0.985 0.006 40);--surface:#ffffff;--text:oklch(0.24 0.02 30);--muted:oklch(0.55 0.02 30);--pri:#e60023;--pri-ink:#ffffff;--pri-soft:oklch(0.95 0.04 20);--border:oklch(0.9 0.008 40);--accent:#e60023;--warn:oklch(0.7 0.15 65);--warn-soft:oklch(0.96 0.06 80);--warn-ink:oklch(0.45 0.11 55);--success:oklch(0.58 0.13 155);--error:#c2410c;--success-tint:#eaf3ea;--font-head:'Plus Jakarta Sans',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-num:'Plus Jakarta Sans',sans-serif;--r-lg:18px;--r-md:14px;--r-sm:999px;--chip-bd:1.5px solid var(--border);font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);padding:48px 56px 100px;">
+
+  <div style="max-width:760px;margin-bottom:44px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--pri);font-weight:700;">Step 2 · Full implementation</div>
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:36px;font-weight:800;letter-spacing:-.02em;margin:10px 0 12px;line-height:1.08;">Video Downloader — Full app redesign</h1>
+    <p style="font-size:14.5px;line-height:1.6;color:var(--muted);margin:0;text-wrap:pretty;"><b>1d Pinboard</b> direction (flat, warm berry, pill shapes, Plus Jakarta Sans) applied across all 19 screens/flows from the Design Brief, in <span class="tag tag-p0">P0</span> → <span class="tag tag-p1">P1</span> → <span class="tag tag-p2">P2</span> order for new additions. Layout &amp; behavior kept true to the real screenshots; only the aesthetics change.</p>
+  </div>
+
+  <!-- ================= SECTION: KHỞI ĐỘNG & ONBOARDING ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">01 · Startup &amp; Onboarding</h2>
+    <p class="sec-p">Behavior unchanged — Pinboard aesthetics applied consistently across the first-run flow.</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <!-- Splash -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Splash</span>
+        <div class="ph"><div class="scr" style="align-items:center;justify-content:center;gap:16px;">
+          <div style="position:relative;width:80px;height:80px;">
+            <div style="width:80px;height:80px;border-radius:24px;background:var(--pri);display:flex;align-items:center;justify-content:center;">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8"></path><polygon points="7,10.5 17,10.5 12,17" fill="#fff" stroke="none"></polygon><path d="M6 20.5h12"></path></svg>
+            </div>
+            <span style="position:absolute;top:-6px;right:-6px;width:26px;height:26px;border-radius:999px;background:var(--surface);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;">
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4v9"></path><polyline points="6.5,9.5 10,13 13.5,9.5"></polyline></svg>
+            </span>
+          </div>
+          <div style="font-size:17px;font-weight:800;">Video Downloader</div>
+          <div style="position:absolute;bottom:64px;left:40px;right:40px;">
+            <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;"><div style="width:72%;height:100%;background:var(--pri);"></div></div>
+            <div style="font-size:10.5px;color:var(--muted);margin-top:6px;text-align:center;">Loading... 72%</div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- Language -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Language selection</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="padding:14px 18px 6px;font-size:19px;font-weight:800;">Choose language</div>
+          <div style="flex:1;overflow:hidden;padding:2px 16px;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r-md);border:1.5px solid var(--border);"><i style="width:26px;height:26px;border-radius:999px;background:var(--pri-soft);display:block;"></i><span style="font-size:13.5px;font-weight:600;flex:1;">English</span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r-md);border:1.5px solid var(--border);"><i style="width:26px;height:26px;border-radius:999px;background:var(--pri-soft);display:block;"></i><span style="font-size:13.5px;font-weight:600;flex:1;">Español</span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r-md);border:1.5px solid var(--border);"><i style="width:26px;height:26px;border-radius:999px;background:var(--pri-soft);display:block;"></i><span style="font-size:13.5px;font-weight:600;flex:1;">한국어</span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r-md);background:var(--pri-soft);border:1.5px solid var(--pri);"><i style="width:26px;height:26px;border-radius:999px;background:#fff;display:block;"></i><span style="font-size:13.5px;font-weight:700;flex:1;color:var(--pri);">Tiếng Việt</span><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="2.4" stroke-linecap="round"><polyline points="4,10.5 8,14.5 16,6"></polyline></svg></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r-md);border:1.5px solid var(--border);"><i style="width:26px;height:26px;border-radius:999px;background:var(--pri-soft);display:block;"></i><span style="font-size:13.5px;font-weight:600;flex:1;">日本語</span></div>
+          </div>
+          <div style="padding:12px 16px 16px;"><button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;font-family:var(--font-body);font-weight:700;font-size:14px;">Save</button></div>
+        </div></div>
+      </div>
+
+      <!-- Intro -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Intro</span>
+        <div class="ph"><div class="scr" style="align-items:center;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 28px;text-align:center;min-height:0;">
+            <div style="width:140px;height:96px;border-radius:20px;background:var(--pri-soft);flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;">
+              <svg width="72" height="60" viewBox="0 0 72 60" fill="none"><rect x="6" y="6" width="60" height="40" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"></rect><circle cx="36" cy="26" r="10" fill="var(--pri)"></circle><polygon points="33,21 33,31 42,26" fill="#fff"></polygon><rect x="16" y="50" width="40" height="4" rx="2" fill="var(--border)"></rect></svg>
+            </div>
+            <div><div style="font-size:17px;font-weight:800;margin-bottom:6px;">Easy Downloads</div><div style="font-size:12px;color:var(--muted);line-height:1.45;">Paste a link, pick a format, done — no extra steps.</div></div>
+          </div>
+          <div style="display:flex;gap:6px;padding-bottom:12px;flex-shrink:0;"><i style="width:6px;height:6px;border-radius:999px;background:var(--border);display:block;"></i><i style="width:16px;height:6px;border-radius:999px;background:var(--pri);display:block;"></i><i style="width:6px;height:6px;border-radius:999px;background:var(--border);display:block;"></i></div>
+          <div style="width:100%;padding:0 20px 16px;flex-shrink:0;box-sizing:border-box;"><button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;font-family:var(--font-body);font-weight:700;font-size:14px;">Continue</button></div>
+        </div></div>
+      </div>
+
+      <!-- Permission -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Permissions</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="padding:16px 18px 8px;font-size:19px;font-weight:800;">Grant access</div>
+          <div style="padding:6px 16px 0;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px;border-radius:var(--r-md);border:1.5px solid var(--border);"><div style="flex:1;"><div style="font-size:13.5px;font-weight:700;">Storage</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Save downloaded videos &amp; photos</div></div><i style="width:38px;height:22px;border-radius:999px;background:var(--pri);position:relative;display:block;"><i style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:999px;background:#fff;display:block;"></i></i></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:13px;border-radius:var(--r-md);border:1.5px solid var(--border);"><div style="flex:1;"><div style="font-size:13.5px;font-weight:700;">Notifications</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Download progress updates</div></div><i style="width:38px;height:22px;border-radius:999px;background:var(--pri);position:relative;display:block;"><i style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:999px;background:#fff;display:block;"></i></i></div>
+          </div>
+          <div style="margin-top:auto;padding:16px;"><button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;font-family:var(--font-body);font-weight:700;font-size:14px;">Continue</button></div>
+        </div></div>
+      </div>
+
+      <!-- Disclaimers -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Disclaimers</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="padding:16px 18px 8px;font-size:19px;font-weight:800;">Terms of use</div>
+          <div style="flex:1;overflow:hidden;padding:2px 18px;display:flex;flex-direction:column;gap:12px;font-size:12px;color:var(--muted);line-height:1.5;">
+            <div><b style="color:var(--text);font-size:12.5px;">1. User content</b><div>Only download content you have the right to use.</div></div>
+            <div><b style="color:var(--text);font-size:12.5px;">2. No ads</b><div>The app never shows any advertising.</div></div>
+            <div><b style="color:var(--text);font-size:12.5px;">3. Privacy</b><div>The private area is PIN-hidden, not encrypted.</div></div>
+            <div><b style="color:var(--text);font-size:12.5px;">4. Data</b><div>We don't collect data beyond what's needed.</div></div>
+          </div>
+          <div style="padding:14px 16px 16px;border-top:1px solid var(--border);"><button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;font-family:var(--font-body);font-weight:700;font-size:14px;">Agree</button></div>
+        </div></div>
+      </div>
+
+      <!-- Guide -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Guide</span>
+        <div class="ph"><div class="scr" style="align-items:center;justify-content:center;background:rgba(20,16,14,.5);">
+          <div style="width:224px;background:var(--surface);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;gap:12px;">
+            <div style="width:100%;height:100px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;">
+              <svg width="84" height="66" viewBox="0 0 84 66" fill="none"><rect x="6" y="8" width="72" height="44" rx="7" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"></rect><path d="M30 30l-5 5a6 6 0 0 0 8 8l6-6" stroke="var(--pri)" stroke-width="3" stroke-linecap="round"></path><path d="M40 34l6-6a6 6 0 1 0-8-8l-5 5" stroke="var(--pri)" stroke-width="3" stroke-linecap="round"></path><rect x="16" y="58" width="52" height="4" rx="2" fill="var(--border)"></rect></svg>
+            </div>
+            <div style="font-size:14px;font-weight:800;">Step 1: Paste a link</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5;">Copy a video link from any browser, come back to the app and paste it in the search box.</div>
+            <button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:11px;font-family:var(--font-body);font-weight:700;font-size:13px;">Next</button>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SECTION: BROWSER ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">02 · Browser</h2>
+    <p class="sec-p">Home, WebView tab, and tab management — layout kept identical to the current app.</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <!-- Browser Home -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Browser Home</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;">
+            <span style="width:19px;"></span>
+            <span style="font-family:var(--font-head);font-size:19px;font-weight:800;">Browser</span>
+            <span style="font-size:11px;font-weight:700;background:var(--pri-soft);color:var(--pri);border-radius:999px;padding:4px 9px;">3</span>
+          </div>
+          <div style="margin:2px 16px 0;display:flex;align-items:center;gap:9px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;">
+            <span style="flex:1;color:var(--muted);font-size:13px;">Search or paste a url</span>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="9" cy="9" r="6"></circle><line x1="13.5" y1="13.5" x2="18" y2="18"></line></svg>
+          </div>
+          <div style="display:flex;gap:8px;margin:12px 16px 0;">
+            <span style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:var(--r-md);border:1.5px solid var(--border);font-size:12px;font-weight:700;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h10a1 1 0 0 1 1 1v13l-6-3.5L4 17V4a1 1 0 0 1 1-1Z"></path></svg>Bookmarks</span>
+            <span style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:var(--r-md);border:1.5px solid var(--border);font-size:12px;font-weight:700;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"></circle><path d="M10 6v4l3 2"></path></svg>History</span>
+          </div>
+          <div style="margin:16px 16px 0;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);">Popular sites</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 16px 0;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;"><i style="width:44px;height:44px;border-radius:14px;background:var(--pri-soft);display:block;"></i><span style="font-size:9.5px;color:var(--muted);">Google</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;"><i style="width:44px;height:44px;border-radius:14px;background:var(--pri-soft);display:block;"></i><span style="font-size:9.5px;color:var(--muted);">Facebook</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;"><i style="width:44px;height:44px;border-radius:14px;background:var(--pri-soft);display:block;"></i><span style="font-size:9.5px;color:var(--muted);">TikTok</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;"><i style="width:44px;height:44px;border-radius:14px;background:var(--pri-soft);display:block;"></i><span style="font-size:9.5px;color:var(--muted);">Instagram</span></div>
+          </div>
+          <div style="margin:14px 16px 0;"><button style="width:100%;background:var(--pri-soft);color:var(--pri);border:none;border-radius:var(--r-sm);padding:11px;font-family:var(--font-body);font-weight:700;font-size:13px;">How to download</button></div>
+          <div class="bn"><i class="on"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"></circle><line x1="3" y1="10" x2="17" y2="10"></line><ellipse cx="10" cy="10" rx="3.1" ry="7"></ellipse></svg>Browser</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="10" y1="3" x2="10" y2="12"></line><polyline points="6,8.5 10,12.5 14,8.5"></polyline><line x1="4.5" y1="16" x2="15.5" y2="16"></line></svg>Downloads</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="6" x2="16" y2="6"></line><line x1="4" y1="14" x2="16" y2="14"></line><circle cx="12.5" cy="6" r="2.4" fill="var(--surface)"></circle><circle cx="7.5" cy="14" r="2.4" fill="var(--surface)"></circle></svg>Settings</i></div>
+        </div></div>
+      </div>
+
+      <!-- WebView tab -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">WebView tab</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 14px 6px;">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5 10 4l6 5.5"></path><path d="M5.5 8.5V16h9V8.5"></path></svg>
+            <div style="flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:999px;padding:8px 12px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">https://www.example.com/</div>
+            <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round"><polyline points="16,5 16,9 12,9"></polyline><path d="M4 11a6 6 0 0 0 11 3l1-2"></path><polyline points="4,15 4,11 8,11"></polyline><path d="M16 9a6 6 0 0 0-11-3l-1 2"></path></svg>
+            <span style="font-size:10.5px;font-weight:800;background:var(--pri-soft);color:var(--pri);border-radius:999px;padding:3px 7px;">3</span>
+          </div>
+          <div style="height:2.5px;background:var(--border);"><div style="width:64%;height:100%;background:var(--pri);"></div></div>
+          <div style="flex:1;position:relative;margin:12px 14px;border-radius:var(--r-md);background:repeating-linear-gradient(45deg,var(--border),var(--border) 7px,transparent 7px,transparent 15px),var(--pri-soft);">
+            <span style="position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:999px;background:var(--pri);display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="3" x2="10" y2="13"></line><polyline points="6,9.5 10,13.5 14,9.5"></polyline><line x1="4.5" y1="17" x2="15.5" y2="17"></line></svg></span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-around;padding:7px 8px;border-top:1px solid var(--border);">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12,4 6,10 12,16"></polyline></svg>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,4 14,10 8,16"></polyline></svg>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="10" r="2"></circle><circle cx="14.5" cy="5" r="2"></circle><circle cx="14.5" cy="15" r="2"></circle><line x1="7.7" y1="9" x2="12.8" y2="6"></line><line x1="7.7" y1="11" x2="12.8" y2="14"></line></svg>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10.5"></path><polyline points="6.5,7 10,3.5 13.5,7"></polyline><path d="M4 13v2.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V13"></path></svg>
+          </div>
+          <div class="bn" style="margin-top:0;"><i class="on"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"></circle><line x1="3" y1="10" x2="17" y2="10"></line><ellipse cx="10" cy="10" rx="3.1" ry="7"></ellipse></svg>Browser</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="10" y1="3" x2="10" y2="12"></line><polyline points="6,8.5 10,12.5 14,8.5"></polyline><line x1="4.5" y1="16" x2="15.5" y2="16"></line></svg>Downloads</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="6" x2="16" y2="6"></line><line x1="4" y1="14" x2="16" y2="14"></line><circle cx="12.5" cy="6" r="2.4" fill="var(--surface)"></circle><circle cx="7.5" cy="14" r="2.4" fill="var(--surface)"></circle></svg>Settings</i></div>
+        </div></div>
+      </div>
+
+      <!-- Tab management -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Tab management</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;"><span style="font-size:19px;font-weight:800;">3 tabs</span><span style="font-size:12px;font-weight:700;color:var(--pri);">Close all</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 16px;overflow:hidden;">
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px;display:flex;flex-direction:column;gap:8px;position:relative;"><span style="position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:999px;background:rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;"><svg width="9" height="9" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="15" y2="15"></line><line x1="15" y1="5" x2="5" y2="15"></line></svg></span><i style="width:22px;height:22px;border-radius:7px;background:var(--pri-soft);display:block;"></i><div style="height:44px;border-radius:8px;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px);"></div><span style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">example.com/watch</span></div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px;display:flex;flex-direction:column;gap:8px;position:relative;"><span style="position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:999px;background:rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;"><svg width="9" height="9" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="15" y2="15"></line><line x1="15" y1="5" x2="5" y2="15"></line></svg></span><i style="width:22px;height:22px;border-radius:7px;background:var(--pri-soft);display:block;"></i><div style="height:44px;border-radius:8px;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px);"></div><span style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">social.example/reel</span></div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px;display:flex;flex-direction:column;gap:8px;position:relative;"><span style="position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:999px;background:rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;"><svg width="9" height="9" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="15" y2="15"></line><line x1="15" y1="5" x2="5" y2="15"></line></svg></span><i style="width:22px;height:22px;border-radius:7px;background:var(--pri-soft);display:block;"></i><div style="height:44px;border-radius:8px;background:repeating-linear-gradient(45deg,var(--border),var(--border) 5px,transparent 5px,transparent 11px);"></div><span style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">clips.example/v/42</span></div>
+          </div>
+          <div style="margin-top:auto;padding:14px;"><button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:12px;font-family:var(--font-body);font-weight:700;font-size:13.5px;">+ New tab</button></div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SECTION: VIDEO DETECTION & FORMAT ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">03 · Video detection &amp; format selection</h2>
+    <p class="sec-p">The "no video found" dialog is new (<span class="tag tag-p0">P0</span>); the Audio chip is new (<span class="tag tag-p1">P1</span>) inside the existing format sheet.</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <!-- No video found dialog -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">No video found dialog <span class="tag tag-p0">P0</span></span>
+        <div class="ph"><div class="scr" style="align-items:center;justify-content:center;background:rgba(20,16,14,.5);">
+          <div style="width:224px;background:var(--surface);border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+            <div style="width:56px;height:56px;border-radius:999px;background:var(--pri-soft);display:flex;align-items:center;justify-content:center;"><svg width="26" height="26" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h8A1.5 1.5 0 0 1 13 5.5v9A1.5 1.5 0 0 1 11.5 16h-8A1.5 1.5 0 0 1 2 14.5z"></path><path d="M13 8.2 17.3 5v10l-4.3-3.2"></path><line x1="2.5" y1="2.5" x2="17.5" y2="17.5"></line></svg></div>
+            <div style="font-size:15px;font-weight:800;">No media found</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5;">The page may still be loading, require a login, or not be supported yet.</div>
+            <button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:11px;font-family:var(--font-body);font-weight:700;font-size:13px;">Got it</button>
+            <span style="font-size:12px;font-weight:700;color:var(--pri);">Report an issue</span>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- Format sheet -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Format sheet <span class="tag tag-p1">P1 Audio chip</span></span>
+        <div class="ph"><div class="scr" style="justify-content:flex-end;background:rgba(20,16,14,.4);">
+          <div style="background:var(--surface);border-radius:22px 22px 0 0;padding:18px 18px 22px;display:flex;flex-direction:column;gap:14px;">
+            <div style="width:36px;height:4px;border-radius:999px;background:var(--border);align-self:center;"></div>
+            <div style="display:flex;gap:11px;align-items:flex-start;">
+              <div style="width:58px;height:58px;border-radius:var(--r-md);background:var(--pri-soft);flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 16,10 7,15"></polygon></svg></div>
+              <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">How to plant roses — full tutorial</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">M3U8 List</div></div>
+              <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5l3 3L7 16l-4 1 1-4L13.5 3.5z"></path></svg>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <span style="padding:8px 13px;border-radius:999px;border:1.5px solid var(--border);font-size:12px;font-weight:700;">240P</span>
+              <span style="padding:8px 13px;border-radius:999px;border:1.5px solid var(--border);font-size:12px;font-weight:700;">360P</span>
+              <span style="padding:8px 13px;border-radius:999px;border:1.5px solid var(--border);font-size:12px;font-weight:700;">480P</span>
+              <span style="padding:8px 13px;border-radius:999px;border:2px solid var(--pri);color:var(--pri);font-size:12px;font-weight:800;">720P</span>
+              <span style="padding:8px 13px;border-radius:999px;border:1.5px solid var(--border);display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;"><svg width="12" height="12" viewBox="0 0 20 20" fill="var(--muted)"><path d="M8 4v9a2.5 2.5 0 1 1-1.5-2.3V6l7-1.5v7.4A2.5 2.5 0 1 1 12 14V4l-4 .9z"></path></svg>Audio</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;"></span><span style="font-size:12.5px;font-weight:600;">Save to Private folder</span></div>
+            <button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:999px;padding:14px;font-family:var(--font-body);font-weight:800;font-size:14px;">Download video</button>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SECTION: DOWNLOADS (MERGED PROGRESS + LIBRARY) ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">04 · Downloads</h2>
+    <p class="sec-p">Progress and Library merged into one tab — active items sit inline at the top of the same list as completed files, so there's a single place to check on downloads. Error+Retry (<span class="tag tag-p0">P0</span>) and "Waiting for Wi-Fi" banner (<span class="tag tag-p1">P1</span>) live in that same list.</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <!-- Empty state -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Downloads — empty state</span>
+        <div class="ph"><div class="scr" style="align-items:center;justify-content:center;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 30px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:var(--r-lg);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--pri)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"></path><polyline points="7,12 12,17 17,12"></polyline><path d="M4 20h16"></path></svg></div>
+            <div style="font-size:14.5px;font-weight:800;">No downloads yet</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5;">Paste a video link in the Browser tab to get started.</div>
+            <span style="font-size:12px;font-weight:700;color:var(--pri);">View guide</span>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- Notification mockup -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">System notification <span class="tag tag-p1">P1 Retry action</span></span>
+        <div style="width:272px;background:#e9e7e4;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;">
+          <div style="background:var(--surface);border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;"><i style="width:16px;height:16px;border-radius:5px;background:var(--pri);display:block;"></i><span style="font-size:10.5px;color:var(--muted);font-weight:600;">Video Downloader · now</span></div>
+            <div style="font-size:12.5px;font-weight:700;">Downloading — 62%</div>
+            <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;"><div style="width:62%;height:100%;background:var(--pri);"></div></div>
+          </div>
+          <div style="background:var(--surface);border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;"><i style="width:16px;height:16px;border-radius:5px;background:var(--pri);display:block;"></i><span style="font-size:10.5px;color:var(--muted);font-weight:600;">Video Downloader · now</span></div>
+            <div style="font-size:12.5px;font-weight:700;">Download failed</div>
+            <div style="font-size:11px;color:var(--muted);">Download failed</div>
+            <div style="display:flex;gap:16px;margin-top:2px;"><span style="font-size:11.5px;font-weight:700;color:var(--pri);">RETRY</span><span style="font-size:11.5px;font-weight:700;color:var(--muted);">OPEN APP</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Downloaded list (merged: active + completed) -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Downloads — active + completed, merged</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;"><span style="font-family:var(--font-head);font-size:19px;font-weight:800;">Downloads</span><div style="display:flex;align-items:center;gap:8px;"><span style="width:34px;height:34px;border-radius:999px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="9" width="10" height="8" rx="1.5"></rect><path d="M7 9V6.5a3 3 0 0 1 6 0V9"></path></svg></span><span style="width:34px;height:34px;border-radius:999px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round"><polyline points="4,10.5 8,14.5 16,6"></polyline></svg></span></div></div>
+          <div style="display:flex;gap:18px;padding:0 16px 10px;border-bottom:1.5px solid var(--border);">
+            <span style="padding-bottom:9px;border-bottom:2.5px solid var(--pri);font-size:12.5px;font-weight:800;color:var(--pri);">All</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Video</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Audio</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Image</span>
+          </div>
+          <div style="margin:10px 16px 10px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 13px;">
+            <span style="flex:1;color:var(--muted);font-size:12.5px;">Search downloads</span>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="9" cy="9" r="6"></circle><line x1="13.5" y1="13.5" x2="18" y2="18"></line></svg>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0 16px 8px;font-size:11px;color:var(--muted);"><span>12 files</span><span style="display:flex;align-items:center;gap:5px;font-weight:700;color:var(--text);"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v8M4 3 2 5M4 3l2 2"></path><path d="M9 11V3M9 11l-2-2M9 11l2-2"></path><circle cx="15" cy="15" r="4.3" fill="var(--pri)" stroke="none"></circle><path d="M15 12.8v2.2l1.5 1" stroke="#fff" stroke-width="1.4"></path></svg>Sort</span></div>
+          <div style="flex:1;overflow:hidden;padding:0 16px;display:flex;flex-direction:column;gap:4px;">
+            <div style="background:#ffe4c1;border-radius:var(--r-lg);padding:6px 10px;display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><path d="M8 4v9a2.5 2.5 0 1 1-1.5-2.3V6l7-1.5v7.4A2.5 2.5 0 1 1 12 14V4l-4 .9z"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Morning lo-fi playlist</div></div><span style="display:flex;align-items:center;gap:3px;flex-shrink:0;"><span style="width:32px;height:32px;border-radius:999px;background:var(--surface);display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 20 20" fill="var(--pri)"><rect x="5" y="4" width="4" height="12" rx="1"></rect><rect x="11" y="4" width="4" height="12" rx="1"></rect></svg></span><span style="width:32px;height:32px;border-radius:999px;background:var(--surface);display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 20 20" fill="var(--error)"><rect x="4" y="4" width="12" height="12" rx="2"></rect></svg></span></span></div>
+              <div style="margin-left:46px;display:flex;align-items:center;gap:8px;"><div style="flex:1;height:4px;border-radius:999px;background:color-mix(in oklch,var(--pri) 22%,transparent);overflow:hidden;"><div style="width:62%;height:100%;background:var(--pri);"></div></div><span style="font-family:var(--font-num);font-size:10px;color:var(--pri);font-weight:700;flex-shrink:0;">62%</span></div>
+            </div>
+            <div style="background:#ffe0e0;border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">City drone footage 4K</div><div style="display:flex;align-items:center;gap:4px;font-family:var(--font-num);font-size:10px;color:var(--error);"><svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="var(--error)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 2.5 16h15z"></path><line x1="10" y1="8" x2="10" y2="11.5"></line><line x1="10" y1="13.3" x2="10.01" y2="13.3"></line></svg>Download failed</div></div><span style="display:flex;align-items:center;gap:3px;flex-shrink:0;"><span style="width:32px;height:32px;border-radius:999px;background:var(--error);display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5a7 7 0 1 0 1.5 6"></path><polyline points="17,2 17,6 13,6"></polyline></svg></span><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.4"></circle><circle cx="10" cy="10" r="1.4"></circle><circle cx="10" cy="16" r="1.4"></circle></svg></span></span></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Rose pruning tutorial</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">245 MB · Today</div></div><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.6"></circle><circle cx="10" cy="10" r="1.6"></circle><circle cx="10" cy="16" r="1.6"></circle></svg></span></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="1.5"></rect><circle cx="7" cy="8" r="1.3" fill="var(--pri)" stroke="none"></circle><path d="M4 14l4-4 3 3 3-4 3 3"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Sunset over the harbor</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">4.1 MB · Yesterday</div></div><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.6"></circle><circle cx="10" cy="10" r="1.6"></circle><circle cx="10" cy="16" r="1.6"></circle></svg></span></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Tech news — August roundup</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">245 MB · 2 days ago</div></div><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.6"></circle><circle cx="10" cy="10" r="1.6"></circle><circle cx="10" cy="16" r="1.6"></circle></svg></span></div>
+          </div>
+          <div class="bn"><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"></circle><line x1="3" y1="10" x2="17" y2="10"></line><ellipse cx="10" cy="10" rx="3.1" ry="7"></ellipse></svg>Browser</i><i class="on"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="10" y1="3" x2="10" y2="12"></line><polyline points="6,8.5 10,12.5 14,8.5"></polyline><line x1="4.5" y1="16" x2="15.5" y2="16"></line></svg>Downloads</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="6" x2="16" y2="6"></line><line x1="4" y1="14" x2="16" y2="14"></line><circle cx="12.5" cy="6" r="2.4" fill="var(--surface)"></circle><circle cx="7.5" cy="14" r="2.4" fill="var(--surface)"></circle></svg>Settings</i></div>
+        </div></div>
+      </div>
+
+      <!-- Selection mode - none selected -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Selection mode — none selected</span>
+        <div class="ph"><div class="scr">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;"><div style="display:flex;align-items:center;gap:10px;"><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="15" y2="15"></line><line x1="15" y1="5" x2="5" y2="15"></line></svg></span><span style="font-family:var(--font-head);font-size:17px;font-weight:800;">Select items</span></div><span style="font-size:12.5px;font-weight:700;color:var(--pri);">Select all</span></div>
+          <div style="display:flex;gap:18px;padding:0 16px 10px;border-bottom:1.5px solid var(--border);">
+            <span style="padding-bottom:9px;border-bottom:2.5px solid var(--pri);font-size:12.5px;font-weight:800;color:var(--pri);">All</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Video</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Audio</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Image</span>
+          </div>
+          <div style="margin:10px 16px 10px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 13px;">
+            <span style="flex:1;color:var(--muted);font-size:12.5px;">Search downloads</span>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="9" cy="9" r="6"></circle><line x1="13.5" y1="13.5" x2="18" y2="18"></line></svg>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0 16px 8px;font-size:11px;color:var(--muted);"><span>12 files</span><span style="display:flex;align-items:center;gap:5px;font-weight:700;color:var(--text);"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v8M4 3 2 5M4 3l2 2"></path><path d="M9 11V3M9 11l-2-2M9 11l2-2"></path><circle cx="15" cy="15" r="4.3" fill="var(--pri)" stroke="none"></circle><path d="M15 12.8v2.2l1.5 1" stroke="#fff" stroke-width="1.4"></path></svg>Sort</span></div>
+          <div style="flex:1;overflow:hidden;padding:0 16px;display:flex;flex-direction:column;gap:4px;">
+            <div style="background:#ffe4c1;border-radius:var(--r-lg);padding:6px 10px;display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;background:var(--surface);"></span>
+                <i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><path d="M8 4v9a2.5 2.5 0 1 1-1.5-2.3V6l7-1.5v7.4A2.5 2.5 0 1 1 12 14V4l-4 .9z"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Morning lo-fi playlist</div></div><span style="display:flex;align-items:center;gap:3px;flex-shrink:0;"><span style="width:32px;height:32px;border-radius:999px;background:var(--surface);display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 20 20" fill="var(--pri)"><rect x="5" y="4" width="4" height="12" rx="1"></rect><rect x="11" y="4" width="4" height="12" rx="1"></rect></svg></span><span style="width:32px;height:32px;border-radius:999px;background:var(--surface);display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 20 20" fill="var(--error)"><rect x="4" y="4" width="12" height="12" rx="2"></rect></svg></span></span>
+              </div>
+              <div style="margin-left:76px;display:flex;align-items:center;gap:8px;"><div style="flex:1;height:4px;border-radius:999px;background:color-mix(in oklch,var(--pri) 22%,transparent);overflow:hidden;"><div style="width:62%;height:100%;background:var(--pri);"></div></div><span style="font-family:var(--font-num);font-size:10px;color:var(--pri);font-weight:700;flex-shrink:0;">62%</span></div>
+            </div>
+            <div style="background:#ffe0e0;border-radius:var(--r-lg);padding:6px 10px;display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;"></span>
+                <i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">City drone footage 4K</div><div style="font-family:var(--font-num);font-size:10px;color:var(--error);">Download failed</div></div><span style="display:flex;align-items:center;gap:3px;flex-shrink:0;"><span style="width:32px;height:32px;border-radius:999px;background:var(--error);display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5a7 7 0 1 0 1.5 6"></path><polyline points="17,2 17,6 13,6"></polyline></svg></span><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.4"></circle><circle cx="10" cy="10" r="1.4"></circle><circle cx="10" cy="16" r="1.4"></circle></svg></span></span>
+              </div>
+            </div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;"></span><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Rose pruning tutorial</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">245 MB · Today</div></div></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;"></span><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="1.5"></rect><circle cx="7" cy="8" r="1.3" fill="var(--pri)" stroke="none"></circle><path d="M4 14l4-4 3 3 3-4 3 3"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Sunset over the harbor</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">4.1 MB · Yesterday</div></div></div>
+          </div>
+          <div class="bn"><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"></circle><line x1="3" y1="10" x2="17" y2="10"></line><ellipse cx="10" cy="10" rx="3.1" ry="7"></ellipse></svg>Browser</i><i class="on"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="10" y1="3" x2="10" y2="12"></line><polyline points="6,8.5 10,12.5 14,8.5"></polyline><line x1="4.5" y1="16" x2="15.5" y2="16"></line></svg>Downloads</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="6" x2="16" y2="6"></line><line x1="4" y1="14" x2="16" y2="14"></line><circle cx="12.5" cy="6" r="2.4" fill="var(--surface)"></circle><circle cx="7.5" cy="14" r="2.4" fill="var(--surface)"></circle></svg>Settings</i></div>
+        </div></div>
+      </div>
+
+      <!-- Selection mode -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Selection mode — items selected <span class="tag tag-p0">P0 free space</span></span>
+        <div class="ph"><div class="scr">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;"><div style="display:flex;align-items:center;gap:10px;"><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="15" y2="15"></line><line x1="15" y1="5" x2="5" y2="15"></line></svg></span><span style="font-family:var(--font-head);font-size:17px;font-weight:800;">2 selected</span></div><span style="width:34px;height:34px;border-radius:999px;background:var(--error);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="16" y2="6"></line><path d="M7 6V4.5A1.5 1.5 0 0 1 8.5 3h3A1.5 1.5 0 0 1 13 4.5V6"></path><path d="M6 6l1 10.5A1.5 1.5 0 0 0 8.5 18h3a1.5 1.5 0 0 0 1.5-1.5L14 6"></path></svg></span></div>
+          <div style="display:flex;gap:18px;padding:0 16px 10px;border-bottom:1.5px solid var(--border);">
+            <span style="padding-bottom:9px;border-bottom:2.5px solid var(--pri);font-size:12.5px;font-weight:800;color:var(--pri);">All</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Video</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Audio</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Image</span>
+          </div>
+          <div style="margin:10px 16px 10px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 13px;">
+            <span style="flex:1;color:var(--muted);font-size:12.5px;">Search downloads</span>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="9" cy="9" r="6"></circle><line x1="13.5" y1="13.5" x2="18" y2="18"></line></svg>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0 16px 8px;font-size:11px;color:var(--muted);"><span>2 selected</span><span style="display:flex;align-items:center;gap:5px;font-weight:700;color:var(--text);"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v8M4 3 2 5M4 3l2 2"></path><path d="M9 11V3M9 11l-2-2M9 11l2-2"></path><circle cx="15" cy="15" r="4.3" fill="var(--pri)" stroke="none"></circle><path d="M15 12.8v2.2l1.5 1" stroke="#fff" stroke-width="1.4"></path></svg>Sort</span></div>
+          <div style="flex:1;overflow:hidden;padding:0 16px;display:flex;flex-direction:column;gap:4px;">
+            <div style="background:#ffe4c1;border-radius:var(--r-lg);padding:6px 10px;display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;background:var(--pri);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><polyline points="4,10.5 8,14.5 16,6"></polyline></svg></span>
+                <i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><path d="M8 4v9a2.5 2.5 0 1 1-1.5-2.3V6l7-1.5v7.4A2.5 2.5 0 1 1 12 14V4l-4 .9z"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Morning lo-fi playlist</div></div><span style="display:flex;align-items:center;gap:3px;flex-shrink:0;"><span style="width:32px;height:32px;border-radius:999px;background:var(--surface);display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 20 20" fill="var(--pri)"><rect x="5" y="4" width="4" height="12" rx="1"></rect><rect x="11" y="4" width="4" height="12" rx="1"></rect></svg></span><span style="width:32px;height:32px;border-radius:999px;background:var(--surface);display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 20 20" fill="var(--error)"><rect x="4" y="4" width="12" height="12" rx="2"></rect></svg></span></span>
+              </div>
+              <div style="margin-left:76px;display:flex;align-items:center;gap:8px;"><div style="flex:1;height:4px;border-radius:999px;background:color-mix(in oklch,var(--pri) 22%,transparent);overflow:hidden;"><div style="width:62%;height:100%;background:var(--pri);"></div></div><span style="font-family:var(--font-num);font-size:10px;color:var(--pri);font-weight:700;flex-shrink:0;">62%</span></div>
+            </div>
+            <div style="background:#ffe0e0;border-radius:var(--r-lg);padding:6px 10px;display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;"></span>
+                <i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">City drone footage 4K</div><div style="font-family:var(--font-num);font-size:10px;color:var(--error);">Download failed</div></div><span style="display:flex;align-items:center;gap:3px;flex-shrink:0;"><span style="width:32px;height:32px;border-radius:999px;background:var(--error);display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5a7 7 0 1 0 1.5 6"></path><polyline points="17,2 17,6 13,6"></polyline></svg></span><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.4"></circle><circle cx="10" cy="10" r="1.4"></circle><circle cx="10" cy="16" r="1.4"></circle></svg></span></span>
+              </div>
+            </div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;background:var(--pri);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><polyline points="4,10.5 8,14.5 16,6"></polyline></svg></span><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Rose pruning tutorial</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">245 MB · Today</div></div></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;"></span><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="1.5"></rect><circle cx="7" cy="8" r="1.3" fill="var(--pri)" stroke="none"></circle><path d="M4 14l4-4 3 3 3-4 3 3"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Sunset over the harbor</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">4.1 MB · Yesterday</div></div></div>
+          </div>
+          <div class="bn"><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"></circle><line x1="3" y1="10" x2="17" y2="10"></line><ellipse cx="10" cy="10" rx="3.1" ry="7"></ellipse></svg>Browser</i><i class="on"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="10" y1="3" x2="10" y2="12"></line><polyline points="6,8.5 10,12.5 14,8.5"></polyline><line x1="4.5" y1="16" x2="15.5" y2="16"></line></svg>Downloads</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="6" x2="16" y2="6"></line><line x1="4" y1="14" x2="16" y2="14"></line><circle cx="12.5" cy="6" r="2.4" fill="var(--surface)"></circle><circle cx="7.5" cy="14" r="2.4" fill="var(--surface)"></circle></svg>Settings</i></div>
+        </div></div>
+      </div>
+
+      <!-- Item action sheet -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Item actions sheet</span>
+        <div class="ph"><div class="scr" style="justify-content:flex-end;background:rgba(20,16,14,.4);">
+          <div style="background:var(--surface);border-radius:22px 22px 0 0;padding:18px;display:flex;flex-direction:column;gap:4px;">
+            <div style="width:36px;height:4px;border-radius:999px;background:var(--border);align-self:center;margin-bottom:10px;"></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5l3 3L7 16l-4 1 1-4L13.5 3.5z"></path></svg><span style="font-size:13.5px;font-weight:600;">Rename</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="10" r="2"></circle><circle cx="14.5" cy="5" r="2"></circle><circle cx="14.5" cy="15" r="2"></circle><line x1="7.7" y1="9" x2="12.8" y2="6"></line><line x1="7.7" y1="11" x2="12.8" y2="14"></line></svg><span style="font-size:13.5px;font-weight:600;">Share</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="12" height="9" rx="2"></rect><path d="M7 7V5.5A2.5 2.5 0 0 1 9.5 3h1A2.5 2.5 0 0 1 13 5.5V7"></path></svg><span style="font-size:13.5px;font-weight:600;">Move to Private</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--error)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="16" y2="6"></line><path d="M7 6V4.5A1.5 1.5 0 0 1 8.5 3h3A1.5 1.5 0 0 1 13 4.5V6"></path><path d="M6 6l1 10.5A1.5 1.5 0 0 0 8.5 18h3a1.5 1.5 0 0 0 1.5-1.5L14 6"></path></svg><span style="font-size:13.5px;font-weight:600;color:var(--error);">Delete</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- Failed item actions sheet -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Failed download — actions sheet</span>
+        <div class="ph"><div class="scr" style="justify-content:flex-end;background:rgba(20,16,14,.4);">
+          <div style="background:var(--surface);border-radius:22px 22px 0 0;padding:18px;display:flex;flex-direction:column;gap:4px;">
+            <div style="width:36px;height:4px;border-radius:999px;background:var(--border);align-self:center;margin-bottom:10px;"></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5a7 7 0 1 0 1.5 6"></path><polyline points="17,2 17,6 13,6"></polyline></svg><span style="font-size:13.5px;font-weight:600;">Retry download</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--error)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="16" y2="6"></line><path d="M7 6V4.5A1.5 1.5 0 0 1 8.5 3h3A1.5 1.5 0 0 1 13 4.5V6"></path><path d="M6 6l1 10.5A1.5 1.5 0 0 0 8.5 18h3a1.5 1.5 0 0 0 1.5-1.5L14 6"></path></svg><span style="font-size:13.5px;font-weight:600;color:var(--error);">Delete</span></div>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SECTION: MEDIA PLAYER ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">06 · Media Player</h2>
+    <p class="sec-p">Brightness/volume swipe gestures (<span class="tag tag-p2">P2</span>) sit as an invisible layer over the existing controls — not shown as separate chrome.</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Player</span>
+        <div class="ph"><div class="scr" style="background:#141210;color:#f4f1ee;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#f4f1ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12,4 6,10 12,16"></polyline></svg>
+            <span style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:150px;">Rose pruning tutorial</span>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#f4f1ee" stroke-width="1.8"><circle cx="10" cy="4" r="1.4"></circle><circle cx="10" cy="10" r="1.4"></circle><circle cx="10" cy="16" r="1.4"></circle></svg>
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;"><span style="width:56px;height:56px;border-radius:999px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 20 20" fill="#fff"><polygon points="7,5 16,10 7,15"></polygon></svg></span></div>
+          <div style="padding:0 16px 8px;"><div style="height:3px;border-radius:999px;background:rgba(255,255,255,.25);overflow:hidden;"><div style="width:38%;height:100%;background:var(--pri);"></div></div><div style="display:flex;justify-content:space-between;font-family:var(--font-num);font-size:10px;color:rgba(255,255,255,.7);margin-top:5px;"><span>3:42</span><span>9:58</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-around;padding:6px 12px 16px;">
+            <span style="font-size:11px;font-weight:700;">1x</span>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#f4f1ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,4 6,16"></polyline><polyline points="12,6 6,10 12,14"></polyline><polyline points="18,6 12,10 18,14"></polyline></svg>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#f4f1ee" stroke-width="1.8"><rect x="4" y="4" width="12" height="12" rx="2"></rect></svg>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#f4f1ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V4h4"></path><path d="M16 12v4h-4"></path></svg>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SECTION: HISTORY & BOOKMARK ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">07 · History &amp; Bookmark</h2>
+    <p class="sec-p">One screen, two modes via a top switch.</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Bookmark — empty state</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;gap:8px;padding:12px 16px 10px;"><span style="flex:1;text-align:center;padding:9px;border-radius:var(--r-md);border:1.5px solid var(--border);font-size:12.5px;font-weight:700;color:var(--muted);">History</span><span style="flex:1;text-align:center;padding:9px;border-radius:var(--r-md);background:var(--pri);color:#fff;font-size:12.5px;font-weight:700;">Bookmark</span></div>
+          <div style="margin:0 16px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 13px;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="9" cy="9" r="6"></circle><line x1="13.5" y1="13.5" x2="18" y2="18"></line></svg><span style="color:var(--muted);font-size:12.5px;">Search bookmarks</span></div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 30px;text-align:center;"><div style="width:60px;height:60px;border-radius:var(--r-lg);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--pri)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-4 7 4V5a2 2 0 0 0-2-2Z"></path></svg></div><div style="font-size:14px;font-weight:800;">No bookmarks yet</div><div style="font-size:11.5px;color:var(--muted);line-height:1.5;">Save pages you'll want to come back to.</div></div>
+          </div>
+          <span style="position:absolute;right:20px;bottom:22px;width:52px;height:52px;border-radius:999px;background:var(--pri);display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><line x1="10" y1="4" x2="10" y2="16"></line><line x1="4" y1="10" x2="16" y2="10"></line></svg></span>
+        </div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">History</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;gap:8px;padding:12px 16px 10px;"><span style="flex:1;text-align:center;padding:9px;border-radius:var(--r-md);background:var(--pri);color:#fff;font-size:12.5px;font-weight:700;">History</span><span style="flex:1;text-align:center;padding:9px;border-radius:var(--r-md);border:1.5px solid var(--border);font-size:12.5px;font-weight:700;color:var(--muted);">Bookmark</span></div>
+          <div style="margin:0 16px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 13px;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="9" cy="9" r="6"></circle><line x1="13.5" y1="13.5" x2="18" y2="18"></line></svg><span style="color:var(--muted);font-size:12.5px;">Search history</span></div>
+          <div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px;">
+            <div><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Today</div>
+              <div style="display:flex;align-items:center;gap:11px;padding-bottom:10px;"><i style="width:30px;height:30px;border-radius:9px;background:var(--pri-soft);display:block;flex-shrink:0;"></i><div style="min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">How to plant roses</div><div style="font-size:10.5px;color:var(--muted);">example.com</div></div></div>
+              <div style="display:flex;align-items:center;gap:11px;"><i style="width:30px;height:30px;border-radius:9px;background:var(--pri-soft);display:block;flex-shrink:0;"></i><div style="min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Morning lo-fi playlist</div><div style="font-size:10.5px;color:var(--muted);">soundcloud.example</div></div></div>
+            </div>
+          </div>
+          <div style="padding:14px 16px;border-top:1px solid var(--border);"><span style="font-size:12.5px;font-weight:700;color:var(--error);">Clear history</span></div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SECTION: PRIVATE AREA (PIN) ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">08 · Private area (PIN)</h2>
+    <p class="sec-p">Copy avoids implying encryption, per principle 05 — "hidden from the main library", never "secured"/"encrypted".</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Enter PIN</span>
+        <div class="ph"><div class="scr" style="align-items:center;">
+          <div class="sb" style="width:100%;box-sizing:border-box;"><span>9:41</span><span>••</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;">
+            <div style="text-align:center;"><div style="font-size:15px;font-weight:800;">Private Area</div><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">Enter your PIN to continue</div></div>
+            <div style="display:flex;gap:12px;">
+              <i style="width:13px;height:13px;border-radius:999px;background:var(--pri);display:block;"></i><i style="width:13px;height:13px;border-radius:999px;background:var(--pri);display:block;"></i><i style="width:13px;height:13px;border-radius:999px;background:var(--pri);display:block;"></i><i style="width:13px;height:13px;border-radius:999px;border:1.5px solid var(--border);display:block;"></i>
+            </div>
+            <span style="font-size:12px;font-weight:700;color:var(--pri);">Forgot PIN?</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 26px 22px;width:100%;box-sizing:border-box;">
+            <span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">1</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">2</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">3</span>
+            <span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">4</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">5</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">6</span>
+            <span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">7</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">8</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">9</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Set up PIN</span>
+        <div class="ph"><div class="scr" style="align-items:center;">
+          <div class="sb" style="width:100%;box-sizing:border-box;"><span>9:41</span><span>••</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 24px;text-align:center;">
+            <div><div style="font-size:15px;font-weight:800;">Create a PIN</div><div style="font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.5;">Hides selected videos from the main library. This is not encryption.</div></div>
+            <div style="display:flex;gap:12px;"><i style="width:13px;height:13px;border-radius:999px;border:1.5px solid var(--border);display:block;"></i><i style="width:13px;height:13px;border-radius:999px;border:1.5px solid var(--border);display:block;"></i><i style="width:13px;height:13px;border-radius:999px;border:1.5px solid var(--border);display:block;"></i><i style="width:13px;height:13px;border-radius:999px;border:1.5px solid var(--border);display:block;"></i></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 26px 22px;width:100%;box-sizing:border-box;">
+            <span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">1</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">2</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">3</span>
+            <span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">4</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">5</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">6</span>
+            <span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">7</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">8</span><span style="text-align:center;font-size:16px;font-weight:700;padding:10px 0;">9</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Forgot PIN — security question</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 8px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12,4 6,10 12,16"></polyline></svg><span style="font-size:16px;font-weight:800;">Forgot PIN</span></div>
+          <div style="padding:8px 16px 0;display:flex;flex-direction:column;gap:14px;">
+            <div style="font-size:12.5px;color:var(--muted);line-height:1.5;">Answer your security question to reset your PIN.</div>
+            <div style="font-size:13px;font-weight:700;">What city were you born in?</div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px 13px;font-size:13px;color:var(--muted);">Your answer</div>
+          </div>
+          <div style="margin-top:auto;padding:16px;"><button style="width:100%;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;font-family:var(--font-body);font-weight:700;font-size:14px;">Confirm</button></div>
+        </div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Private folder — contents</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 8px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12,4 6,10 12,16"></polyline></svg><span style="font-size:16px;font-weight:800;">Private</span></div>
+          <div style="display:flex;gap:18px;padding:0 16px 10px;border-bottom:1.5px solid var(--border);">
+            <span style="padding-bottom:9px;border-bottom:2.5px solid var(--pri);font-size:12.5px;font-weight:800;color:var(--pri);">All</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Video</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Audio</span>
+            <span style="padding-bottom:9px;border-bottom:2.5px solid transparent;font-size:12.5px;font-weight:700;color:var(--muted);">Image</span>
+          </div>
+          <div style="flex:1;overflow:hidden;padding:8px 16px 0;display:flex;flex-direction:column;gap:6px;">
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Birthday surprise clip</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">18 MB · Moved 3 days ago</div></div><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.6"></circle><circle cx="10" cy="10" r="1.6"></circle><circle cx="10" cy="16" r="1.6"></circle></svg></span></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><path d="M8 4v9a2.5 2.5 0 1 1-1.5-2.3V6l7-1.5v7.4A2.5 2.5 0 1 1 12 14V4l-4 .9z"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Voice memo — private</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">3.2 MB · Moved 2 days ago</div></div><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.6"></circle><circle cx="10" cy="10" r="1.6"></circle><circle cx="10" cy="16" r="1.6"></circle></svg></span></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="1.5"></rect><circle cx="7" cy="8" r="1.3" fill="var(--pri)" stroke="none"></circle><path d="M4 14l4-4 3 3 3-4 3 3"></path></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Screenshot — receipt</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">1.1 MB · Moved 5 days ago</div></div><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.6"></circle><circle cx="10" cy="10" r="1.6"></circle><circle cx="10" cy="16" r="1.6"></circle></svg></span></div>
+            <div style="background:var(--success-tint);border-radius:var(--r-lg);padding:6px 10px;display:flex;align-items:center;gap:10px;"><i style="width:36px;height:36px;border-radius:var(--r-md);background:var(--pri-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pri)"><polygon points="7,5 15,10 7,15"></polygon></svg></i><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Screen recording — draft</div><div style="font-family:var(--font-num);font-size:10.5px;color:var(--muted);">64 MB · Moved 1 week ago</div></div><span style="width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20" fill="var(--muted)"><circle cx="10" cy="4" r="1.6"></circle><circle cx="10" cy="10" r="1.6"></circle><circle cx="10" cy="16" r="1.6"></circle></svg></span></div>
+          </div>
+          <div style="padding:16px;font-size:11px;color:var(--muted);text-align:center;">Only files you moved here appear in this list.</div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SECTION: SETTINGS ================= -->
+  <div style="margin-bottom:52px;">
+    <h2 class="sec-h">09 · Settings</h2>
+    <p class="sec-p">"Wi-Fi Only" toggle is new (<span class="tag tag-p1">P1</span>); "Search Engine" row is new (<span class="tag tag-p2">P2</span>).</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Settings</span>
+        <div class="ph"><div class="scr">
+          <div class="sb"><span>9:41</span><span>••</span></div>
+          <div style="padding:12px 16px 8px;font-family:var(--font-head);font-size:19px;font-weight:800;">Settings</div>
+          <div style="flex:1;overflow:hidden;padding:2px 16px;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 2px;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:700;">Download location</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Internal storage / Downloads</div></div><svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5l3 3L7 16l-4 1 1-4L13.5 3.5z"></path></svg></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 2px;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:700;">Wi-Fi Only</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Wait for Wi-Fi before downloading</div></div><i style="width:36px;height:21px;border-radius:999px;background:var(--pri);position:relative;display:block;flex-shrink:0;"><i style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:999px;background:#fff;display:block;"></i></i></div>
+            <div style="padding:12px 2px;border-bottom:1px solid var(--border);"><div style="font-size:13px;font-weight:700;">Languages</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Tiếng Việt</div></div>
+            <div style="padding:12px 2px;border-bottom:1px solid var(--border);"><div style="font-size:13px;font-weight:700;">Search Engine</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Google</div></div>
+            <div style="padding:12px 2px;border-bottom:1px solid var(--border);"><div style="font-size:13px;font-weight:700;">Rate the app</div></div>
+            <div style="padding:12px 2px;border-bottom:1px solid var(--border);"><div style="font-size:13px;font-weight:700;">Share app</div></div>
+            <div style="padding:12px 2px;"><div style="font-size:13px;font-weight:700;">Privacy Policy</div></div>
+          </div>
+          <div class="bn"><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"></circle><line x1="3" y1="10" x2="17" y2="10"></line><ellipse cx="10" cy="10" rx="3.1" ry="7"></ellipse></svg>Browser</i><i><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="10" y1="3" x2="10" y2="12"></line><polyline points="6,8.5 10,12.5 14,8.5"></polyline><line x1="4.5" y1="16" x2="15.5" y2="16"></line></svg>Downloads</i><i class="on"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="6" x2="16" y2="6"></line><line x1="4" y1="14" x2="16" y2="14"></line><circle cx="12.5" cy="6" r="2.4" fill="var(--surface)"></circle><circle cx="7.5" cy="14" r="2.4" fill="var(--surface)"></circle></svg>Settings</i></div>
+        </div></div>
+      </div>
+
+      <!-- Search Engine bottom sheet -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Search Engine sheet <span class="tag tag-p2">P2</span></span>
+        <div class="ph"><div class="scr" style="justify-content:flex-end;background:rgba(20,16,14,.4);">
+          <div style="background:var(--surface);border-radius:22px 22px 0 0;padding:18px;display:flex;flex-direction:column;gap:6px;">
+            <div style="width:36px;height:4px;border-radius:999px;background:var(--border);align-self:center;margin-bottom:8px;"></div>
+            <span style="font-size:14.5px;font-weight:800;margin-bottom:6px;">Search Engine</span>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;border-radius:var(--r-md);border:2px solid var(--pri);"><i style="width:26px;height:26px;border-radius:8px;background:var(--pri-soft);display:block;flex-shrink:0;"></i><span style="flex:1;font-size:13.5px;font-weight:700;">Google</span><span style="width:19px;height:19px;border-radius:999px;background:var(--pri);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><polyline points="4,10.5 8,14.5 16,6"></polyline></svg></span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;"><i style="width:26px;height:26px;border-radius:8px;background:var(--pri-soft);display:block;flex-shrink:0;"></i><span style="flex:1;font-size:13.5px;font-weight:600;">Bing</span><span style="width:19px;height:19px;border-radius:999px;border:1.5px solid var(--border);flex-shrink:0;"></span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;"><i style="width:26px;height:26px;border-radius:8px;background:var(--pri-soft);display:block;flex-shrink:0;"></i><span style="flex:1;font-size:13.5px;font-weight:600;">Yahoo</span><span style="width:19px;height:19px;border-radius:999px;border:1.5px solid var(--border);flex-shrink:0;"></span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;"><i style="width:26px;height:26px;border-radius:8px;background:var(--pri-soft);display:block;flex-shrink:0;"></i><span style="flex:1;font-size:13.5px;font-weight:600;">DuckDuckGo</span><span style="width:19px;height:19px;border-radius:999px;border:1.5px solid var(--border);flex-shrink:0;"></span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- Sort bottom sheet -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="scr-label">Sort sheet</span>
+        <div class="ph"><div class="scr" style="justify-content:flex-end;background:rgba(20,16,14,.4);">
+          <div style="background:var(--surface);border-radius:22px 22px 0 0;padding:18px;display:flex;flex-direction:column;gap:6px;">
+            <div style="width:36px;height:4px;border-radius:999px;background:var(--border);align-self:center;margin-bottom:8px;"></div>
+            <span style="font-size:14.5px;font-weight:800;margin-bottom:6px;">Sort by</span>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;border-radius:var(--r-md);border:2px solid var(--pri);"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--pri)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"></circle><path d="M10 6v4l3 2"></path></svg><span style="flex:1;font-size:13.5px;font-weight:700;">Newest first</span><span style="width:19px;height:19px;border-radius:999px;background:var(--pri);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><polyline points="4,10.5 8,14.5 16,6"></polyline></svg></span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5M4 9a6.5 6.5 0 1 0 1.9-4.6"></path></svg><span style="flex:1;font-size:13.5px;font-weight:600;">Oldest first</span><span style="width:19px;height:19px;border-radius:999px;border:1.5px solid var(--border);flex-shrink:0;"></span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v10M6 5 3 8M6 5l3 3"></path><path d="M14 15V5M14 15l-3-3M14 15l3-3"></path></svg><span style="flex:1;font-size:13.5px;font-weight:600;">Name (A–Z)</span><span style="width:19px;height:19px;border-radius:999px;border:1.5px solid var(--border);flex-shrink:0;"></span></div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 12px;"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7"></rect><rect x="12" y="9" width="4" height="7"></rect></svg><span style="flex:1;font-size:13.5px;font-weight:600;">Largest size</span><span style="width:19px;height:19px;border-radius:999px;border:1.5px solid var(--border);flex-shrink:0;"></span></div>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.AppTopBar
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
 import com.smarttool.videodownloader.core.ui.theme.AppRed
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
@@ -64,7 +64,7 @@ fun PinScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(ScreenGradient)
+            .background(ScreenBg)
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {

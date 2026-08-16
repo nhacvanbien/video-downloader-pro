@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
 
 @Composable
 fun MainScreen(
@@ -18,7 +18,7 @@ fun MainScreen(
 ) {
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(ScreenGradient)
+        .background(ScreenBg)
         .statusBarsPadding()) {
         Box(modifier = Modifier
             .weight(1f)

@@ -11,6 +11,7 @@ import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.smarttool.videodownloader.android.R
@@ -19,7 +20,7 @@ import java.io.File
 //@OpenForTesting
 class IntentUtil  constructor(private val fileUtil: FileUtil) {
 
-    fun shareVideo(context: Context, uri: Uri) {
+    fun shareFile(context: Context, uri: Uri) {
 
         val file = if (uri.scheme == null || uri.scheme == "file") {
             File(uri.path ?: "")
@@ -27,8 +28,11 @@ class IntentUtil  constructor(private val fileUtil: FileUtil) {
             throw IllegalArgumentException("Unsupported URI scheme: ${uri.scheme}")
         }
 
+        val mimeType = MimeTypeMap.getSingleton()
+            .getMimeTypeFromExtension(file.extension.lowercase()) ?: "*/*"
+
         val intent = Intent(Intent.ACTION_SEND)
-        intent.type = "video/*"
+        intent.type = mimeType
         val fileSupported = fileUtil.isFileApiSupportedByUri(context, uri)
         val shareUri = if (fileSupported) {
             FileProvider.getUriForFile(
@@ -40,7 +44,7 @@ class IntentUtil  constructor(private val fileUtil: FileUtil) {
             // Q+ blocks handing out a raw file:// Uri for anything outside the app's own
             // storage (FileUriExposedException) — public Downloads entries only have a
             // content:// identity, resolved here from the MediaStore row this app wrote.
-            resolvePublicDownloadUri(context, file) ?: run {
+            resolvePublicMediaUri(context, file, mimeType) ?: run {
                 Toast.makeText(
                     context,
                     context.getString(R.string.video_share_message),
@@ -50,7 +54,7 @@ class IntentUtil  constructor(private val fileUtil: FileUtil) {
             }
         }
 
-        intent.setDataAndType(shareUri, "video/mp4")
+        intent.setDataAndType(shareUri, mimeType)
         intent.clipData = ClipData.newRawUri("", shareUri)
         intent.putExtra(Intent.EXTRA_STREAM, shareUri)
 
@@ -80,25 +84,36 @@ class IntentUtil  constructor(private val fileUtil: FileUtil) {
         }
     }
 
-    /** Looks up the content:// identity of a file this app previously wrote into the
-     *  public Downloads collection — the only Uri form Q+ allows sharing outside the app. */
-    private fun resolvePublicDownloadUri(context: Context, file: File): Uri? {
+    /** Looks up the content:// identity of a file this app previously wrote into a public
+     *  MediaStore collection — the only Uri form Q+ allows sharing outside the app. Images are
+     *  inserted into `MediaStore.Images` (Pictures/) while videos land in `MediaStore.Downloads`
+     *  (Download/), so the matching collection is tried first, with Downloads as a fallback. */
+    private fun resolvePublicMediaUri(context: Context, file: File, mimeType: String): Uri? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
 
-        val projection = arrayOf(MediaStore.Downloads._ID)
-        val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ?"
+        val candidateCollections = when {
+            mimeType.startsWith("image/") -> listOf(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            mimeType.startsWith("video/") -> listOf(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+            mimeType.startsWith("audio/") -> listOf(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+            else -> emptyList()
+        } + MediaStore.Downloads.EXTERNAL_CONTENT_URI
+
+        val projection = arrayOf(MediaStore.MediaColumns._ID)
+        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ?"
         val selectionArgs = arrayOf(file.name)
 
-        context.contentResolver.query(
-            MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
-            null,
-        )?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Downloads._ID))
-                return ContentUris.withAppendedId(MediaStore.Downloads.EXTERNAL_CONTENT_URI, id)
+        for (collection in candidateCollections) {
+            context.contentResolver.query(
+                collection,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID))
+                    return ContentUris.withAppendedId(collection, id)
+                }
             }
         }
 

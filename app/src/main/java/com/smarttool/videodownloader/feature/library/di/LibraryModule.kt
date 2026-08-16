@@ -4,11 +4,16 @@ import com.smarttool.videodownloader.feature.downloads.data.AndroidDownloaderGat
 import com.smarttool.videodownloader.feature.downloads.data.DownloadsRepositoryImpl
 import com.smarttool.videodownloader.feature.downloads.domain.DownloaderGateway
 import com.smarttool.videodownloader.feature.downloads.domain.DownloadsRepository
+import com.smarttool.videodownloader.feature.downloads.data.WifiOnlyRepositoryImpl
+import com.smarttool.videodownloader.feature.downloads.domain.WifiOnlyRepository
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.CancelDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.GetVideoFormatOptionsUseCase
+import com.smarttool.videodownloader.feature.downloads.domain.usecase.GetWifiOnlyUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ObserveActiveDownloadsUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.PauseDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ResumeDownloadUseCase
+import com.smarttool.videodownloader.feature.downloads.domain.usecase.RetryWaitingForWifiDownloadsUseCase
+import com.smarttool.videodownloader.feature.downloads.domain.usecase.SetWifiOnlyUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StartDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StopAndSaveDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
@@ -48,16 +53,20 @@ val libraryModule = module {
 
     single<DownloaderGateway> { AndroidDownloaderGateway(androidContext()) }
     single<DownloadsRepository> { DownloadsRepositoryImpl(get(), get()) }
+    single<WifiOnlyRepository> { WifiOnlyRepositoryImpl(get()) }
     factory { ObserveActiveDownloadsUseCase(get()) }
-    factory { StartDownloadUseCase(get(), get()) }
+    factory { GetWifiOnlyUseCase(get()) }
+    factory { SetWifiOnlyUseCase(get()) }
+    factory { StartDownloadUseCase(get(), get(), get(), get()) }
     factory { PauseDownloadUseCase(get(), get()) }
     factory { ResumeDownloadUseCase(get(), get()) }
     factory { CancelDownloadUseCase(get(), get()) }
     factory { StopAndSaveDownloadUseCase(get()) }
+    factory { RetryWaitingForWifiDownloadsUseCase(get(), get()) }
     factory { GetVideoFormatOptionsUseCase() }
     factory { DetectedVideoUiMapper(get()) }
 
-    viewModel { ProcessingViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ProcessingViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { LibraryViewModel(false, get(), get(), get(), get(), get(), get(), get()) }
     viewModel(PrivateLibrary) {
         LibraryViewModel(true, get(), get(), get(), get(), get(), get(), get())

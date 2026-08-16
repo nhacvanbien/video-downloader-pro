@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">Cargando....</string>
     <string name="string_applied_language">Lenguaje Aplicado...</string>
-    <string name="string_this_action_can_contain_ads">Esta acción puede contener anuncios</string>
     <string name="string_loading">Cargando (%s%%)...</string>
     <string name="string_languages">Idiomas</string>
     <string name="string_please_select_language">Por favor, seleccione un idioma</string>
@@ -31,15 +29,7 @@
     <string name="string_content_terms_of_service">Al utilizar esta aplicación, aceptas nuestros términos de servicio y política de privacidad. Léelos cuidadosamente.</string>
     <string name="string_agree">Aceptar</string>
     <string name="string_rate">Calificar</string>
-    <string name="string_not_now">No ahora</string>
-    <string name="string_thank_for_rate">Gracias por calificar la aplicación</string>
-    <string name="string_please_feedback">Por favor, envía tus comentarios</string>
-    <string name="string_stay">Quedarse</string>
-    <string name="string_exit">Salir</string>
-    <string name="exit_app">¿Quieres salir?</string>
-    <string name="string_are_you_sure_you_want_to_exit">¿Estás seguro de que quieres salir?</string>
     <string name="string_browser">Navegador</string>
-    <string name="string_processing">Procesando</string>
     <string name="string_downloaded">Descargado</string>
     <string name="string_settings">Configuración</string>
     <string name="string_download_location">Ubicación de descarga</string>
@@ -60,17 +50,13 @@
     <string name="string_tiktok">TikTok</string>
     <string name="string_vimeo">Vimeo</string>
     <string name="string_dailymotion">Dailymotion</string>
-    <string name="player_resolution">Resolución de video como en el reproductor</string>
     <string name="string_download_successful">¡Descarga exitosa!</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">Tu descarga está completa. Ahora puedes acceder a tu archivo</string>
     <string name="string_cancel">Cancelar</string>
-    <string name="string_open">Abrir</string>
     <string name="string_confirm_delete">Confirmar eliminación</string>
     <string name="string_are_you_sure_want_to_delete_photo">¿Estás seguro de que deseas eliminar la foto?</string>
     <string name="string_delete">Eliminar</string>
     <string name="download_open_in_app">Abrir en la aplicación</string>
     <string name="download_watch_in_app">Ver video</string>
-    <string name="app_download_channel_id" translatable="false">download_channel_id</string>
     <string name="string_close_all">Cerrar todo</string>
     <string name="string_num_tabs">%s Pestañas</string>
     <string name="string_go_see_the_sites">¡Visita sitios web! Las páginas que visites aparecerán aquí.</string>
@@ -102,9 +88,7 @@
     <string name="go_to_setting">Ir a configuración</string>
     <string name="string_save_to_bookmarks_successfully">Guardado en marcadores con éxito</string>
     <string name="string_notification">Notificación</string>
-    <string name="settings_message_open_folder">No tienes ninguna aplicación de explorador de archivos instalada en tu dispositivo</string>
     <string name="video_share_message">No tienes ninguna aplicación de reproductor de video instalada en tu dispositivo</string>
-    <string name="cookies_cleared">Cookies borradas</string>
     <string name="string_paste">Pegar</string>
     <string name="string_paste_link_here">Pega el enlace aquí</string>
     <string name="string_remove_from_private">Eliminar de privado</string>
@@ -151,12 +135,10 @@
     <string name="string_error_deleting_file">¡Error al eliminar el archivo!</string>
     <string name="string_step_1_process"><![CDATA[<b>Schritt 1:</b>]]> Öffnen Sie die App und kopieren Sie den Link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Schritt 2:</b>]]> Kehren Sie zur Anwendung zurück und wählen Sie „Link einfügen“, um den Link herunterzuladen.</string>
-    <string name="string_name_contains_special_characters">¡El nombre contiene caracteres especiales!</string>
     <string name="string_popular_apps">Aplicaciones populares</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Descargar video</string>
-    <string name="string_select_type">Seleccionar tipo</string>
     <string name="string_start">Iniciar</string>
     <string name="txt_continue">CONTINUAR</string>
     <string name="clear_history">Borrar historial</string>
@@ -164,4 +146,32 @@
     <string name="string_downloading">Descargando</string>
     <string name="string_select_languages">Seleccionar idioma</string>
 
+    <string name="string_audio">Audio</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_download_failed_short">Descarga fallida</string>
+    <string name="string_download_size">Tamaño de descarga: %s</string>
+    <string name="string_downloads">Descargas</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
+    <string name="string_got_it">Entendido</string>
+    <string name="string_login_required_to_download">Inicia sesión en %1$s en el navegador antes de descargar este video</string>
+    <string name="string_no_media_found">No se encontraron archivos multimedia</string>
+    <string name="string_no_media_found_desc">Es posible que la página aún se esté cargando, requiera iniciar sesión o aún no sea compatible.</string>
+    <string name="string_num_selected">%s seleccionados</string>
+    <string name="string_press_back_again_to_exit">Presiona atrás de nuevo para salir</string>
+    <string name="string_report_issue">Reportar un problema</string>
+    <string name="string_retry">REINTENTAR</string>
+    <string name="string_retry_download">Reintentar descarga</string>
+    <string name="string_save_to_private_folder">Guardar en carpeta privada</string>
+    <string name="string_search_downloads">Buscar descargas</string>
+    <string name="string_search_engine">Motor de búsqueda</string>
+    <string name="string_select_items">Seleccionar elementos</string>
+    <string name="string_waiting_for_wifi">Esperando Wi-Fi…</string>
+    <string name="string_wifi_only">Solo Wi-Fi</string>
+    <string name="string_wifi_only_desc">Esperar Wi-Fi antes de descargar</string>
+    <string name="string_yahoo">Yahoo</string>
+    <string name="string_download_location_folder_hint">Nombre de la carpeta</string>
+    <string name="string_moving_to_private">Moviendo a Privado</string>
+    <string name="string_moving_out_of_private">Sacando de Privado</string>
+    <string name="string_do_not_close_app">Mantén la app abierta hasta que esto termine.</string>
+    <string name="string_moving_file_count">Archivo %1$s de %2$s</string>
 </resources>

@@ -35,6 +35,15 @@ fun SettingsRoute(onOpenLanguage: () -> Unit) {
     SettingsScreen(
         state = state,
         onLanguageClick = onOpenLanguage,
+        onWifiOnlyToggle = {
+            viewModel.onEvent(SettingsContract.Event.SetWifiOnly(!state.wifiOnly))
+        },
+        onSearchEngineClick = {
+            viewModel.onEvent(SettingsContract.Event.SetSearchEngineSheetVisible(true))
+        },
+        onDownloadLocationClick = {
+            viewModel.onEvent(SettingsContract.Event.SetDownloadLocationEditorVisible(true))
+        },
         onRateClick = {
             DialogManager.showRating(
                 context.findComponentActivity() as FragmentActivity,
@@ -59,6 +68,26 @@ fun SettingsRoute(onOpenLanguage: () -> Unit) {
             )
         },
     )
+
+    if (state.searchEngineSheetVisible) {
+        SearchEngineSheet(
+            selected = state.searchEngine,
+            onSelect = { viewModel.onEvent(SettingsContract.Event.SetSearchEngine(it)) },
+            onDismiss = {
+                viewModel.onEvent(SettingsContract.Event.SetSearchEngineSheetVisible(false))
+            },
+        )
+    }
+
+    if (state.downloadLocationEditorVisible) {
+        DownloadLocationDialog(
+            currentSubfolder = state.downloadLocationSubfolder,
+            onSave = { viewModel.onEvent(SettingsContract.Event.SetDownloadLocationSubfolder(it)) },
+            onDismiss = {
+                viewModel.onEvent(SettingsContract.Event.SetDownloadLocationEditorVisible(false))
+            },
+        )
+    }
 }
 
 private const val POLICY_URL = "https://smartweb-technology.netlify.app/policy"

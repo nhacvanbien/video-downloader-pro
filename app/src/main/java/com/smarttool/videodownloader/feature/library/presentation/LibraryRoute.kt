@@ -67,7 +67,6 @@ fun LibraryRoute(
         items = items,
         onFilterChange = { viewModel.onEvent(LibraryContract.Event.FilterChange(it)) },
         onSearchChange = { viewModel.onEvent(LibraryContract.Event.SearchChange(it)) },
-        onSearchVisibleChange = { viewModel.onEvent(LibraryContract.Event.SetSearchVisible(it)) },
         onOpenSort = { viewModel.onEvent(LibraryContract.Event.SetSortSheetVisible(true)) },
         onItemClick = onOpenMedia,
         onItemMenu = { menuTarget = it },
@@ -81,7 +80,7 @@ fun LibraryRoute(
             onSelectAll = { viewModel.onEvent(LibraryContract.Event.SelectAll) },
             onDelete = { viewModel.onEvent(LibraryContract.Event.DeleteSelected) },
             onTogglePrivate = {
-                viewModel.onEvent(LibraryContract.Event.MoveSelectedToPrivate(!isPrivate))
+                viewModel.onEvent(LibraryContract.Event.MoveSelectedToPrivate(context, !isPrivate))
             },
             onCancel = { viewModel.onEvent(LibraryContract.Event.ClearSelection) },
             privateActionIconRes = R.drawable.ic_security,
@@ -105,9 +104,19 @@ fun LibraryRoute(
                         Toast.LENGTH_SHORT,
                     ).show()
                 }
+
+                is LibraryContract.Effect.MoveToPrivateFailed -> {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.string_error),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
             }
         }
     }
+
+    state.privateMoveProgress?.let { PrivateMoveProgressDialog(progress = it) }
 
     if (state.sortSheetVisible) {
         SortSheet(
@@ -133,12 +142,14 @@ fun LibraryRoute(
                 }
             },
             onShare = {
-                closeSheetThen { intentUtil.shareVideo(context, File(target.filePath).toUri()) }
+                closeSheetThen { intentUtil.shareFile(context, File(target.filePath).toUri()) }
             },
             onTogglePrivate = {
                 closeSheetThen {
                     viewModel.onEvent(LibraryContract.Event.ToggleSelection(target.mId))
-                    viewModel.onEvent(LibraryContract.Event.MoveSelectedToPrivate(!isPrivate))
+                    viewModel.onEvent(
+                        LibraryContract.Event.MoveSelectedToPrivate(context, !isPrivate),
+                    )
                 }
             },
             onDelete = {

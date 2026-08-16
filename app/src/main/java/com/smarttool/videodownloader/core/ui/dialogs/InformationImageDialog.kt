@@ -17,12 +17,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ui.theme.Muted
 
 @Composable
 fun InformationImageDialogContent(
@@ -40,7 +40,7 @@ fun InformationImageDialogContent(
             Icon(
                 painter = painterResource(R.drawable.ic_close),
                 contentDescription = stringResource(R.string.string_cancel),
-                tint = Color(0xFF5B5D5F),
+                tint = Muted,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 12.dp)

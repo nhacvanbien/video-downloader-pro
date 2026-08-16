@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">Yükleniyor....</string>
     <string name="string_applied_language">Uygulamalı Dil...</string>
-    <string name="string_this_action_can_contain_ads">Bu işlem reklam içerebilir</string>
     <string name="string_loading">Yükleniyor (%s%%)...</string>
     <string name="string_languages">Diller</string>
     <string name="string_please_select_language">Lütfen bir dil seçin</string>
@@ -31,15 +29,7 @@
     <string name="string_content_terms_of_service">Bu uygulamayı kullanarak, hizmet şartlarımız ve gizlilik politikamızla ilgili olarak kabulde bulunduğunuzu onaylarsınız. Lütfen bunları dikkatlice okuyun.</string>
     <string name="string_agree">Kabul Et</string>
     <string name="string_rate">Değerlendir</string>
-    <string name="string_not_now">Şu An Değil</string>
-    <string name="string_thank_for_rate">Uygulamayı değerlendirdiğiniz için teşekkür ederiz</string>
-    <string name="string_please_feedback">Lütfen geri bildirimde bulunun</string>
-    <string name="string_stay">Kal</string>
-    <string name="string_exit">Çıkış</string>
-    <string name="exit_app">Çıkmak istiyor musunuz?</string>
-    <string name="string_are_you_sure_you_want_to_exit">Çıkmak istediğinizden emin misiniz?</string>
     <string name="string_browser">Tarayıcı</string>
-    <string name="string_processing">İşleniyor</string>
     <string name="string_downloaded">İndirildi</string>
     <string name="string_settings">Ayarlar</string>
     <string name="string_download_location">İndirme Konumu</string>
@@ -60,17 +50,13 @@
     <string name="string_tiktok">TikTok</string>
     <string name="string_vimeo">Vimeo</string>
     <string name="string_dailymotion">Dailymotion</string>
-    <string name="player_resolution">oyuncudaki video çözünürlüğü</string>
     <string name="string_download_successful">İndirme başarılı !!!</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">İndirme tamamlandı. Artık dosyanıza erişebilirsiniz</string>
     <string name="string_cancel">İptal</string>
-    <string name="string_open">Aç</string>
     <string name="string_confirm_delete">Silmeyi Onayla</string>
     <string name="string_are_you_sure_want_to_delete_photo">Fotoğrafı silmek istediğinizden emin misiniz?</string>
     <string name="string_delete">Sil</string>
     <string name="download_open_in_app">Uygulamada Aç</string>
     <string name="download_watch_in_app">Uygulamada Videoyu İzle</string>
-    <string name="app_download_channel_id" translatable="false">download_channel_id</string>
     <string name="string_close_all">Tümünü Kapat</string>
     <string name="string_num_tabs">%s Sekme</string>
     <string name="string_go_see_the_sites">Siteleri görmeye gidin! Ziyaret ettiğiniz sayfalar burada görünecek!</string>
@@ -102,9 +88,7 @@
     <string name="go_to_setting">Ayarlar’a git</string>
     <string name="string_save_to_bookmarks_successfully">Başarıyla yer işaretlerine kaydedildi</string>
     <string name="string_notification">Bildirim</string>
-    <string name="settings_message_open_folder">Cihazınızda dosya yöneticisi bulunamadı</string>
     <string name="video_share_message">Cihazınızda video paylaşım uygulaması bulunamadı</string>
-    <string name="cookies_cleared">Çerezler temizlendi</string>
     <string name="string_paste">Yapıştır</string>
     <string name="string_paste_link_here">Bağlantıyı buraya yapıştırın</string>
     <string name="string_remove_from_private">Özel klasörden kaldır</string>
@@ -151,17 +135,43 @@
     <string name="string_error_deleting_file">Dosya silme hatası!</string>
     <string name="string_step_1_process"><![CDATA[<b>Adım 1:</b>]]> Uygulamayı açın ve bağlantıyı kopyalayın.</string>
     <string name="string_step_2_process"><![CDATA[<b>Adım 2:</b>]]> Uygulamaya geri dönün ve "Bağlantıyı yapıştır" seçeneğini seçerek indirin.</string>
-    <string name="string_name_contains_special_characters">Ad özel karakterler içeriyor!</string>
     <string name="string_popular_apps">Popüler Uygulamalar</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Videoyu indir</string>
-    <string name="string_select_type">Tür seç</string>
     <string name="string_start">Başlat</string>
     <string name="txt_continue">DEVAM ET</string>
     <string name="clear_history">Geçmişi temizle</string>
     <string name="string_download_failed">İndirme başarısız !!!</string>
     <string name="string_downloading">İndiriliyor</string>
     <string name="string_select_languages">Dili seç</string>
+    <string name="string_audio">Ses</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_download_failed_short">İndirme başarısız</string>
+    <string name="string_download_size">İndirme Boyutu: %s</string>
+    <string name="string_downloads">İndirilenler</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
+    <string name="string_got_it">Anladım</string>
+    <string name="string_login_required_to_download">Bu videoyu indirmeden önce lütfen tarayıcıda %1$s hesabına giriş yapın</string>
+    <string name="string_no_media_found">Medya bulunamadı</string>
+    <string name="string_no_media_found_desc">Sayfa hâlâ yükleniyor olabilir, giriş gerektirebilir veya henüz desteklenmiyor olabilir.</string>
+    <string name="string_num_selected">%s seçildi</string>
+    <string name="string_press_back_again_to_exit">Çıkmak için tekrar geri tuşuna basın</string>
+    <string name="string_report_issue">Sorun bildir</string>
+    <string name="string_retry">TEKRAR DENE</string>
+    <string name="string_retry_download">İndirmeyi tekrar dene</string>
+    <string name="string_save_to_private_folder">Gizli klasöre kaydet</string>
+    <string name="string_search_downloads">İndirilenlerde ara</string>
+    <string name="string_search_engine">Arama Motoru</string>
+    <string name="string_select_items">Öğeleri seç</string>
+    <string name="string_waiting_for_wifi">Wi-Fi bekleniyor…</string>
+    <string name="string_wifi_only">Yalnızca Wi-Fi</string>
+    <string name="string_wifi_only_desc">İndirmeden önce Wi-Fi\'yi bekle</string>
+    <string name="string_yahoo">Yahoo</string>
 
+    <string name="string_download_location_folder_hint">Klasör adı</string>
+    <string name="string_moving_to_private">Özel\'e taşınıyor</string>
+    <string name="string_moving_out_of_private">Özel\'den çıkarılıyor</string>
+    <string name="string_do_not_close_app">Bu işlem bitene kadar lütfen uygulamayı açık tutun.</string>
+    <string name="string_moving_file_count">%2$s dosyadan %1$s. dosya</string>
 </resources>

@@ -11,6 +11,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun TabsRoute(
     onOpenUrl: (String) -> Unit,
+    onHome: () -> Unit,
 ) {
     val viewModel: TabsViewModel = koinViewModel()
     val tabs by viewModel.tabs.collectAsStateWithLifecycle()
@@ -38,6 +39,7 @@ fun TabsRoute(
                 TabsContract.Event.CreateTab(WebTabFactory.createTabModelFromInput(DEFAULT_TAB_URL)),
             )
         },
+        onHome = onHome,
     )
 }
 

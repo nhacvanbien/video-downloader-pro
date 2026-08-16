@@ -3,6 +3,7 @@ package com.smarttool.videodownloader.feature.library.presentation
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,29 +20,31 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.file.FileUtil
+import com.smarttool.videodownloader.core.ui.components.MediaKind
 import com.smarttool.videodownloader.core.ui.components.MediaThumbnail
 import com.smarttool.videodownloader.core.ui.components.SheetCornerRadius
-import com.smarttool.videodownloader.core.ui.theme.AppBlack
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.Primary
-import com.smarttool.videodownloader.core.ui.theme.SearchFieldHint
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Error
+import com.smarttool.videodownloader.core.ui.theme.Muted
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.ShapePill
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.core.ui.theme.TextSub
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
@@ -54,7 +57,6 @@ fun LibraryScreen(
     items: List<VideoTaskItem>,
     onFilterChange: (MediaFilter) -> Unit,
     onSearchChange: (String) -> Unit,
-    onSearchVisibleChange: (Boolean) -> Unit,
     onOpenSort: () -> Unit,
     onItemClick: (VideoTaskItem) -> Unit,
     onItemMenu: (VideoTaskItem) -> Unit,
@@ -76,9 +78,6 @@ fun LibraryScreen(
     Column(modifier = Modifier.fillMaxSize().then(insetModifier)) {
         LibraryToolbar(
             title = title,
-            state = state,
-            onSearchChange = onSearchChange,
-            onSearchVisibleChange = onSearchVisibleChange,
             onBack = onBack,
             trailingAction = trailingAction,
         )
@@ -90,14 +89,20 @@ fun LibraryScreen(
             )
         }
 
-        MediaFilterTabs(selected = state.query.filter, onSelect = onFilterChange)
+        MediaFilterChipRow(selected = state.query.filter, onSelect = onFilterChange)
 
         Column(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(topStart = SheetCornerRadius, topEnd = SheetCornerRadius))
-                .background(AppWhite),
+                .background(Surface),
         ) {
+            MediaSearchBar(
+                search = state.query.search,
+                onSearchChange = onSearchChange,
+                hint = stringResource(R.string.string_enter_search_name),
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -152,9 +157,6 @@ fun LibraryScreen(
 @Composable
 private fun LibraryToolbar(
     title: String,
-    state: LibraryContract.State,
-    onSearchChange: (String) -> Unit,
-    onSearchVisibleChange: (Boolean) -> Unit,
     onBack: (() -> Unit)?,
     trailingAction: @Composable (() -> Unit)?,
 ) {
@@ -162,103 +164,25 @@ private fun LibraryToolbar(
         modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 13.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (state.searchVisible) {
+        if (onBack != null) {
             Image(
                 painter = painterResource(R.drawable.ic_arrow_back),
+                colorFilter = ColorFilter.tint(TextColor),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(28.dp)
-                    .clickable { onSearchVisibleChange(false) }
-                    .padding(4.dp),
+                modifier = Modifier.size(28.dp).clickable(onClick = onBack).padding(4.dp),
             )
-
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
-                    .clip(RoundedCornerShape(120.dp))
-                    .background(AppWhite)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    if (state.query.search.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.string_enter_search_name),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = SearchFieldHint,
-                        )
-                    }
-
-                    BasicTextField(
-                        value = state.query.search,
-                        onValueChange = onSearchChange,
-                        singleLine = true,
-                        cursorBrush = SolidColor(Primary),
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(color = AppBlack),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
-        } else {
-            if (onBack != null) {
-                Image(
-                    painter = painterResource(R.drawable.ic_arrow_back),
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp).clickable(onClick = onBack).padding(4.dp),
-                )
-            }
-
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                color = AppWhite,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f),
-            )
-
-            Image(
-                painter = painterResource(R.drawable.ic_search),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { onSearchVisibleChange(true) },
-            )
-
-            trailingAction?.let {
-                Box(modifier = Modifier.padding(start = 12.dp)) { it() }
-            }
         }
-    }
-}
 
-@Composable
-private fun MediaFilterTabs(
-    selected: MediaFilter,
-    onSelect: (MediaFilter) -> Unit,
-) {
-    val tabs = listOf(
-        MediaFilter.All to R.string.string_all,
-        MediaFilter.Video to R.string.string_video,
-        MediaFilter.Image to R.string.string_image,
-    )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            color = TextColor,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f),
+        )
 
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
-        tabs.forEach { (filter, labelRes) ->
-            val active = filter == selected
-
-            Text(
-                text = stringResource(labelRes),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
-                ),
-                color = AppWhite,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onSelect(filter) }
-                    .padding(vertical = 10.dp),
-            )
+        trailingAction?.let {
+            Box(modifier = Modifier.padding(start = 12.dp)) { it() }
         }
     }
 }
@@ -293,7 +217,7 @@ private fun MediaRow(
 
         MediaThumbnail(
             filePath = item.filePath,
-            isImage = item.mimeType.startsWith("image"),
+            mediaType = MediaKind.fromMimeType(item.mimeType),
             modifier = Modifier
                 .size(width = 64.dp, height = 48.dp)
                 .clip(RoundedCornerShape(8.dp)),
@@ -357,6 +281,7 @@ private fun SelectionBar(
     ) {
         Image(
             painter = painterResource(R.drawable.ic_close),
+            colorFilter = ColorFilter.tint(TextColor),
             contentDescription = null,
             modifier = Modifier.size(20.dp).clickable(onClick = actions.onCancel),
         )
@@ -364,32 +289,51 @@ private fun SelectionBar(
         Text(
             text = stringResource(R.string.string_num_video_selected, selectedCount.toString()),
             style = MaterialTheme.typography.labelLarge,
-            color = AppWhite,
+            color = TextColor,
             modifier = Modifier.weight(1f).padding(start = 12.dp),
         )
 
-        Image(
-            painter = painterResource(R.drawable.ic_selected),
-            contentDescription = null,
-            modifier = Modifier.size(22.dp).clickable(onClick = actions.onSelectAll),
+        SelectionBarAction(
+            iconRes = R.drawable.ic_selected,
+            onClick = actions.onSelectAll,
         )
 
-        Image(
-            painter = painterResource(actions.privateActionIconRes),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .size(22.dp)
-                .clickable(onClick = actions.onTogglePrivate),
+        SelectionBarAction(
+            iconRes = actions.privateActionIconRes,
+            onClick = actions.onTogglePrivate,
+            modifier = Modifier.padding(start = 10.dp),
         )
 
+        SelectionBarAction(
+            iconRes = R.drawable.ic_delete,
+            onClick = actions.onDelete,
+            background = Error,
+            modifier = Modifier.padding(start = 10.dp),
+        )
+    }
+}
+
+@Composable
+private fun SelectionBarAction(
+    iconRes: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    background: androidx.compose.ui.graphics.Color = Surface,
+) {
+    Box(
+        modifier = modifier
+            .size(34.dp)
+            .clip(ShapePill)
+            .background(background)
+            .let { if (background == Surface) it.border(1.dp, Border, ShapePill) else it }
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
         Image(
-            painter = painterResource(R.drawable.ic_delete),
+            painter = painterResource(iconRes),
+            colorFilter = if (background == Surface) ColorFilter.tint(TextColor) else null,
             contentDescription = null,
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .size(22.dp)
-                .clickable(onClick = actions.onDelete),
+            modifier = Modifier.size(16.dp),
         )
     }
 }

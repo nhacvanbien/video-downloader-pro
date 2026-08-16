@@ -12,5 +12,6 @@ public class VideoTaskState {
     public static final int PAUSE = 7;         //下载暂停
     public static final int ENOSPC = 8;        //空间不足
     public static final int CANCELED = 9;        //空间不足
+    public static final int WAITING_FOR_WIFI = 10; //等待 Wi-Fi
 
 }

@@ -114,6 +114,10 @@ data class VideoFormatEntity(
     val isUsable: Boolean
         get() = formatId != "0" || width > 0 || height > 0 ||
             !vcodec.isNullOrBlank() || !acodec.isNullOrBlank()
+
+    /** yt-dlp's own signature for an audio-only stream: has an audio codec, no video codec. */
+    val isAudioOnly: Boolean
+        get() = acodec != "none" && vcodec == "none"
 }
 
 data class VideFormatEntityList(

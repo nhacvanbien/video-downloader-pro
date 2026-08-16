@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.feature.permission.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,9 +26,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.Primary
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Pri
+import com.smarttool.videodownloader.core.ui.theme.PriInk
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.ShapePill
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 
 @Composable
@@ -42,7 +47,7 @@ fun PermissionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(ScreenGradient)
+            .background(ScreenBg)
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {
@@ -53,7 +58,7 @@ fun PermissionScreen(
             Text(
                 text = stringResource(R.string.string_permission),
                 style = MaterialTheme.typography.titleLarge,
-                color = AppWhite,
+                color = TextColor,
                 modifier = Modifier.weight(1f),
             )
 
@@ -62,7 +67,7 @@ fun PermissionScreen(
                     if (state.allGranted) R.string.string_continue else R.string.string_skip,
                 ),
                 style = MaterialTheme.typography.labelLarge,
-                color = AppWhite,
+                color = Pri,
                 modifier = Modifier.clickable(onClick = onSkip).padding(8.dp),
             )
         }
@@ -107,8 +112,8 @@ fun PermissionScreen(
                 modifier = Modifier
                     .padding(horizontal = 20.dp, vertical = 10.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(120.dp))
-                    .background(Primary)
+                    .clip(ShapePill)
+                    .background(Pri)
                     .clickable(onClick = onContinue)
                     .padding(vertical = 12.dp),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
@@ -117,7 +122,7 @@ fun PermissionScreen(
                 Text(
                     text = stringResource(R.string.txt_continue),
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp),
-                    color = AppWhite,
+                    color = PriInk,
                 )
 
                 Image(
@@ -141,8 +146,9 @@ private fun PermissionRow(
         modifier = Modifier
             .padding(top = 12.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(AppWhite)
+            .clip(ShapeMd)
+            .background(Surface)
+            .border(1.dp, Border, ShapeMd)
             .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

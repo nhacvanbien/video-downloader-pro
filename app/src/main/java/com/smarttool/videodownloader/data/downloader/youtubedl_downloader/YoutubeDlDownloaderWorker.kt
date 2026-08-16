@@ -418,6 +418,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                             f.filePath = movedFilePath
                             f.fileName = extractFileName(movedFilePath).first
                             f.title = task.title
+                            f.isSecurity = task.isSecurity
                             f.errorCode = if (movedPath != null) 0 else 1
                             f.percent = 100F
                             f.taskState =

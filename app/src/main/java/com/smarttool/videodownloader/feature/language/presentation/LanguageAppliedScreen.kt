@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,8 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.LottieView
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 
 @Composable
@@ -36,14 +39,14 @@ fun LanguageAppliedScreen(
     languageName: String,
     languageIconRes: Int,
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+    Box(modifier = Modifier.fillMaxSize().background(ScreenBg)) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
             Text(
                 text = stringResource(R.string.string_languages),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
                 ),
-                color = AppWhite,
+                color = TextColor,
                 modifier = Modifier.padding(start = 16.dp, top = 24.dp),
             )
 
@@ -52,8 +55,9 @@ fun LanguageAppliedScreen(
                     .padding(horizontal = 16.dp)
                     .padding(top = 24.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(AppWhite)
+                    .clip(ShapeMd)
+                    .background(Surface)
+                    .border(1.dp, Border, ShapeMd)
                     .padding(horizontal = 8.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

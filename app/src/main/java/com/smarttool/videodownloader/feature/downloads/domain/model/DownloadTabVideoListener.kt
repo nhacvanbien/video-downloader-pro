@@ -6,5 +6,5 @@ import com.smarttool.videodownloader.data.network.entity.VideoInfo
 interface DownloadTabVideoListener {
     fun onPreviewVideo(videoInfo: VideoInfo, format: String, isForce: Boolean)
 
-    fun onDownloadVideo(videoInfo: VideoInfo, format: String, videoTitle: String)
+    fun onDownloadVideo(videoInfo: VideoInfo, format: String, videoTitle: String, isPrivate: Boolean = false)
 }

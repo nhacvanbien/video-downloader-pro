@@ -13,6 +13,7 @@ interface HistoryContract {
     ) : UiState
 
     sealed interface Event : UiEvent {
+        data class ModeChange(val mode: HistoryMode) : Event
         data class SearchQueryChange(val query: String) : Event
         data class SearchActiveChange(val active: Boolean) : Event
         data class DeleteEntry(val entry: HistoryEntry) : Event

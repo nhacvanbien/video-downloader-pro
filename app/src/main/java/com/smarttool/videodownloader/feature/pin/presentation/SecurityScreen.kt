@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,11 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.AppTopBar
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
-import com.smarttool.videodownloader.core.ui.theme.AppBlack
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.Primary
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Pri
 import com.smarttool.videodownloader.core.ui.theme.SearchFieldHint
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 
 /** The three fixed recovery questions, indexed 1..3 as persisted in preferences. */
@@ -51,7 +53,7 @@ fun SecurityScreen(
     onConfirm: () -> Unit,
     onBack: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient).statusBarsPadding()) {
+    Column(modifier = Modifier.fillMaxSize().background(ScreenBg).statusBarsPadding()) {
         AppTopBar(
             title = stringResource(R.string.string_security_question),
             onBack = onBack,
@@ -59,7 +61,7 @@ fun SecurityScreen(
                 Icon(
                     painter = painterResource(R.drawable.ic_check),
                     contentDescription = null,
-                    tint = AppWhite,
+                    tint = TextColor,
                     modifier = Modifier.size(28.dp).clickable(onClick = onConfirm).padding(4.dp),
                 )
             },
@@ -69,8 +71,9 @@ fun SecurityScreen(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(AppWhite)
+                .clip(ShapeMd)
+                .background(Surface)
+                .border(1.dp, Border, ShapeMd)
                 .clickable(onClick = onPickQuestion)
                 .padding(horizontal = 12.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -97,8 +100,9 @@ fun SecurityScreen(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(AppWhite)
+                .clip(ShapeMd)
+                .background(Surface)
+                .border(1.dp, Border, ShapeMd)
                 .padding(horizontal = 12.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -115,10 +119,10 @@ fun SecurityScreen(
                     value = answer,
                     onValueChange = onAnswerChange,
                     singleLine = true,
-                    cursorBrush = SolidColor(Primary),
+                    cursorBrush = SolidColor(Pri),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = 14.sp,
-                        color = AppBlack,
+                        color = TextColor,
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 )

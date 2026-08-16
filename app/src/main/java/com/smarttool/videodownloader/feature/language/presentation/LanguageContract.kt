@@ -9,6 +9,7 @@ interface LanguageContract {
     data class State(
         val languages: List<AppLanguage> = emptyList(),
         val selectedCode: String? = null,
+        val searchQuery: String = "",
         /** True until the user picks a row; drives the attention animation on the hoisted item. */
         val showHintAnimation: Boolean = true,
     ) : UiState
@@ -21,6 +22,8 @@ interface LanguageContract {
         data class Load(val currentCode: String, val preselect: Boolean) : Event
 
         data class Select(val code: String) : Event
+
+        data class Search(val query: String) : Event
 
         data class Confirm(val markStartShown: Boolean) : Event
     }

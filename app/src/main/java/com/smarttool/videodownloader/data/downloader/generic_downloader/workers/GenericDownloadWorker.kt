@@ -86,6 +86,7 @@ abstract class GenericDownloadWorker(appContext: Context, workerParams: WorkerPa
         task.saveDir = fileDir
         task.filePath = "${task.saveDir}/${task.fileName}"
         task.videoType = getVideoTypeByExt(ext)
+        task.isSecurity = inputData.getBoolean(GenericDownloader.IS_PRIVATE_KEY, false)
 
         return task
     }

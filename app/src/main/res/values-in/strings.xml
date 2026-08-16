@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">Loading....</string>
     <string name="string_applied_language">Applied Language...</string>
-    <string name="string_this_action_can_contain_ads">Tindakan ini dapat mengandung iklan</string>
     <string name="string_loading">Memuat (%s%%)...</string>
     <string name="string_languages">Bahasa</string>
     <string name="string_please_select_language">Silakan pilih bahasa</string>
@@ -31,15 +29,7 @@
     <string name="string_content_terms_of_service">Dengan menggunakan aplikasi ini, Anda setuju dengan syarat layanan dan kebijakan privasi kami. Harap baca dengan seksama.</string>
     <string name="string_agree">Setuju</string>
     <string name="string_rate">Beri Nilai</string>
-    <string name="string_not_now">Tidak sekarang</string>
-    <string name="string_thank_for_rate">Terima kasih telah menilai aplikasi ini</string>
-    <string name="string_please_feedback">Harap beri umpan balik</string>
-    <string name="string_stay">Tetap</string>
-    <string name="string_exit">Keluar</string>
-    <string name="exit_app">Apakah Anda ingin keluar?</string>
-    <string name="string_are_you_sure_you_want_to_exit">Apakah Anda yakin ingin keluar?</string>
     <string name="string_browser">Browser</string>
-    <string name="string_processing">Sedang diproses</string>
     <string name="string_downloaded">Diunduh</string>
     <string name="string_settings">Pengaturan</string>
     <string name="string_download_location">Lokasi Unduhan</string>
@@ -60,17 +50,13 @@
     <string name="string_tiktok">TikTok</string>
     <string name="string_vimeo">Vimeo</string>
     <string name="string_dailymotion">Dailymotion</string>
-    <string name="player_resolution">Resolusi video seperti yang ada di pemutar</string>
     <string name="string_download_successful">Unduhan berhasil !!!</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">Unduhan Anda telah selesai. Sekarang Anda dapat mengakses file Anda</string>
     <string name="string_cancel">Batal</string>
-    <string name="string_open">Buka</string>
     <string name="string_confirm_delete">Konfirmasi Hapus</string>
     <string name="string_are_you_sure_want_to_delete_photo">Apakah Anda yakin ingin menghapus foto?</string>
     <string name="string_delete">Hapus</string>
     <string name="download_open_in_app">Buka di Aplikasi</string>
     <string name="download_watch_in_app">Tonton Video</string>
-    <string name="app_download_channel_id" translatable="false">download_channel_id</string>
     <string name="string_close_all">Tutup semua</string>
     <string name="string_num_tabs">%s Tab</string>
     <string name="string_go_see_the_sites">Pergi lihat situs! Halaman yang Anda kunjungi akan muncul di sini!</string>
@@ -102,9 +88,7 @@
     <string name="go_to_setting">Pergi ke pengaturan</string>
     <string name="string_save_to_bookmarks_successfully">Berhasil disimpan ke bookmark</string>
     <string name="string_notification">Notifikasi</string>
-    <string name="settings_message_open_folder">Anda tidak memiliki aplikasi penjelajah file yang diinstal di perangkat Anda</string>
     <string name="video_share_message">Anda tidak memiliki aplikasi pemutar video yang diinstal di perangkat Anda</string>
-    <string name="cookies_cleared">Cookie telah dibersihkan</string>
     <string name="string_paste">Tempel</string>
     <string name="string_paste_link_here">Tempelkan tautan di sini</string>
     <string name="string_remove_from_private">Hapus dari Pribadi</string>
@@ -151,17 +135,43 @@
     <string name="string_error_deleting_file">Kesalahan saat menghapus file!</string>
     <string name="string_step_1_process"><![CDATA[<b>Langkah 1:</b>]]> Buka aplikasi dan salin tautan.</string>
     <string name="string_step_2_process"><![CDATA[<b>Langkah 2:</b>]]> Kembali ke aplikasi dan pilih "Tempel tautan" untuk mengunduh.</string>
-    <string name="string_name_contains_special_characters">Nama mengandung karakter khusus!</string>
     <string name="string_popular_apps">Aplikasi Populer</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Unduh video</string>
-    <string name="string_select_type">Pilih jenis</string>
     <string name="string_start">Mulai</string>
     <string name="txt_continue">LANJUTKAN</string>
     <string name="clear_history">Hapus riwayat</string>
     <string name="string_download_failed">Gagal mengunduh !!!</string>
     <string name="string_downloading">Mengunduh</string>
     <string name="string_select_languages">Pilih Bahasa</string>
+    <string name="string_audio">Audio</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_download_failed_short">Unduhan gagal</string>
+    <string name="string_download_size">Ukuran Unduhan: %s</string>
+    <string name="string_downloads">Unduhan</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
+    <string name="string_got_it">Mengerti</string>
+    <string name="string_login_required_to_download">Silakan masuk ke %1$s di browser sebelum mengunduh video ini</string>
+    <string name="string_no_media_found">Media tidak ditemukan</string>
+    <string name="string_no_media_found_desc">Halaman mungkin masih memuat, memerlukan login, atau belum didukung.</string>
+    <string name="string_num_selected">%s dipilih</string>
+    <string name="string_press_back_again_to_exit">Tekan kembali sekali lagi untuk keluar</string>
+    <string name="string_report_issue">Laporkan masalah</string>
+    <string name="string_retry">COBA LAGI</string>
+    <string name="string_retry_download">Coba unduh lagi</string>
+    <string name="string_save_to_private_folder">Simpan ke folder Privat</string>
+    <string name="string_search_downloads">Cari unduhan</string>
+    <string name="string_search_engine">Mesin Pencari</string>
+    <string name="string_select_items">Pilih item</string>
+    <string name="string_waiting_for_wifi">Menunggu Wi-Fi...</string>
+    <string name="string_wifi_only">Hanya Wi-Fi</string>
+    <string name="string_wifi_only_desc">Tunggu Wi-Fi sebelum mengunduh</string>
+    <string name="string_yahoo">Yahoo</string>
 
+    <string name="string_download_location_folder_hint">Nama folder</string>
+    <string name="string_moving_to_private">Memindahkan ke Pribadi</string>
+    <string name="string_moving_out_of_private">Memindahkan dari Pribadi</string>
+    <string name="string_do_not_close_app">Harap biarkan aplikasi tetap terbuka hingga selesai.</string>
+    <string name="string_moving_file_count">File %1$s dari %2$s</string>
 </resources>

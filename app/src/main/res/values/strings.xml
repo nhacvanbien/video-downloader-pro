@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Video Downloader - Video Saver</string>
-    <string name="string_this_action_can_contain_ads">This action can contain ads</string>
     <string name="string_loading">Loading (%s%%)...</string>
     <string name="string_languages">Languages</string>
     <string name="string_please_select_language">Please select language</string>
@@ -29,18 +28,16 @@
     <string name="string_content_terms_of_service">By using this application, you agree to our terms of service and privacy policy. Please read them carefully.</string>
     <string name="string_agree">Agree</string>
     <string name="string_rate">Rate</string>
-    <string name="string_not_now">Not now</string>
-    <string name="string_thank_for_rate">Thank you for rating the app</string>
-    <string name="string_please_feedback">Please feedback</string>
-    <string name="string_stay">Stay</string>
-    <string name="string_exit">Exit</string>
-    <string name="exit_app">Do you want exit?</string>
-    <string name="string_are_you_sure_you_want_to_exit">Are you sure you want to exit?</string>
+    <string name="string_press_back_again_to_exit">Press back again to exit</string>
     <string name="string_browser">Browser</string>
-    <string name="string_processing">Processing</string>
     <string name="string_downloaded">Downloaded</string>
     <string name="string_settings">Settings</string>
     <string name="string_download_location">Download location</string>
+    <string name="string_download_location_folder_hint">Folder name</string>
+    <string name="string_moving_to_private">Moving to Private</string>
+    <string name="string_moving_out_of_private">Moving out of Private</string>
+    <string name="string_do_not_close_app">Please keep the app open until this finishes.</string>
+    <string name="string_moving_file_count">File %1$s of %2$s</string>
     <string name="string_share">Share</string>
     <string name="string_privacy_policy">Privacy Policy</string>
     <string name="string_let_me_recommend_you_this_application">Let me recommend you this application</string>
@@ -58,11 +55,8 @@
     <string name="string_tiktok">TikTok</string>
     <string name="string_vimeo">Vimeo</string>
     <string name="string_dailymotion">Dailymotion</string>
-    <string name="player_resolution">video resolution as in the player</string>
     <string name="string_download_successful">Download successful !!!</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">Your download is complete. You can now access your file</string>
     <string name="string_cancel">Cancel</string>
-    <string name="string_open">Open</string>
     <string name="string_confirm_delete">Confirm Delete</string>
     <string name="string_are_you_sure_want_to_delete_photo">Are you sure want to delete photo?</string>
     <string name="string_delete">Delete</string>
@@ -76,7 +70,7 @@
     <string name="string_set_pin">Set PIN</string>
 
     <string name="string_enter_your_new_pin">Enter your new PIN</string>
-    <string name="string_des_pin">Enhanced security with PIN codes to prevent access to sensitive content</string>
+    <string name="string_des_pin">Hides selected videos from the main library. This is not encryption.</string>
     <string name="string_forgot_password">Forgot Password</string>
     <string name="string_enter_search_name">Enter search name</string>
     <string name="string_security_question">Security Question</string>
@@ -101,14 +95,12 @@
     <string name="go_to_setting">Go to setting</string>
     <string name="string_save_to_bookmarks_successfully">Save to bookmarks successfully</string>
     <string name="string_notification">Notification</string>
-    <string name="settings_message_open_folder">You don\'t have any file explorer app installed on your device</string>
     <string name="video_share_message">You don\'t have any video player app installed on your device</string>
-    <string name="cookies_cleared">Cookies cleared</string>
     <string name="string_paste">Paste</string>
     <string name="string_paste_link_here">Paste link here</string>
     <string name="string_remove_from_private">Remove from Private</string>
     <string name="string_num_files">%s files</string>
-    <string name="string_download_not_found">Download not found</string>
+    <string name="string_download_not_found">Download empty</string>
     <string name="string_no_text_in_clipboard">No text in clipboard</string>
     <string name="string_clipboard_is_empty">Clipboard is empty</string>
     <string name="string_re_enter_your_pin">Re-enter your PIN</string>
@@ -129,9 +121,29 @@
     <string name="string_open_in_new_tab">Open in new tab</string>
     <string name="string_copy_link">Copy link</string>
     <string name="string_download_image">Download image</string>
-    <string name="string_all">ALL</string>
-    <string name="string_video">VIDEO</string>
-    <string name="string_image">IMAGE</string>
+    <string name="string_all">All</string>
+    <string name="string_video">Video</string>
+    <string name="string_image">Image</string>
+    <string name="string_audio">Audio</string>
+    <string name="string_downloads">Downloads</string>
+    <string name="string_search_downloads">Search downloads</string>
+    <string name="string_search_language">Search language</string>
+    <string name="string_num_selected">%s selected</string>
+    <string name="string_select_items">Select items</string>
+    <string name="string_retry_download">Retry download</string>
+    <string name="string_retry">RETRY</string>
+    <string name="string_download_failed_short">Download failed</string>
+    <string name="string_no_media_found">No media found</string>
+    <string name="string_no_media_found_desc">The page may still be loading, require a login, or not be supported yet.</string>
+    <string name="string_report_issue">Report an issue</string>
+    <string name="string_got_it">Got it</string>
+    <string name="string_wifi_only">Wi-Fi Only</string>
+    <string name="string_wifi_only_desc">Wait for Wi-Fi before downloading</string>
+    <string name="string_waiting_for_wifi">Waiting for Wi-Fi…</string>
+    <string name="string_search_engine">Search Engine</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_yahoo">Yahoo</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_sort_by">Sort by</string>
     <string name="string_last_modified">Last modified</string>
     <string name="string_new_to_old">(new to old)</string>
@@ -141,6 +153,13 @@
     <string name="string_file_size">File size</string>
     <string name="string_large_to_small">(large to small)</string>
     <string name="string_small_to_large">(small to large)</string>
+    <string name="string_sort">Sort</string>
+    <string name="string_sort_newest_first">Newest first</string>
+    <string name="string_sort_oldest_first">Oldest first</string>
+    <string name="string_sort_name_az">Name (A–Z)</string>
+    <string name="string_sort_name_za">Name (Z–A)</string>
+    <string name="string_sort_largest_first">Largest first</string>
+    <string name="string_sort_smallest_first">Smallest first</string>
     <string name="permission_setting">You need to grant access to perform this task. Go to the settings screen.</string>
     <string name="string_copied_to_clipboard">Copied to clipboard</string>
     <string name="string_private_file">Private file</string>
@@ -150,12 +169,11 @@
     <string name="string_error_deleting_file">Error deleting file!</string>
     <string name="string_step_1_process"><![CDATA[<b>Step 1:</b>]]> Open App and copy the link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Step 2:</b>]]> Go back to the application, select \'Paste link\' to download the link.</string>
-    <string name="string_name_contains_special_characters">Name contains special characters!</string>
     <string name="string_popular_apps">Popular Apps</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Download video</string>
-    <string name="string_select_type">Select type</string>
+    <string name="string_save_to_private_folder">Save to Private folder</string>
     <string name="string_start">Start</string>
     <string name="txt_continue">CONTINUE</string>
     <string name="clear_history">Clear history</string>
@@ -163,7 +181,6 @@
     <string name="string_downloading">Downloading</string>
     <string name="string_select_languages">Select Language</string>
 
-    <string name="loading">Loading....</string>
     <string name="string_applied_language">Applied Language...</string>
 
     <string name="string_download_size">Download Size: %s</string>

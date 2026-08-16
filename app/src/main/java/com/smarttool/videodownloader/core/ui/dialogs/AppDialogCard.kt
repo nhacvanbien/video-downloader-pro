@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -24,20 +23,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.smarttool.videodownloader.core.ui.theme.AppLocaleProvider
 import com.smarttool.videodownloader.core.ui.theme.AppTheme
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Muted
+import com.smarttool.videodownloader.core.ui.theme.PriInk
+import com.smarttool.videodownloader.core.ui.theme.ShapeLg
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.ShapePill
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text
 
-private val TextFieldBorder = Color(0xFFE3E5E8)
-private val TextFieldHint = Color(0xFFBFBFBF)
+private val TextFieldBorder = Border
+private val TextFieldHint = Muted
 
-private val CardBorder = Color(0x80868585)
-val DialogSecondaryText = Color(0xFF8C9CB3)
-val DialogBodyText = Color(0xFF808080)
-private val SecondaryButtonBackground = Color(0xFFF2F2F2)
+private val CardBorder = Border
+val DialogSecondaryText = Muted
+val DialogBodyText = Muted
+private val SecondaryButtonBackground = Border.copy(alpha = 0.35f)
 
 /**
- * Full-screen scrim + centered rounded card, matching the old `dialog_*.xml` shape
- * (`bg_dialog_rate`: white, 20dp corners, 1dp translucent border, 16dp outer margin).
+ * Full-screen scrim + centered rounded card — flat Pinboard sheet: white, 18dp
+ * corners, hairline border, 16dp outer margin.
  */
 @Composable
 fun AppDialogCard(
@@ -49,21 +56,26 @@ fun AppDialogCard(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        AppTheme {
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(AppWhite)
-                    .border(1.dp, CardBorder, RoundedCornerShape(20.dp)),
-                content = content,
-            )
+        // Dialog content composes in its own window, whose AbstractComposeView re-provides
+        // LocalContext from the Activity — discarding the override installed around the main
+        // composition. Without re-applying it here the card keeps the launch-time language.
+        AppLocaleProvider {
+            AppTheme {
+                Column(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .clip(ShapeLg)
+                        .background(Surface)
+                        .border(1.dp, CardBorder, ShapeLg),
+                    content = content,
+                )
+            }
         }
     }
 }
 
-private val DialogTitleColor = Color(0xFF404040)
+private val DialogTitleColor = Text
 
 @Composable
 fun DialogTitle(text: String, modifier: Modifier = Modifier, color: Color = DialogTitleColor) {
@@ -97,11 +109,11 @@ fun DialogPrimaryButton(
     Text(
         text = text,
         modifier = modifier
-            .clip(RoundedCornerShape(percent = 50))
+            .clip(ShapePill)
             .background(backgroundColor)
             .clickable(onClick = onClick)
             .padding(vertical = 11.dp),
-        color = AppWhite,
+        color = PriInk,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
@@ -117,7 +129,7 @@ fun DialogSecondaryButton(
     Text(
         text = text,
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(ShapeMd)
             .background(SecondaryButtonBackground)
             .clickable(onClick = onClick)
             .padding(vertical = 11.dp),
@@ -141,13 +153,13 @@ fun DialogTextField(
         modifier = modifier.fillMaxWidth(),
         placeholder = { Text(placeholder, color = TextFieldHint) },
         singleLine = true,
-        shape = RoundedCornerShape(12.dp),
+        shape = ShapeMd,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = TextFieldBorder,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = AppWhite,
-            focusedContainerColor = AppWhite,
+            unfocusedContainerColor = Surface,
+            focusedContainerColor = Surface,
         ),
     )
 }

@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,24 +22,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.AppTopBar
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.Primary
-
-private val BodyTextColor = Color(0xFF404040)
+import com.smarttool.videodownloader.core.ui.theme.Muted
+import com.smarttool.videodownloader.core.ui.theme.Pri
+import com.smarttool.videodownloader.core.ui.theme.PriInk
+import com.smarttool.videodownloader.core.ui.theme.ShapePill
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 
 @Composable
 fun DisclaimersScreen(onAgree: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppWhite)
+            .background(Surface)
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {
-        AppTopBar(
-            title = stringResource(R.string.string_disclaimers),
-            titleColor = Primary,
-        )
+        AppTopBar(title = stringResource(R.string.string_disclaimers))
 
         Column(
             modifier = Modifier
@@ -65,13 +62,13 @@ fun DisclaimersScreen(onAgree: () -> Unit) {
         Text(
             text = stringResource(R.string.string_agree),
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-            color = AppWhite,
+            color = PriInk,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(horizontal = 20.dp, vertical = 10.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(120.dp))
-                .background(Primary)
+                .clip(ShapePill)
+                .background(Pri)
                 .clickable(onClick = onAgree)
                 .padding(vertical = 10.dp),
         )
@@ -86,14 +83,14 @@ private fun DisclaimerSection(titleRes: Int, bodyRes: Int) {
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
         ),
-        color = BodyTextColor,
+        color = TextColor,
         modifier = Modifier.padding(top = 14.dp),
     )
 
     Text(
         text = stringResource(bodyRes),
         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
-        color = BodyTextColor,
+        color = Muted,
         modifier = Modifier.padding(top = 4.dp),
     )
 }

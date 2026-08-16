@@ -65,8 +65,8 @@ interface VideoTaskItemDao {
     @Delete
     suspend fun deleteVideoTaskItem(videoTaskItem: VideoTaskItem)
 
-    @Query("UPDATE VideoTaskItem SET is_security = :isSecurity WHERE _id = :id")
-    suspend fun updateIsSecurity(id: String, isSecurity: Boolean)
+    @Query("UPDATE VideoTaskItem SET is_security = :isSecurity, file_path = :newPath WHERE _id = :id")
+    suspend fun updateSecurityAndPath(id: String, isSecurity: Boolean, newPath: String)
 
     @Query("UPDATE VideoTaskItem SET file_name = :newName, file_path = :newPath, title = :newName WHERE _id = :id")
     suspend fun updateNameVideoTaskItem(id: String, newName: String, newPath: String)

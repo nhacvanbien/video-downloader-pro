@@ -3,11 +3,14 @@ package com.smarttool.videodownloader.feature.downloads.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.core.coroutines.AppScope
+import com.smarttool.videodownloader.core.network.NetworkMonitor
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
+import com.smarttool.videodownloader.feature.downloads.domain.WifiOnlyRepository
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.CancelDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ObserveActiveDownloadsUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.PauseDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.ResumeDownloadUseCase
+import com.smarttool.videodownloader.feature.downloads.domain.usecase.RetryWaitingForWifiDownloadsUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StartDownloadUseCase
 import com.smarttool.videodownloader.feature.downloads.domain.usecase.StopAndSaveDownloadUseCase
 import kotlinx.coroutines.channels.Channel
@@ -16,6 +19,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -38,6 +43,9 @@ class ProcessingViewModel(
     private val resumeDownload: ResumeDownloadUseCase,
     private val cancelDownload: CancelDownloadUseCase,
     private val stopAndSaveDownload: StopAndSaveDownloadUseCase,
+    private val retryWaitingForWifiDownloads: RetryWaitingForWifiDownloadsUseCase,
+    private val networkMonitor: NetworkMonitor,
+    private val wifiOnlyRepository: WifiOnlyRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProcessingContract.State())
@@ -50,10 +58,25 @@ class ProcessingViewModel(
     val downloads: StateFlow<List<ProgressInfo>> = observeActiveDownloads()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    init {
+        // Items parked as WAITING_FOR_WIFI never reached the engine, so nothing else
+        // retries them on its own — resume as soon as Wi-Fi is back, or the "Wi-Fi Only"
+        // gate itself is turned off. Runs on appScope: this has to outlive the screen the
+        // same way starting a download does.
+        appScope.launch {
+            combine(networkMonitor.observeIsOnWifi(), wifiOnlyRepository.wifiOnly) { onWifi, wifiOnly ->
+                onWifi || !wifiOnly
+            }.filter { it }.collect { retryWaitingForWifiDownloads() }
+        }
+    }
+
     fun onEvent(event: ProcessingContract.Event) {
         when (event) {
             is ProcessingContract.Event.UrlChange -> onUrlChange(event.url)
-            is ProcessingContract.Event.Start -> appScope.launch { startDownload(event.videoInfo) }
+            is ProcessingContract.Event.Start -> appScope.launch {
+                val started = startDownload(event.videoInfo)
+                if (!started) _effect.send(ProcessingContract.Effect.WaitingForWifi)
+            }
             is ProcessingContract.Event.Pause -> appScope.launch { pauseDownload(event.progressInfo) }
             is ProcessingContract.Event.Resume -> appScope.launch { resumeDownload(event.progressInfo) }
             is ProcessingContract.Event.Cancel ->

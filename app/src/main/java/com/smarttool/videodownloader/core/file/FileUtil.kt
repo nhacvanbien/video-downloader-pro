@@ -6,6 +6,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -18,6 +19,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.datastore.AppPreferencesDataSource
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
@@ -25,7 +27,10 @@ import java.text.DecimalFormat
 import java.util.Arrays
 
 //@OpenForTesting
-class FileUtil constructor(private val appContext: Context) {
+class FileUtil constructor(
+    private val appContext: Context,
+    private val preferences: AppPreferencesDataSource,
+) {
 
     companion object {
         var INITIIALIZED = false
@@ -38,6 +43,13 @@ class FileUtil constructor(private val appContext: Context) {
 
         const val FOLDER_NAME = "SuperVideoDownloader"
         const val TMP_DATA_FOLDER_NAME = "video_downloader_pro_max"
+
+        /**
+         * Deliberately distinct from [FOLDER_NAME]: when `IS_APP_DATA_DIR_USE` is on, downloads
+         * land in `<externalFilesDir>/FOLDER_NAME`, and the private area must never share a
+         * directory with them (its `.nomedia` would hide the normal library too).
+         */
+        const val PRIVATE_FOLDER_NAME = "private_media"
 
         private const val KB = 1024
         private const val MB = 1024 * 1024
@@ -89,10 +101,12 @@ class FileUtil constructor(private val appContext: Context) {
 
             when {
                 IS_EXTERNAL_STORAGE_USE && !IS_APP_DATA_DIR_USE -> {
-                    return File(
+                    val publicDownloads = File(
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                             .toURI()
                     )
+                    val subfolder = downloadLocationSubfolderName()
+                    return if (subfolder.isBlank()) publicDownloads else File(publicDownloads, subfolder)
                 }
 
                 IS_EXTERNAL_STORAGE_USE && IS_APP_DATA_DIR_USE -> {
@@ -105,6 +119,34 @@ class FileUtil constructor(private val appContext: Context) {
                 }
             }
         }
+
+    /**
+     * App-private storage. Android 10+ excludes app-specific directories from MediaStore on its
+     * own; the `.nomedia` marker is what keeps the pre-Q scanner out of it too.
+     */
+    val privateDir: File
+        get() = File(appContext.getExternalFilesDir(null), PRIVATE_FOLDER_NAME).also { dir ->
+            dir.mkdirs()
+            val noMedia = File(dir, ".nomedia")
+            if (!noMedia.exists()) {
+                runCatching { noMedia.createNewFile() }
+                    .onFailure { Timber.w(it, "Could not create .nomedia in $dir") }
+            }
+        }
+
+    /** User-chosen subfolder name under the public Downloads directory, or "" for the root. */
+    private fun downloadLocationSubfolderName(): String =
+        FileNameCleaner.cleanFileName(preferences.downloadLocationSubfolderBlocking())
+
+    /** `RELATIVE_PATH` value for MediaStore.Downloads inserts, honoring the chosen subfolder. */
+    private fun downloadsRelativePath(): String {
+        val subfolder = downloadLocationSubfolderName()
+        return if (subfolder.isBlank()) {
+            Environment.DIRECTORY_DOWNLOADS
+        } else {
+            "${Environment.DIRECTORY_DOWNLOADS}/$subfolder"
+        }
+    }
 
     val tmpDir: File
         get() {
@@ -421,7 +463,7 @@ class FileUtil constructor(private val appContext: Context) {
             // Rename the file using the ContentResolver
             val values = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, newName)
-                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                put(MediaStore.Downloads.RELATIVE_PATH, downloadsRelativePath())
             }
 
             context.contentResolver.update(uri, values, null, null)
@@ -604,22 +646,65 @@ class FileUtil constructor(private val appContext: Context) {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun moveFileToDownloadsFolder(
-        contentResolver: ContentResolver, sourceFile: File, fileName: String
+        contentResolver: ContentResolver,
+        sourceFile: File,
+        fileName: String,
+        onProgress: ((Float) -> Unit)? = null,
     ): String? {
-        // Check if there is enough free space in the Downloads folder
-        val downloadsDirectory = folderDir
         val isFolderExternal = isExternalUri(folderDir.toUri())
-        val availableSpace = downloadsDirectory.freeSpace
+        val collectionUri = if (isFolderExternal) {
+            MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        } else {
+            MediaStore.Downloads.INTERNAL_CONTENT_URI
+        }
+        return moveFileToMediaStoreCollection(
+            contentResolver, sourceFile, fileName, folderDir, collectionUri,
+            downloadsRelativePath(), "video/mp4", onProgress,
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun moveFileToPicturesFolder(
+        contentResolver: ContentResolver,
+        sourceFile: File,
+        fileName: String,
+        onProgress: ((Float) -> Unit)? = null,
+    ): String? {
+        val picturesDir = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toURI()
+        )
+        return moveFileToMediaStoreCollection(
+            contentResolver, sourceFile, fileName, picturesDir,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Environment.DIRECTORY_PICTURES,
+            "image/jpeg", onProgress,
+        )
+    }
+
+    /**
+     * Copies [sourceFile] into the MediaStore [collectionUri] (Downloads or Images) at
+     * [relativePath], deleting the source on success. [destinationDir] is only used for the
+     * free-space check and to build the returned absolute path.
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun moveFileToMediaStoreCollection(
+        contentResolver: ContentResolver,
+        sourceFile: File,
+        fileName: String,
+        destinationDir: File,
+        collectionUri: Uri,
+        relativePath: String,
+        mimeType: String,
+        onProgress: ((Float) -> Unit)? = null,
+    ): String? {
+        val availableSpace = destinationDir.freeSpace
 
         if (availableSpace < sourceFile.length()) {
-            // Handle the case where there is not enough free space
             throw Error("Not available space $availableSpace, file size: ${sourceFile.length()}")
         }
 
-        // Create a ContentValues object to specify the file details
         var name = fileName
         var counter = 1
-        while (isDownloadExists(contentResolver, name)) {
+        while (mediaStoreDisplayNameExists(contentResolver, collectionUri, name)) {
             name = "$name($counter)"
             counter++
         }
@@ -627,34 +712,28 @@ class FileUtil constructor(private val appContext: Context) {
         val cleaned = FileNameCleaner.cleanFileName(name)
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, cleaned)
-            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
         }
 
-        // Insert the file into the Downloads collection
-        val collectionUri = if (isFolderExternal) {
-            MediaStore.Downloads.EXTERNAL_CONTENT_URI
-        } else {
-            MediaStore.Downloads.INTERNAL_CONTENT_URI
-        }
         var fileUri = contentResolver.insert(collectionUri, values)
         if (fileUri == null) {
-            values.put(MediaStore.MediaColumns.DISPLAY_NAME, cleaned.replace("mp4", "") + "_e")
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, suffixBeforeExtension(cleaned, "_e"))
             fileUri = contentResolver.insert(collectionUri, values)
         }
 
-        // Copy the file to the Downloads folder
+        // Copy the file into the collection
         val isMoved = fileUri?.let {
             contentResolver.openOutputStream(it)?.use { outputStream ->
                 val copied = sourceFile.inputStream().use { inputStream ->
-                    inputStream.copyTo(outputStream)
+                    copyWithProgress(inputStream, outputStream, sourceFile.length(), onProgress)
                 }
                 if (copied > 0) {
                     // Delete the source file
                     sourceFile.delete()
                     true
                 } else {
-                    Timber.w("moveFileToDownloadsFolder copied 0 bytes: $sourceFile")
+                    Timber.w("moveFileToMediaStoreCollection copied 0 bytes: $sourceFile")
                     false
                 }
             }
@@ -667,7 +746,7 @@ class FileUtil constructor(private val appContext: Context) {
         // MediaProvider may rename the display name again on its own to resolve a collision,
         // so re-query it instead of trusting `cleaned` for the final on-disk path.
         val actualDisplayName = queryDisplayName(contentResolver, fileUri!!) ?: cleaned
-        return File(folderDir, actualDisplayName).absolutePath
+        return File(destinationDir, actualDisplayName).absolutePath
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -683,24 +762,180 @@ class FileUtil constructor(private val appContext: Context) {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun isDownloadExists(contentResolver: ContentResolver, displayName: String): Boolean {
+    private fun mediaStoreDisplayNameExists(
+        contentResolver: ContentResolver, collectionUri: Uri, displayName: String
+    ): Boolean {
         val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-        val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ?"
+        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ?"
         val selectionArgs = arrayOf(displayName)
 
-        val uri = if (isExternalUri(folderDir.toUri())) {
-            MediaStore.Downloads.EXTERNAL_CONTENT_URI
-        } else {
-            MediaStore.Downloads.INTERNAL_CONTENT_URI
-        }
         val cursor = contentResolver.query(
-            uri, projection, selection, selectionArgs, null
+            collectionUri, projection, selection, selectionArgs, null
         )
 
         val exists = cursor?.moveToFirst() ?: false
         cursor?.close()
 
         return exists
+    }
+
+    /**
+     * Streams [input] into [output], reporting 0f..1f as it goes. Callbacks fire only when the
+     * whole-percent changes, so a multi-GB copy still updates the UI a bounded number of times.
+     */
+    private fun copyWithProgress(
+        input: java.io.InputStream,
+        output: java.io.OutputStream,
+        totalBytes: Long,
+        onProgress: ((Float) -> Unit)?,
+    ): Long {
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var copied = 0L
+        var lastReportedPercent = -1
+
+        while (true) {
+            val read = input.read(buffer)
+            if (read < 0) break
+
+            output.write(buffer, 0, read)
+            copied += read
+
+            if (onProgress != null && totalBytes > 0) {
+                val fraction = (copied.toDouble() / totalBytes).coerceIn(0.0, 1.0)
+                val percent = (fraction * 100).toInt()
+                if (percent != lastReportedPercent) {
+                    lastReportedPercent = percent
+                    onProgress(fraction.toFloat())
+                }
+            }
+        }
+
+        output.flush()
+        return copied
+    }
+
+    /** `clip.mp4` + `(1)` -> `clip(1).mp4`; keeps the extension usable on collision renames. */
+    private fun suffixBeforeExtension(fileName: String, suffix: String): String {
+        val extension = fileName.substringAfterLast('.', "")
+        return if (extension.isEmpty()) {
+            "$fileName$suffix"
+        } else {
+            "${fileName.substringBeforeLast('.')}$suffix.$extension"
+        }
+    }
+
+    /**
+     * Moves a downloaded file out of public MediaStore storage into [privateDir], which is
+     * app-private and never indexed by MediaStore/Gallery. Returns the new absolute path, or
+     * `null` if the copy failed. If deleting the original afterwards fails, the copy is kept
+     * rather than lost.
+     */
+    fun moveToPrivateStorage(
+        context: Context,
+        filePath: String,
+        onProgress: ((Float) -> Unit)? = null,
+    ): String? {
+        val source = File(filePath)
+        if (!source.exists()) return null
+
+        var name = source.name
+        var counter = 1
+        while (File(privateDir, name).exists()) {
+            name = suffixBeforeExtension(source.name, "($counter)")
+            counter++
+        }
+
+        val dest = File(privateDir, name)
+        return try {
+            source.inputStream().use { input ->
+                dest.outputStream().use { output ->
+                    copyWithProgress(input, output, source.length(), onProgress)
+                }
+            }
+            if (!deleteFromPublicStorage(context, filePath)) {
+                Timber.w("moveToPrivateStorage: could not delete original: $filePath")
+            }
+            dest.absolutePath
+        } catch (e: Exception) {
+            Timber.e(e, "moveToPrivateStorage failed: $filePath")
+            dest.delete()
+            null
+        }
+    }
+
+    /**
+     * Deletes a public-storage file *and* its MediaStore row. Deleting only the file leaves a
+     * dangling row behind, which Gallery apps keep listing until the next media scan — which
+     * would defeat the point of moving something into the private area.
+     */
+    private fun deleteFromPublicStorage(context: Context, filePath: String): Boolean {
+        val deletedViaMediaStore = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            runCatching {
+                context.contentResolver.delete(
+                    MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                    "${MediaStore.MediaColumns.DATA} = ?",
+                    arrayOf(filePath),
+                ) > 0
+            }.getOrDefault(false)
+        } else {
+            false
+        }
+
+        val file = File(filePath)
+        val deleted = deletedViaMediaStore || !file.exists() || file.delete()
+
+        // Purges the row if the file was removed through the File API instead.
+        MediaScannerConnection.scanFile(context, arrayOf(filePath), null, null)
+
+        return deleted
+    }
+
+    /**
+     * Moves a file out of [privateDir] back into public MediaStore storage (Downloads for
+     * video, Pictures for image). Returns the new absolute path, or `null` on failure.
+     */
+    fun moveOutOfPrivateStorage(
+        context: Context,
+        filePath: String,
+        isImage: Boolean,
+        onProgress: ((Float) -> Unit)? = null,
+    ): String? {
+        val source = File(filePath)
+        if (!source.exists()) return null
+
+        val isQPlus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
+        // Pre-Q takes the plain-rename path in moveMedia, which is instant and has nothing
+        // meaningful to report; only the Q+ MediaStore copies stream through onProgress.
+        val movedPath = when {
+            isImage && isQPlus ->
+                moveFileToPicturesFolder(context.contentResolver, source, source.name, onProgress)
+
+            isImage -> {
+                val picturesDir = Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                picturesDir.mkdirs()
+                moveMedia(context, source.toUri(), File(picturesDir, source.name).toUri())
+            }
+
+            isQPlus -> {
+                folderDir.mkdirs()
+                moveFileToDownloadsFolder(context.contentResolver, source, source.name, onProgress)
+            }
+
+            else -> {
+                folderDir.mkdirs()
+                moveMedia(context, source.toUri(), File(folderDir, source.name).toUri())
+            }
+        }
+
+        // The Q+ branches insert into MediaStore themselves; the pre-Q ones are plain renames
+        // and only become visible to Gallery once scanned.
+        if (movedPath != null) {
+            MediaScannerConnection.scanFile(context, arrayOf(movedPath), null, null)
+        }
+
+        return movedPath
     }
 }
 

@@ -14,7 +14,19 @@ interface MediaLibraryRepository {
 
     suspend fun delete(item: VideoTaskItem)
 
-    suspend fun setPrivate(id: String, isPrivate: Boolean)
+    /**
+     * Moves the file into or out of app-private storage, so the private area actually hides it
+     * from Gallery and other MediaStore readers rather than only from this app's list.
+     * Returns false if the file could not be moved, in which case nothing is written to the DB.
+     *
+     * @param onProgress 0f..1f for this file's copy; large videos take a while, so callers show it.
+     */
+    suspend fun setPrivate(
+        context: Context,
+        item: VideoTaskItem,
+        isPrivate: Boolean,
+        onProgress: (Float) -> Unit = {},
+    ): Boolean
 
     suspend fun renameVideo(context: Context, id: String, filePath: String, newName: String): Boolean
 

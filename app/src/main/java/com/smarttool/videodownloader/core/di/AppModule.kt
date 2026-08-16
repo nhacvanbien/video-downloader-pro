@@ -9,6 +9,7 @@ import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.file.IntentUtil
 import com.smarttool.videodownloader.core.network.CustomProxyController
 import com.smarttool.videodownloader.core.network.Memory
+import com.smarttool.videodownloader.core.network.NetworkMonitor
 import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.core.notification.NotificationsHelper
 import com.smarttool.videodownloader.core.permission.MediaPermissionChecker
@@ -95,10 +96,11 @@ val appModule = module {
     // --- Helpers ---
     single { AppScope() }
     single { AppPreferencesDataSource(androidContext(), get()) }
-    single { FileUtil(androidContext()) }
+    single { FileUtil(androidContext(), get()) }
     single { SystemUiController() }
     single { IntentUtil(get()) }
     single { MediaPermissionChecker(androidContext()) }
+    single { NetworkMonitor(androidContext()) }
     single { NotificationsHelper(androidContext(), get()) }
     single<BaseSchedulers> { BaseSchedulersImpl() }
     single { CustomProxyController(get()) }

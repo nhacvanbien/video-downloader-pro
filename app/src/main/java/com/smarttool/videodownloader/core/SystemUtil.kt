@@ -21,6 +21,21 @@ object SystemUtil {
         languages.add("tr")
         languages.add("ko")
         languages.add("in")
+        languages.add("vi")
+        languages.add("th")
+        languages.add("it")
+        languages.add("pl")
+        languages.add("fa")
+        languages.add("ur")
+        languages.add("ms")
+        languages.add("uk")
+        languages.add("nl")
+        languages.add("ro")
+        languages.add("el")
+        languages.add("hu")
+        languages.add("cs")
+        languages.add("sw")
+        languages.add("fil")
         return languages
     }
 }

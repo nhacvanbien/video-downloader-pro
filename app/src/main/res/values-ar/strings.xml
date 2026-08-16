@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="string_this_action_can_contain_ads">قد تحتوي هذه العملية على إعلانات</string>
     <string name="string_loading">جارٍ التحميل (%s%%)...</string>
     <string name="string_languages">اللغات</string>
     <string name="string_please_select_language">يرجى اختيار اللغة</string>
@@ -29,15 +28,7 @@
     <string name="string_content_terms_of_service">باستخدام هذا التطبيق، فإنك توافق على شروط الخدمة وسياسة الخصوصية الخاصة بنا. يرجى قراءتها بعناية.</string>
     <string name="string_agree">أوافق</string>
     <string name="string_rate">تقييم</string>
-    <string name="string_not_now">ليس الآن</string>
-    <string name="string_thank_for_rate">شكرًا لك على تقييم التطبيق</string>
-    <string name="string_please_feedback">يرجى تقديم ملاحظاتك</string>
-    <string name="string_stay">البقاء</string>
-    <string name="string_exit">خروج</string>
-    <string name="exit_app">هل تريد الخروج؟</string>
-    <string name="string_are_you_sure_you_want_to_exit">هل أنت متأكد أنك تريد الخروج؟</string>
     <string name="string_browser">المتصفح</string>
-    <string name="string_processing">جارٍ المعالجة</string>
     <string name="string_downloaded">تم التنزيل</string>
     <string name="string_settings">الإعدادات</string>
     <string name="string_download_location">موقع التنزيل</string>
@@ -58,17 +49,13 @@
     <string name="string_tiktok">تيك توك</string>
     <string name="string_vimeo">فيميو</string>
     <string name="string_dailymotion">ديلي موشن</string>
-    <string name="player_resolution">دقة الفيديو كما في المشغل</string>
     <string name="string_download_successful">تم التنزيل بنجاح !!!</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">اكتمل التنزيل. يمكنك الآن الوصول إلى ملفك</string>
     <string name="string_cancel">إلغاء</string>
-    <string name="string_open">فتح</string>
     <string name="string_confirm_delete">تأكيد الحذف</string>
     <string name="string_are_you_sure_want_to_delete_photo">هل أنت متأكد أنك تريد حذف الصورة؟</string>
     <string name="string_delete">حذف</string>
     <string name="download_open_in_app">فتح في التطبيق</string>
     <string name="download_watch_in_app">مشاهدة الفيديو</string>
-    <string name="app_download_channel_id" translatable="false">download_channel_id</string>
     <string name="string_close_all">إغلاق الكل</string>
     <string name="string_num_tabs">%s علامات تبويب</string>
     <string name="string_go_see_the_sites">اذهب لمشاهدة المواقع! ستظهر الصفحات التي تزورها هنا!</string>
@@ -100,9 +87,7 @@
     <string name="go_to_setting">اذهب إلى الإعدادات</string>
     <string name="string_save_to_bookmarks_successfully">تم حفظ إلى المفضلة بنجاح</string>
     <string name="string_notification">الإشعار</string>
-    <string name="settings_message_open_folder">لا يوجد لديك تطبيق مستعرض ملفات مثبت على جهازك</string>
     <string name="video_share_message">لا يوجد لديك تطبيق مشغل فيديو مثبت على جهازك</string>
-    <string name="cookies_cleared">تم مسح الكوكيز</string>
     <string name="string_paste">لصق</string>
     <string name="string_paste_link_here">الصق الرابط هنا</string>
     <string name="string_remove_from_private">إزالة من الخاص</string>
@@ -149,12 +134,10 @@
     <string name="string_error_deleting_file">خطأ في حذف الملف!</string>
     <string name="string_step_1_process"><![CDATA[<b>الخطوة 1:</b>]]> افتح التطبيق وانسخ الرابط.</string>
     <string name="string_step_2_process"><![CDATA[<b>الخطوة 2:</b>]]> ارجع إلى التطبيق، وحدد "لصق الرابط" لتنزيل الرابط.</string>
-    <string name="string_name_contains_special_characters">الاسم يحتوي على أحرف خاصة!</string>
     <string name="string_popular_apps">التطبيقات الشائعة</string>
     <string name="string_x">X (تويتر)</string>
     <string name="string_pinterest">بينتيريست</string>
     <string name="string_download_video">تنزيل الفيديو</string>
-    <string name="string_select_type">اختر النوع</string>
     <string name="string_start">ابدأ</string>
     <string name="txt_continue">استمر</string>
     <string name="clear_history">مسح السجل</string>
@@ -162,6 +145,33 @@
     <string name="string_downloading">جارٍ التنزيل</string>
     <string name="string_select_languages">اختر اللغة</string>
 
-    <string name="loading">تحميل....</string>
     <string name="string_applied_language">اللغة التطبيقية...</string>
+    <string name="string_audio">صوت</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_download_failed_short">فشل التنزيل</string>
+    <string name="string_download_size">حجم التنزيل: %s</string>
+    <string name="string_downloads">التنزيلات</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
+    <string name="string_got_it">فهمت</string>
+    <string name="string_login_required_to_download">يرجى تسجيل الدخول إلى %1$s في المتصفح قبل تنزيل هذا الفيديو</string>
+    <string name="string_no_media_found">لم يتم العثور على وسائط</string>
+    <string name="string_no_media_found_desc">قد تكون الصفحة لا تزال قيد التحميل، أو تتطلب تسجيل الدخول، أو غير مدعومة بعد.</string>
+    <string name="string_num_selected">%s محدد</string>
+    <string name="string_press_back_again_to_exit">اضغط رجوع مرة أخرى للخروج</string>
+    <string name="string_report_issue">الإبلاغ عن مشكلة</string>
+    <string name="string_retry">إعادة المحاولة</string>
+    <string name="string_retry_download">إعادة محاولة التنزيل</string>
+    <string name="string_save_to_private_folder">حفظ في المجلد الخاص</string>
+    <string name="string_search_downloads">البحث في التنزيلات</string>
+    <string name="string_search_engine">محرك البحث</string>
+    <string name="string_select_items">تحديد العناصر</string>
+    <string name="string_waiting_for_wifi">في انتظار الواي فاي…</string>
+    <string name="string_wifi_only">الواي فاي فقط</string>
+    <string name="string_wifi_only_desc">انتظر الواي فاي قبل التنزيل</string>
+    <string name="string_yahoo">Yahoo</string>
+    <string name="string_download_location_folder_hint">اسم المجلد</string>
+    <string name="string_moving_to_private">النقل إلى الخاص</string>
+    <string name="string_moving_out_of_private">النقل خارج الخاص</string>
+    <string name="string_do_not_close_app">يرجى إبقاء التطبيق مفتوحًا حتى ينتهي هذا.</string>
+    <string name="string_moving_file_count">الملف %1$s من %2$s</string>
 </resources>

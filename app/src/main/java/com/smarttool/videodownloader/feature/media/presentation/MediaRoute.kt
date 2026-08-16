@@ -173,7 +173,7 @@ fun MediaRoute(
                 },
                 onShare = {
                     viewModel.onEvent(MediaContract.Event.HideMoreMenu)
-                    intentUtil.shareVideo(context, File(item.filePath).toUri())
+                    intentUtil.shareFile(context, File(item.filePath).toUri())
                 },
                 onDelete = {
                     viewModel.onEvent(MediaContract.Event.HideMoreMenu)

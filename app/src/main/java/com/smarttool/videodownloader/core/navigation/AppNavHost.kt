@@ -9,7 +9,6 @@ import androidx.navigation.navArgument
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.feature.browser.presentation.WebTabViewHost
-import com.smarttool.videodownloader.feature.browser.presentation.WebTabRoute
 import com.smarttool.videodownloader.feature.disclaimers.presentation.DisclaimersRoute
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingWebViewHost
 import com.smarttool.videodownloader.feature.guide.presentation.GuideRoute
@@ -23,6 +22,7 @@ import com.smarttool.videodownloader.feature.library.presentation.SelectVideoRou
 import com.smarttool.videodownloader.feature.main.presentation.GUIDE_FROM_HOME
 import com.smarttool.videodownloader.feature.main.presentation.MainRoute
 import com.smarttool.videodownloader.feature.main.presentation.MainTab
+import com.smarttool.videodownloader.feature.media.presentation.ImageGalleryRoute
 import com.smarttool.videodownloader.feature.media.presentation.MediaRoute
 import com.smarttool.videodownloader.feature.permission.presentation.PermissionRoute
 import com.smarttool.videodownloader.feature.pin.presentation.PinRoute
@@ -36,6 +36,9 @@ const val PIN_ACTION_CHANGE = "changePinCode"
 const val SECURITY_STATUS_FORGOT = "forgot"
 
 private const val HISTORY_MODE_BOOKMARK = "bookmark"
+
+/** Matches the `type` [AppRoute.playMedia] is built with for an image `VideoTaskItem`. */
+private const val MEDIA_TYPE_IMAGE = "image"
 
 /**
  * The whole app graph. Everything except the splash screen is a destination here.
@@ -55,11 +58,12 @@ fun AppNavHost(
     onExitRequested: () -> Unit,
 ) {
     val openWebTab: (String) -> Unit = { url ->
-        navController.navigate(AppRoute.webTab(url)) {
-            // Opening a page always replaces the browser rather than stacking a second
-            // WebView on top of it, so the tab list and history do not pile up behind.
-            popUpTo(AppRoute.MAIN)
-        }
+        // Opening a page always replaces the current session rather than stacking a
+        // second WebView on top of it, so the tab list and history do not pile up
+        // behind — `start` tears down whatever was running first.
+        webTabHost.start(url)
+        onSelectTab(MainTab.Browser)
+        navController.popBackStack(AppRoute.MAIN, inclusive = false)
     }
 
     val openMedia: (VideoTaskItem) -> Unit = { item ->
@@ -67,7 +71,7 @@ fun AppNavHost(
             AppRoute.playMedia(
                 url = item.filePath,
                 title = item.title,
-                type = if (item.mimeType.startsWith("image")) "image" else "video",
+                type = if (item.mimeType.startsWith("image")) MEDIA_TYPE_IMAGE else "video",
                 isDownloaded = true,
             ),
         )
@@ -85,6 +89,7 @@ fun AppNavHost(
             MainRoute(
                 selectedTab = selectedTab,
                 processingHost = processingHost,
+                webTabHost = webTabHost,
                 onSelectTab = onSelectTab,
                 onOpenUrl = openWebTab,
                 onOpenGuide = { from -> navController.navigate(AppRoute.guide(from)) },
@@ -133,23 +138,9 @@ fun AppNavHost(
         composable(AppRoute.TABS) {
             TabsRoute(
                 onOpenUrl = openWebTab,
-            )
-        }
-
-        composable(
-            route = AppRoute.WEB_TAB,
-            arguments = listOf(navArgument(AppRoute.ARG_URL) { type = NavType.StringType }),
-        ) { entry ->
-            val url = AppRoute.decode(entry.arguments?.getString(AppRoute.ARG_URL))
-
-            WebTabRoute(
-                host = webTabHost,
-                url = url,
-                onOpenTabs = { navController.navigate(AppRoute.TABS) },
-                onPreviewMedia = previewMedia,
-                onBack = {
-                    webTabHost.release()
-                    navController.popBackStack()
+                onHome = {
+                    onSelectTab(MainTab.Browser)
+                    navController.popBackStack(AppRoute.MAIN, inclusive = false)
                 },
             )
         }
@@ -177,14 +168,24 @@ fun AppNavHost(
             ),
         ) { entry ->
             val args = entry.arguments
+            val type = AppRoute.decode(args?.getString(AppRoute.ARG_TYPE))
 
-            MediaRoute(
-                url = AppRoute.decode(args?.getString(AppRoute.ARG_URL)),
-                title = AppRoute.decode(args?.getString(AppRoute.ARG_TITLE)),
-                isDownloaded = args?.getBoolean(AppRoute.ARG_DOWNLOADED) == true,
-                headersJson = AppRoute.decode(args?.getString(AppRoute.ARG_HEADERS)),
-                onBack = { navController.popBackStack() },
-            )
+            if (type == MEDIA_TYPE_IMAGE) {
+                ImageGalleryRoute(
+                    url = AppRoute.decode(args?.getString(AppRoute.ARG_URL)),
+                    title = AppRoute.decode(args?.getString(AppRoute.ARG_TITLE)),
+                    isDownloaded = args?.getBoolean(AppRoute.ARG_DOWNLOADED) == true,
+                    onBack = { navController.popBackStack() },
+                )
+            } else {
+                MediaRoute(
+                    url = AppRoute.decode(args?.getString(AppRoute.ARG_URL)),
+                    title = AppRoute.decode(args?.getString(AppRoute.ARG_TITLE)),
+                    isDownloaded = args?.getBoolean(AppRoute.ARG_DOWNLOADED) == true,
+                    headersJson = AppRoute.decode(args?.getString(AppRoute.ARG_HEADERS)),
+                    onBack = { navController.popBackStack() },
+                )
+            }
         }
 
         composable(

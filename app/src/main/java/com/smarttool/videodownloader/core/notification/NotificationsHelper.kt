@@ -86,7 +86,7 @@ class NotificationsHelper  constructor(
                     val fileSize = file.length()
                     val lastModified = file.lastModified()
 
-                    task.mimeType = "video"
+                    task.mimeType = mimeTypeForFile(task.fileName)
                     task.fileDuration = getVideoDuration(context, task.filePath)
 
                     task.fileSize = fileSize
@@ -113,13 +113,13 @@ class NotificationsHelper  constructor(
 
             VideoTaskState.ERROR, VideoTaskState.ENOSPC -> {
                 builder.clearActions()
-                val action = notificationActionOpen(true)
+                val action = notificationActionOpen(true, isError = true)
 
                 builder.setSubText("Error")
                 builder.setContentText("Failed " + task.errorMessage)
                     .setProgress(100, taskPercent.toInt(), false)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download_done)
-                builder.addAction(action)
+                builder.addAction(notificationActionRetry()).addAction(action)
             }
 
             VideoTaskState.CANCELED -> {
@@ -139,6 +139,13 @@ class NotificationsHelper  constructor(
         }
 
         return Pair(task.mId.hashCode(), builder)
+    }
+
+    /** P1: regular/yt-dlp completions were always tagged "video" — audio-only picks need "audio". */
+    private fun mimeTypeForFile(fileName: String): String {
+        val audioExtensions = setOf("mp3", "m4a", "aac", "wav", "ogg", "flac", "opus")
+        val extension = fileName.substringAfterLast('.', "").lowercase()
+        return if (extension in audioExtensions) "audio" else "video"
     }
 
     private fun getVideoDuration(context: Context, filePath: String): Long {
@@ -189,6 +196,24 @@ class NotificationsHelper  constructor(
             android.R.drawable.stat_sys_download_done,
             context.resources.getString(R.string.download_open_in_app),
             pendingIntent
+        )
+    }
+
+    /** P1: opens the app straight to the Downloads tab, one tap from the failed item's Retry. */
+    private fun notificationActionRetry(): NotificationCompat.Action {
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra(YoutubeDlDownloaderWorker.IS_FINISHED_DOWNLOAD_ACTION_KEY, true)
+        intent.putExtra(YoutubeDlDownloaderWorker.IS_FINISHED_DOWNLOAD_ACTION_ERROR_KEY, true)
+
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.getActivity(context, 3, intent, PendingIntent.FLAG_MUTABLE)
+        } else {
+            PendingIntent.getActivity(context, 3, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+        return NotificationCompat.Action(
+            android.R.drawable.stat_sys_download_done,
+            context.resources.getString(R.string.string_retry),
+            pendingIntent,
         )
     }
 

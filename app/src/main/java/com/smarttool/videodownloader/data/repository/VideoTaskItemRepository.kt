@@ -53,8 +53,12 @@ class VideoTaskItemRepository  constructor(
         videoTaskItemDao.deleteVideoTaskItem(videoTaskItem)
     }
 
-    suspend fun updateIsCheckSecurity(id: String, isSecurity: Boolean) {
-        videoTaskItemDao.updateIsSecurity(id, isSecurity)
+    /**
+     * Always paired with the file actually moving between public and private storage — flipping
+     * the flag alone would leave the private area hiding a file that Gallery still shows.
+     */
+    suspend fun updateSecurityAndPath(id: String, isSecurity: Boolean, newPath: String) {
+        videoTaskItemDao.updateSecurityAndPath(id, isSecurity, newPath)
     }
 
     suspend fun updateNameVideoTaskItem(id: String, newName: String, newPath: String) {

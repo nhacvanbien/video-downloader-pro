@@ -2,7 +2,7 @@ package com.smarttool.videodownloader.feature.main.presentation
 
 import com.smarttool.videodownloader.android.R
 
-/** The four bottom-navigation destinations, in display order. */
+/** The three bottom-navigation destinations, in display order. */
 enum class MainTab(
     val labelRes: Int,
     val selectedIconRes: Int,
@@ -13,13 +13,8 @@ enum class MainTab(
         R.drawable.ic_browser_navigation_selected,
         R.drawable.ic_browser_navigation_normal,
     ),
-    Processing(
-        R.string.string_processing,
-        R.drawable.ic_processing_navigation_selected,
-        R.drawable.ic_processing_navigation_normal,
-    ),
-    Downloaded(
-        R.string.string_downloaded,
+    Downloads(
+        R.string.string_downloads,
         R.drawable.ic_downloaded_navigation_selected,
         R.drawable.ic_downloaded_navigation_normal,
     ),

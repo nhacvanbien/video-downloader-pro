@@ -17,12 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ui.theme.Muted
 
 @Composable
 fun RenameDialogContent(
@@ -46,7 +46,7 @@ fun RenameDialogContent(
             Icon(
                 painter = painterResource(R.drawable.ic_close),
                 contentDescription = stringResource(R.string.string_cancel),
-                tint = Color(0xFF5B5D5F),
+                tint = Muted,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 8.dp)

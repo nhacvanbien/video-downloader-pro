@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,6 +83,8 @@ fun MediaScreen(
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             RetainedAndroidView(view = playerView, modifier = Modifier.fillMaxSize())
 
+            PlayerGestureOverlay(modifier = Modifier.fillMaxSize())
+
             // The header's back arrow is gone in landscape; without this a user with
             // gesture navigation off has no way out of the player short of rotating back.
             if (isLandscape) {
@@ -139,7 +142,7 @@ private fun MediaHeader(
             color = AppWhite,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+            modifier = Modifier.weight(1f).padding(horizontal = 12.dp).basicMarquee(),
         )
 
         if (showMoreAction) {

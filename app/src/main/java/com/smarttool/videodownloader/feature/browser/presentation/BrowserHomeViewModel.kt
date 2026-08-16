@@ -3,7 +3,10 @@ package com.smarttool.videodownloader.feature.browser.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smarttool.videodownloader.feature.browser.domain.model.PopularSite
+import com.smarttool.videodownloader.feature.browser.domain.model.SearchEngine
+import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import com.smarttool.videodownloader.feature.browser.domain.usecase.GetPopularSitesUseCase
+import com.smarttool.videodownloader.feature.browser.domain.usecase.ObserveSearchEngineUseCase
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
@@ -19,6 +22,7 @@ import kotlinx.coroutines.launch
 class BrowserHomeViewModel(
     getPopularSites: GetPopularSitesUseCase,
     observeTabs: ObserveTabsUseCase,
+    observeSearchEngine: ObserveSearchEngineUseCase,
     private val createTab: CreateTabUseCase,
 ) : ViewModel() {
 
@@ -30,11 +34,18 @@ class BrowserHomeViewModel(
     private val _effect = Channel<BrowserHomeContract.Effect>(Channel.BUFFERED)
     val effect: Flow<BrowserHomeContract.Effect> = _effect.receiveAsFlow()
 
+    /** Kept as a plain field — [openTab] is a synchronous event handler, not a suspend one. */
+    private var searchEngine: SearchEngine = SearchEngine.GOOGLE
+
     init {
         viewModelScope.launch {
             observeTabs().collect { tabs ->
                 _uiState.update { it.copy(tabCount = tabs.size) }
             }
+        }
+
+        viewModelScope.launch {
+            observeSearchEngine().collect { searchEngine = it }
         }
     }
 
@@ -61,4 +72,8 @@ class BrowserHomeViewModel(
             _effect.send(BrowserHomeContract.Effect.TabReady(tab))
         }
     }
+
+    /** Builds the tab from raw address-bar/search-box input, honouring the current engine. */
+    fun tabModelFromInput(input: String): TabModel =
+        WebTabFactory.createTabModelFromInput(input, searchEngine.urlTemplate)
 }

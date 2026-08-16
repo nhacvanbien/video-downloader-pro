@@ -35,6 +35,7 @@ fun HistoryRoute(
     HistoryScreen(
         state = state,
         onBack = onBack,
+        onModeChange = { viewModel.onEvent(HistoryContract.Event.ModeChange(it)) },
         onSearchQueryChange = { viewModel.onEvent(HistoryContract.Event.SearchQueryChange(it)) },
         onSearchActiveChange = { viewModel.onEvent(HistoryContract.Event.SearchActiveChange(it)) },
         onEntryClick = { entry ->

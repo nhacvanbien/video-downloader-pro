@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.feature.browser.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,7 +38,9 @@ import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.SheetCornerRadius
 import com.smarttool.videodownloader.core.ui.theme.AppBlack
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.theme.Border
 import com.smarttool.videodownloader.core.ui.theme.Primary
+import com.smarttool.videodownloader.core.ui.theme.PriSoft
 import com.smarttool.videodownloader.core.ui.theme.SearchFieldHint
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.feature.browser.domain.model.PopularSite
@@ -68,7 +71,7 @@ fun BrowserHomeScreen(
             Text(
                 text = stringResource(R.string.string_video_downloader),
                 style = MaterialTheme.typography.titleLarge,
-                color = AppWhite,
+                color = TextPrimary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
             )
@@ -80,8 +83,8 @@ fun BrowserHomeScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .size(28.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(AppWhite)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(PriSoft)
                     .clickable(onClick = onOpenTabs)
                     .padding(top = 4.dp),
             )
@@ -98,16 +101,15 @@ fun BrowserHomeScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ShortcutChip(
-                iconRes = R.drawable.ic_bookmark,
-                labelRes = R.string.string_bookmark,
-                onClick = onOpenBookmarks,
-                modifier = Modifier.weight(1f),
-            )
-
-            ShortcutChip(
                 iconRes = R.drawable.ic_history,
                 labelRes = R.string.string_history,
                 onClick = onOpenHistory,
+                modifier = Modifier.weight(1f),
+            )
+            ShortcutChip(
+                iconRes = R.drawable.ic_bookmark,
+                labelRes = R.string.string_bookmark,
+                onClick = onOpenBookmarks,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -150,6 +152,8 @@ private fun SearchField(
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(120.dp))
+            .border(1.dp, Border, RoundedCornerShape(120.dp))
+
             .background(AppWhite)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -195,6 +199,7 @@ private fun ShortcutChip(
         modifier = modifier
             .clip(RoundedCornerShape(120.dp))
             .background(AppWhite)
+            .border(1.dp, Border, RoundedCornerShape(120.dp))
             .clickable(onClick = onClick)
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.Center,

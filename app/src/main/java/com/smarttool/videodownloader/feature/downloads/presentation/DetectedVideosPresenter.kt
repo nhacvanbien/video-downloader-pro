@@ -71,7 +71,7 @@ class DetectedVideosPresenter(
         onPreviewVideo(info, format, false)
     }
 
-    fun download(video: DetectedVideoUi) {
+    fun download(video: DetectedVideoUi, isPrivate: Boolean) {
         val info = findVideoInfo(video.id) ?: return
         val format = video.selectedFormat
 
@@ -80,7 +80,7 @@ class DetectedVideosPresenter(
             return
         }
 
-        onDownloadVideo(info, format, video.title)
+        onDownloadVideo(info, format, video.title, isPrivate)
         isSheetVisible = false
         toast(R.string.string_downloading)
     }
@@ -104,13 +104,14 @@ class DetectedVideosPresenter(
         onPreviewMedia(first.url.orEmpty(), title, if (isForce) "{}" else headers)
     }
 
-    override fun onDownloadVideo(videoInfo: VideoInfo, format: String, videoTitle: String) {
+    override fun onDownloadVideo(videoInfo: VideoInfo, format: String, videoTitle: String, isPrivate: Boolean) {
         val info = videoInfo.copy(
             title = videoTitle,
             fileName = FileNameCleaner.cleanFileName(videoTitle),
             formats = VideFormatEntityList(
                 videoInfo.formats.formats.filter { it.format?.contains(format) ?: false },
             ),
+            isPrivate = isPrivate,
         )
 
         processingViewModel.onEvent(ProcessingContract.Event.Start(info))

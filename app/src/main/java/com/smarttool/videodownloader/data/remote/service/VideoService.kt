@@ -125,9 +125,14 @@ open class VideoServiceLocal(
                 }
             }
 
-            val listFormats =
-                VideFormatEntityList(filtered.ifEmpty { formats?.filter { !(it.acodec != "none" && it.vcodec == "none") } }
-                    ?: emptyList())
+            val videoFormats = filtered.ifEmpty { formats?.filterNot { it.isAudioOnly } ?: emptyList() }
+
+            // Surface the best audio-only variant as a single "Audio" chip alongside the
+            // video qualities instead of discarding every audio-only format outright —
+            // GetVideoFormatOptionsUseCase collapses it into the AUDIO_LABEL chip.
+            val bestAudioFormat = formats?.filter { it.isAudioOnly }?.maxByOrNull { it.abr }
+
+            val listFormats = VideFormatEntityList(videoFormats + listOfNotNull(bestAudioFormat))
 
             if (listFormats.formats.isEmpty()) throw Exception("Audio Only Detected")
 

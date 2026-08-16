@@ -33,7 +33,6 @@ object AppRoute {
     const val HISTORY = "history/{$ARG_MODE}"
 
     const val ARG_URL = "url"
-    const val WEB_TAB = "webTab/{$ARG_URL}"
 
     const val ARG_ACTION = "action"
     const val PIN = "pin/{$ARG_ACTION}"
@@ -62,8 +61,6 @@ object AppRoute {
 
     /** [mode] is `bookmark` or `history`; anything else falls back to history. */
     fun history(mode: String): String = "history/${encode(mode)}"
-
-    fun webTab(url: String): String = "webTab/${encode(url)}"
 
     fun pin(action: String = ""): String = "pin/${encode(action)}"
 

@@ -1,41 +1,32 @@
 package com.smarttool.videodownloader.feature.browser.presentation
 
-import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosSheetHost
+import com.smarttool.videodownloader.feature.downloads.presentation.NoMediaFoundDialog
 import com.smarttool.videodownloader.feature.downloads.presentation.toUiState
 
 /**
  * The browser destination.
  *
  * The host — and with it the WebView — is owned by the Activity, not by this
- * composable, so pushing a video preview on top and coming back keeps the page. Leaving
- * the browser is therefore an explicit [onBack]/[BackHandler] call rather than
- * something inferred from disposal.
+ * composable, so switching tabs or pushing a video preview on top and coming back both
+ * keep the page. A session is already running (`host.started`) by the time this is
+ * composed — starting one is the opener's job (see `AppNavHost.openWebTab`) — so
+ * `host.tabViewModel`/`host.detector` are guaranteed initialized here. Leaving the
+ * browser is therefore an explicit [onBack]/[BackHandler] call rather than something
+ * inferred from disposal.
  */
 @Composable
 fun WebTabRoute(
     host: WebTabViewHost,
-    url: String,
     onOpenTabs: () -> Unit,
     onPreviewMedia: (url: String, title: String, headers: String) -> Unit,
     onBack: () -> Unit,
 ) {
-    val context = LocalContext.current
-
-    // Runs synchronously during composition (unlike LaunchedEffect, whose body only
-    // fires after the first frame) so `host.tabViewModel`/`host.detector` below are
-    // guaranteed to be initialized before they're read.
-    remember(url) {
-        host.onPreviewMedia = onPreviewMedia
-        host.start(url)
-    }
+    host.onPreviewMedia = onPreviewMedia
 
     val tabViewModel = host.tabViewModel
     val detector = host.detector
@@ -90,22 +81,17 @@ fun WebTabRoute(
         onSubmitUrl = { submitUrl(tabViewModel.uiState.value.tabUrl) },
         onSuggestionClick = { submitUrl(it) },
         onBack = ::closeTab,
-        onNavigateBack = host::navigateBack,
-        onNavigateForward = host::navigateForward,
         onReload = host::reloadPage,
-        onShare = {
-            val current = tabViewModel.uiState.value
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, current.currentTitle)
-                putExtra(Intent.EXTRA_TEXT, current.tabUrl)
-            }
-            context.startActivity(Intent.createChooser(intent, context.getString(R.string.string_share)))
-        },
-        onBookmark = { tabViewModel.onEvent(WebTabPipelineContract.Event.SaveUrlToHistoryBookmark) },
         onOpenTabs = onOpenTabs,
         onDownload = { detector.onEvent(DetectedVideosContract.Event.ShowVideoInfo) },
     )
 
     DetectedVideosSheetHost(presenter = host.detected)
+
+    if (host.showNoMediaFound) {
+        NoMediaFoundDialog(
+            onDismiss = { host.dismissNoMediaFound() },
+            onReportIssue = { host.dismissNoMediaFound() },
+        )
+    }
 }

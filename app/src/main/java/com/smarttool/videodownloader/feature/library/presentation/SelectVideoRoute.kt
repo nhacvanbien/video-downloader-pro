@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SelectVideoRoute(onBack: () -> Unit) {
     val viewModel: LibraryViewModel = koinViewModel()
+    val context = LocalContext.current
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val items by viewModel.items.collectAsStateWithLifecycle()
@@ -34,7 +36,6 @@ fun SelectVideoRoute(onBack: () -> Unit) {
         items = items,
         onFilterChange = { viewModel.onEvent(LibraryContract.Event.FilterChange(it)) },
         onSearchChange = { viewModel.onEvent(LibraryContract.Event.SearchChange(it)) },
-        onSearchVisibleChange = { viewModel.onEvent(LibraryContract.Event.SetSearchVisible(it)) },
         onOpenSort = { viewModel.onEvent(LibraryContract.Event.SetSortSheetVisible(true)) },
         onItemClick = { viewModel.onEvent(LibraryContract.Event.ToggleSelection(it.mId)) },
         onItemMenu = { viewModel.onEvent(LibraryContract.Event.ToggleSelection(it.mId)) },
@@ -46,13 +47,17 @@ fun SelectVideoRoute(onBack: () -> Unit) {
                     painter = painterResource(R.drawable.ic_check),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp).clickable {
-                        viewModel.onEvent(LibraryContract.Event.MoveSelectedToPrivate(true))
+                        viewModel.onEvent(
+                            LibraryContract.Event.MoveSelectedToPrivate(context, true),
+                        )
                         onBack()
                     },
                 )
             }
         },
     )
+
+    state.privateMoveProgress?.let { PrivateMoveProgressDialog(progress = it) }
 
     if (state.sortSheetVisible) {
         SortSheet(

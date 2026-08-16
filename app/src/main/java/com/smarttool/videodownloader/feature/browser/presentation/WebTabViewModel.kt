@@ -7,8 +7,10 @@ import com.smarttool.videodownloader.core.network.OkHttpProxyClient
 import com.smarttool.videodownloader.data.network.entity.HistoryItem
 import com.smarttool.videodownloader.data.remote.service.AdBlockHostsRemoteDataSource
 import com.smarttool.videodownloader.feature.browser.domain.FaviconUtils
+import com.smarttool.videodownloader.feature.browser.domain.model.SearchEngine
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import com.smarttool.videodownloader.feature.browser.domain.usecase.DownloadImageUseCase
+import com.smarttool.videodownloader.feature.browser.domain.usecase.ObserveSearchEngineUseCase
 import com.smarttool.videodownloader.feature.history.domain.model.HistoryEntry
 import com.smarttool.videodownloader.feature.history.domain.usecase.ObserveHistoryUseCase
 import com.smarttool.videodownloader.feature.history.domain.usecase.SaveHistoryEntryUseCase
@@ -51,6 +53,7 @@ class WebTabViewModel(
     private val okHttpProxyClient: OkHttpProxyClient,
     private val downloadImage: DownloadImageUseCase,
     observeHistory: ObserveHistoryUseCase,
+    observeSearchEngine: ObserveSearchEngineUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WebTabPipelineContract.State())
@@ -63,11 +66,18 @@ class WebTabViewModel(
     private var lastSavedHistoryUrl: String = ""
     private var lastSavedTitleHistory: String = ""
 
+    /** Kept as a plain field — the event handlers below are synchronous, not suspend. */
+    private var searchEngine: SearchEngine = SearchEngine.GOOGLE
+
     init {
         viewModelScope.launch {
             observeTabs().collect { tabs ->
                 _uiState.update { it.copy(tabCount = tabs.size) }
             }
+        }
+
+        viewModelScope.launch {
+            observeSearchEngine().collect { searchEngine = it }
         }
 
         // Mirrors Chrome's omnibox: re-queried on every keystroke against the typed text,
@@ -118,7 +128,7 @@ class WebTabViewModel(
             is WebTabPipelineContract.Event.OpenPage -> {
                 if (event.input.isNotEmpty()) {
                     changeTabFocus(false)
-                    val tab = WebTabFactory.createWebTabFromInput(event.input)
+                    val tab = WebTabFactory.createWebTabFromInput(event.input, searchEngine.urlTemplate)
                     _effect.trySend(WebTabPipelineContract.Effect.OpenPage(tab))
                 }
             }
@@ -126,7 +136,7 @@ class WebTabViewModel(
             is WebTabPipelineContract.Event.LoadPage -> {
                 if (event.input.isNotEmpty()) {
                     changeTabFocus(false)
-                    val tab = WebTabFactory.createWebTabFromInput(event.input)
+                    val tab = WebTabFactory.createWebTabFromInput(event.input, searchEngine.urlTemplate)
                     setTabTextInput(tab.getUrl())
                     _effect.trySend(WebTabPipelineContract.Effect.LoadPage(tab))
                 }

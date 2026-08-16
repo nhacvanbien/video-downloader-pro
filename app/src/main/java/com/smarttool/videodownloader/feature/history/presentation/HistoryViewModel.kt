@@ -16,9 +16,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/** History and bookmarks, one screen — [mode] is the initial tab; the switch can change it. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class HistoryViewModel(
-    private val mode: HistoryMode,
+    initialMode: HistoryMode,
     observeHistory: ObserveHistoryUseCase,
     observeBookmarks: ObserveBookmarksUseCase,
     private val addBookmark: AddBookmarkUseCase,
@@ -26,18 +27,20 @@ class HistoryViewModel(
     private val clearHistory: ClearHistoryUseCase,
 ) : ViewModel() {
 
+    private val mode = MutableStateFlow(initialMode)
     private val searchQuery = MutableStateFlow("")
     private val isSearchActive = MutableStateFlow(false)
 
-    private val entries = searchQuery.flatMapLatest { query ->
-        when (mode) {
-            HistoryMode.HISTORY -> observeHistory(query)
-            HistoryMode.BOOKMARK -> observeBookmarks(query)
+    private val entries = combine(mode, searchQuery) { mode, query -> mode to query }
+        .flatMapLatest { (mode, query) ->
+            when (mode) {
+                HistoryMode.HISTORY -> observeHistory(query)
+                HistoryMode.BOOKMARK -> observeBookmarks(query)
+            }
         }
-    }
 
     val uiState: StateFlow<HistoryContract.State> =
-        combine(entries, searchQuery, isSearchActive) { entries, query, searchActive ->
+        combine(mode, entries, searchQuery, isSearchActive) { mode, entries, query, searchActive ->
             HistoryContract.State(
                 mode = mode,
                 entries = entries,
@@ -47,11 +50,16 @@ class HistoryViewModel(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = HistoryContract.State(mode = mode),
+            initialValue = HistoryContract.State(mode = initialMode),
         )
 
     fun onEvent(event: HistoryContract.Event) {
         when (event) {
+            is HistoryContract.Event.ModeChange -> {
+                mode.value = event.mode
+                searchQuery.value = ""
+                isSearchActive.value = false
+            }
             is HistoryContract.Event.SearchQueryChange -> searchQuery.value = event.query
             is HistoryContract.Event.SearchActiveChange -> {
                 isSearchActive.value = event.active

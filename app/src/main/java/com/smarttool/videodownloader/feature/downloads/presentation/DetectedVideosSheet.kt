@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.feature.downloads.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +20,15 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -29,8 +36,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ui.components.MediaKind
 import com.smarttool.videodownloader.core.ui.components.MediaThumbnail
+import com.smarttool.videodownloader.core.ui.theme.AppLocaleProvider
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.theme.Border
 import com.smarttool.videodownloader.core.ui.theme.Primary
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 import com.smarttool.videodownloader.core.ui.theme.TextSub
@@ -47,7 +57,7 @@ fun DetectedVideosSheet(
     onSelectFormat: (DetectedVideoUi, VideoFormatOption) -> Unit,
     onRename: (DetectedVideoUi) -> Unit,
     onPreview: (DetectedVideoUi) -> Unit,
-    onDownload: (DetectedVideoUi) -> Unit,
+    onDownload: (DetectedVideoUi, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -55,15 +65,20 @@ fun DetectedVideosSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = AppWhite,
     ) {
-        LazyColumn(modifier = Modifier.padding(bottom = 24.dp)) {
-            itemsIndexed(videos, key = { _, v -> v.id }) { _, video ->
-                DetectedVideoRow(
-                    video = video,
-                    onSelectFormat = { onSelectFormat(video, it) },
-                    onRename = { onRename(video) },
-                    onPreview = { onPreview(video) },
-                    onDownload = { onDownload(video) },
-                )
+        // The sheet composes in its own window, whose AbstractComposeView re-provides
+        // LocalContext from the Activity — discarding the override installed around the
+        // main composition. Without this the sheet keeps the launch-time language.
+        AppLocaleProvider {
+            LazyColumn(modifier = Modifier.padding(bottom = 24.dp)) {
+                itemsIndexed(videos, key = { _, v -> v.id }) { _, video ->
+                    DetectedVideoRow(
+                        video = video,
+                        onSelectFormat = { onSelectFormat(video, it) },
+                        onRename = { onRename(video) },
+                        onPreview = { onPreview(video) },
+                        onDownload = { isPrivate -> onDownload(video, isPrivate) },
+                    )
+                }
             }
         }
     }
@@ -75,16 +90,18 @@ private fun DetectedVideoRow(
     onSelectFormat: (VideoFormatOption) -> Unit,
     onRename: () -> Unit,
     onPreview: () -> Unit,
-    onDownload: () -> Unit,
+    onDownload: (Boolean) -> Unit,
 ) {
+    var isPrivate by rememberSaveable(video.id) { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             MediaThumbnail(
                 filePath = video.thumbnailUrl.orEmpty(),
-                isImage = true,
+                mediaType = MediaKind.VIDEO,
                 modifier = Modifier
-                    .size(width = 84.dp, height = 56.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(58.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable(onClick = onPreview),
             )
 
@@ -128,13 +145,49 @@ private fun DetectedVideoRow(
             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
         )
 
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .clickable { isPrivate = !isPrivate },
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(if (isPrivate) Primary else Color.Transparent)
+                    .border(
+                        width = 1.dp,
+                        color = if (isPrivate) Primary else Border,
+                        shape = RoundedCornerShape(6.dp),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isPrivate) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_check),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(AppWhite),
+                        modifier = Modifier.size(12.dp),
+                    )
+                }
+            }
+
+            Text(
+                text = stringResource(R.string.string_save_to_private_folder),
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp),
+                color = TextPrimary,
+                modifier = Modifier.padding(start = 8.dp),
+            )
+        }
+
         Box(
             modifier = Modifier
                 .padding(top = 12.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(120.dp))
                 .background(Primary)
-                .clickable(onClick = onDownload)
+                .clickable { onDownload(isPrivate) }
                 .height(46.dp),
             contentAlignment = Alignment.Center,
         ) {

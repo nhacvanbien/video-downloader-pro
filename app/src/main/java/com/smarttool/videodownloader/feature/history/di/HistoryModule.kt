@@ -26,7 +26,7 @@ val historyModule = module {
 
     viewModel { (mode: HistoryMode) ->
         HistoryViewModel(
-            mode = mode,
+            initialMode = mode,
             observeHistory = get(),
             observeBookmarks = get(),
             addBookmark = get(),

@@ -31,6 +31,7 @@ class GetVideoFormatOptionsUseCase {
                 label = label,
                 format = format.format ?: continue,
                 url = format.url,
+                isAudio = label == AUDIO_LABEL,
             )
         }
 
@@ -39,7 +40,7 @@ class GetVideoFormatOptionsUseCase {
         return byLabel.values.sortedBy { qualityRank(it.label) }
     }
 
-    /** Audio-only formats collapse to an empty label and are dropped by [invoke]. */
+    /** Audio-only formats collapse to one [AUDIO_LABEL] chip instead of a resolution. */
     private fun shortLabel(format: String?): String {
         val readable = (format ?: return ERROR).replace(Regex("-\\w+"), "")
 
@@ -47,7 +48,7 @@ class GetVideoFormatOptionsUseCase {
             readable.contains("x") ->
                 readable.substringAfterLast("x").replace(Regex("\\D"), "") + "P"
 
-            readable.contains("audio only") -> ""
+            readable.contains("audio only") -> AUDIO_LABEL
 
             readable.contains("-") -> {
                 val left = readable.substringBefore("-")
@@ -70,12 +71,13 @@ class GetVideoFormatOptionsUseCase {
      * else unrecognized (e.g. the "MP4"/"Error" fallbacks) sorts after all of these.
      */
     private fun qualityRank(label: String): Int {
+        if (label == AUDIO_LABEL) return Int.MAX_VALUE
         label.takeWhile { it.isDigit() }.toIntOrNull()?.let { return it }
 
         return when (label) {
             "SD" -> SD_RANK
             "HD" -> HD_RANK
-            else -> Int.MAX_VALUE
+            else -> Int.MAX_VALUE - 1
         }
     }
 
@@ -83,5 +85,6 @@ class GetVideoFormatOptionsUseCase {
         const val ERROR = "Error"
         const val SD_RANK = 480
         const val HD_RANK = 720
+        const val AUDIO_LABEL = "Audio"
     }
 }

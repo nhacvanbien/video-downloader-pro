@@ -38,6 +38,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.dialogs.setComposeContent
+import com.smarttool.videodownloader.core.ui.theme.AppLocaleProvider
 import com.smarttool.videodownloader.core.ui.theme.AppWhite
 import com.smarttool.videodownloader.core.ui.theme.TextPrimary
 
@@ -105,12 +106,18 @@ class StoragePermissionSheet(
 
     fun show() {
         dialog.setComposeContent(activity) {
-            StoragePermissionSheetContent(
-                state = uiState,
-                onClose = { dialog.dismiss() },
-                onStorageClick = { onStorageClicked() },
-                onNotificationClick = { onNotificationClicked() },
-            )
+            // This sheet is Activity-owned (constructed once, shown/dismissed repeatedly),
+            // so its content lambda never sits inside the AppLocaleProvider that wraps
+            // setContent() in MainActivity. Re-provide it here so a mid-session language
+            // change reaches it too.
+            AppLocaleProvider {
+                StoragePermissionSheetContent(
+                    state = uiState,
+                    onClose = { dialog.dismiss() },
+                    onStorageClick = { onStorageClicked() },
+                    onNotificationClick = { onNotificationClicked() },
+                )
+            }
         }
 
         dialog.setCanceledOnTouchOutside(true)

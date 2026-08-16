@@ -80,6 +80,13 @@ class ProcessingWebViewHost(
     var detected by mutableStateOf<DetectedVideosPresenter?>(null)
         private set
 
+    /** P0: surfaced by the route as [NoMediaFoundDialog] when a probe comes back empty. */
+    var showNoMediaFound by mutableStateOf(false)
+
+    fun dismissNoMediaFound() {
+        showNoMediaFound = false
+    }
+
     private val okHttpProxyClient: OkHttpProxyClient by inject()
     private val proxyController: CustomProxyController by inject()
     private val detectedVideoUiMapper: DetectedVideoUiMapper by inject()
@@ -162,6 +169,9 @@ class ProcessingWebViewHost(
 
                     ProcessingContract.Effect.ResetDetection ->
                         detector.onEvent(DetectedVideosContract.Event.MarkCanNotDownload)
+
+                    ProcessingContract.Effect.WaitingForWifi ->
+                        toast(R.string.string_waiting_for_wifi)
                 }
             }
         }
@@ -184,7 +194,10 @@ class ProcessingWebViewHost(
             detector.effect.collect { effect ->
                 when (effect) {
                     DetectedVideosContract.Effect.ShowDetectedVideos -> {
-                        if (detector.uiState.value.detectedVideos.isEmpty()) return@collect
+                        if (detector.uiState.value.detectedVideos.isEmpty()) {
+                            showNoMediaFound = true
+                            return@collect
+                        }
 
                         if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
                     }

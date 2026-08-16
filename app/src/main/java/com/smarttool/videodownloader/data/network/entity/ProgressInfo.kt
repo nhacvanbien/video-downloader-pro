@@ -68,6 +68,7 @@ data class ProgressInfo(
             VideoTaskState.PREPARE -> "prepare"
             VideoTaskState.ENOSPC -> "failed"
             VideoTaskState.ERROR -> "failed"
+            VideoTaskState.WAITING_FOR_WIFI -> "waiting_for_wifi"
             else -> "undefined"
         }
 

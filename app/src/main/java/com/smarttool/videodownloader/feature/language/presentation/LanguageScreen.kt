@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,14 +36,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.ui.components.LottieView
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
-import com.smarttool.videodownloader.core.ui.theme.AppBlack
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.Primary
-import com.smarttool.videodownloader.core.ui.theme.TextPrimary
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
+import com.smarttool.videodownloader.core.ui.theme.Bg
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Pri
+import com.smarttool.videodownloader.core.ui.theme.PriSoft
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.ShapePill
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.feature.language.domain.model.AppLanguage
+import com.smarttool.videodownloader.feature.library.presentation.MediaSearchBar
 
-private val NewUiBackground = Color(0xFFF3F3F3)
+private val NewUiBackground = Bg
 private const val HINT_ANIMATION_INDEX = 3
 
 @Composable
@@ -55,6 +58,7 @@ fun LanguageScreen(
     showLoadingOverlay: Boolean,
     headerTitle: String,
     onSelect: (String) -> Unit,
+    onSearch: (String) -> Unit,
     onConfirm: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -62,14 +66,14 @@ fun LanguageScreen(
     val backgroundModifier = if (mode == LanguageMode.FirstOpenNew) {
         Modifier.background(NewUiBackground)
     } else {
-        Modifier.background(ScreenGradient)
+        Modifier.background(ScreenBg)
     }
 
     Box(modifier = Modifier.fillMaxSize().then(backgroundModifier)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(ScreenGradient)
+                .background(ScreenBg)
                 .statusBarsPadding()
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)),
         ) {
@@ -79,6 +83,12 @@ fun LanguageScreen(
                 showConfirm = mode != LanguageMode.FirstOpenNew || hasSelection,
                 onConfirm = onConfirm,
                 onBack = onBack,
+            )
+
+            MediaSearchBar(
+                search = state.searchQuery,
+                onSearchChange = onSearch,
+                hint = stringResource(R.string.string_search_language),
             )
 
             LazyColumn(
@@ -100,14 +110,14 @@ fun LanguageScreen(
 
         if (showLoadingOverlay) {
             Column(
-                modifier = Modifier.fillMaxSize().background(AppWhite),
+                modifier = Modifier.fillMaxSize().background(Surface),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
                 LottieView(rawRes = R.raw.language, modifier = Modifier.size(77.dp))
 
                 CircularProgressIndicator(
-                    color = Primary,
+                    color = Pri,
                     strokeWidth = 4.dp,
                     modifier = Modifier.padding(top = 16.dp).size(35.dp),
                 )
@@ -142,7 +152,7 @@ private fun LanguageToolbar(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = if (mode == LanguageMode.Settings) 18.sp else 16.sp,
             ),
-            color = if (mode == LanguageMode.FirstOpenNew) AppBlack else AppWhite,
+            color = TextColor,
             modifier = Modifier.weight(1f).padding(end = 5.dp),
         )
 
@@ -158,10 +168,11 @@ private fun LanguageToolbar(
             Text(
                 text = stringResource(R.string.string_save),
                 style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp),
-                color = Primary,
+                color = Pri,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(120.dp))
-                    .background(AppWhite)
+                    .clip(ShapePill)
+                    .background(Surface)
+                    .border(1.dp, Border, ShapePill)
                     .clickable(onClick = onConfirm)
                     .padding(horizontal = 16.dp, vertical = 6.dp),
             )
@@ -179,15 +190,9 @@ private fun LanguageRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(AppWhite)
-            .then(
-                if (selected) {
-                    Modifier.border(1.dp, Primary, RoundedCornerShape(12.dp))
-                } else {
-                    Modifier
-                },
-            )
+            .clip(ShapeMd)
+            .background(if (selected) PriSoft else Surface)
+            .border(1.dp, if (selected) Pri else Border, ShapeMd)
             .clickable(onClick = onClick)
             .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -200,8 +205,11 @@ private fun LanguageRow(
 
         Text(
             text = language.name,
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
-            color = TextPrimary,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = 16.sp,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+            ),
+            color = if (selected) Pri else TextColor,
             modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
         )
 
@@ -212,12 +220,12 @@ private fun LanguageRow(
             )
         }
 
-        Image(
-            painter = painterResource(
-                if (selected) R.drawable.ic_dot_selected else R.drawable.ic_dot_normal,
-            ),
-            contentDescription = null,
-            modifier = Modifier.size(22.dp),
-        )
+        if (selected) {
+            Image(
+                painter = painterResource(R.drawable.ic_check_box_selected),
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+            )
+        }
     }
 }

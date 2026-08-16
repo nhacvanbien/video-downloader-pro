@@ -96,6 +96,14 @@ class WebTabViewHost(
     var detected by mutableStateOf<DetectedVideosPresenter?>(null)
         private set
 
+    /** Surfaced by the route as `NoMediaFoundDialog` when the user taps download and nothing was detected. */
+    var showNoMediaFound by mutableStateOf(false)
+        private set
+
+    fun dismissNoMediaFound() {
+        showNoMediaFound = false
+    }
+
     private val appUtil: SystemUiController by inject()
     private val proxyController: CustomProxyController by inject()
     private val okHttpProxyClient: OkHttpProxyClient by inject()
@@ -114,7 +122,13 @@ class WebTabViewHost(
 
     private var videoAlert: MaterialAlertDialogBuilder? = null
 
-    private var started = false
+    /**
+     * Observable so the Browser tab's slot can switch between the home screen and the
+     * WebView based on whether a session is running, instead of that decision living in
+     * a separate nav destination.
+     */
+    var started by mutableStateOf(false)
+        private set
 
     /**
      * Lives for the Activity's whole lifetime, not per session: [start] is called again
@@ -252,7 +266,10 @@ class WebTabViewHost(
             detector.effect.collect { effect ->
                 when (effect) {
                     DetectedVideosContract.Effect.ShowDetectedVideos -> {
-                        if (detector.uiState.value.detectedVideos.isEmpty()) return@collect
+                        if (detector.uiState.value.detectedVideos.isEmpty()) {
+                            showNoMediaFound = true
+                            return@collect
+                        }
 
                         if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
                     }
@@ -628,8 +645,16 @@ class WebTabViewHost(
         showImageDialog(imageUrl, isImage = isImage, showOpenInNewTab = true)
     }
 
+    /**
+     * Called from [WebAppInterface], a `@JavascriptInterface` method the WebView invokes
+     * on its own JS-bridge thread — never the main thread. Building [DialogInformationImage]
+     * (a Compose-backed `Dialog`) off the main thread crashes with
+     * `IllegalStateException: Method addObserver must be called on the main thread`.
+     */
     override fun onDownloadImageRequested(imageUrl: String) {
-        showImageDialog(imageUrl, isImage = true, showOpenInNewTab = false)
+        activity.runOnUiThread {
+            showImageDialog(imageUrl, isImage = true, showOpenInNewTab = false)
+        }
     }
 
     private fun showImageDialog(imageUrl: String, isImage: Boolean, showOpenInNewTab: Boolean) {

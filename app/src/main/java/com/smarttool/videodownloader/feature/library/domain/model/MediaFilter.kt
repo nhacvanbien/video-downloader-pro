@@ -4,5 +4,6 @@ package com.smarttool.videodownloader.feature.library.domain.model
 enum class MediaFilter(val typeValue: String) {
     All("all"),
     Video("video"),
+    Audio("audio"),
     Image("image"),
 }

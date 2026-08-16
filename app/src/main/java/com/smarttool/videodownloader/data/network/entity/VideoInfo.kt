@@ -64,7 +64,24 @@ data class VideoInfo(
     @ColumnInfo(name = "isRegular")
     @SerializedName("isRegular")
     @Expose
-    var isRegularDownload: Boolean = false
+    var isRegularDownload: Boolean = false,
+
+    /** Set from the "Save to Private folder" checkbox in the format picker sheet. */
+    @ColumnInfo(name = "isPrivate")
+    var isPrivate: Boolean = false,
+
+    /**
+     * True when [title] came from parsing this specific video's own page (e.g. yt-dlp
+     * extraction run directly against its article URL) rather than being stamped from
+     * whatever the browser tab's `document.title` happened to be at detection time. A page
+     * that lists several videos (a feed, not a single-video watch page) fires one manifest
+     * request per item but the tab only ever has one current title, so a stamped title is
+     * often wrong for every item but the one currently on screen — see
+     * [com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosTabViewModel.pushNewVideoInfoToAll],
+     * which prefers a later, trusted title over an earlier, stamped one for the same video.
+     */
+    @ColumnInfo(name = "isTitleTrusted")
+    var isTitleTrusted: Boolean = false
 ) {
 
     val firstUrlToString: String
@@ -102,6 +119,8 @@ data class VideoInfo(
         if (originalUrl != other.originalUrl) return false
         if (formats != other.formats) return false
         if (isRegularDownload != other.isRegularDownload) return false
+        if (isPrivate != other.isPrivate) return false
+        if (isTitleTrusted != other.isTitleTrusted) return false
 
         return true
     }
@@ -117,6 +136,8 @@ data class VideoInfo(
         result = 31 * result + originalUrl.hashCode()
         result = 31 * result + formats.hashCode()
         result = 31 * result + isRegularDownload.hashCode()
+        result = 31 * result + isPrivate.hashCode()
+        result = 31 * result + isTitleTrusted.hashCode()
         return result
     }
 

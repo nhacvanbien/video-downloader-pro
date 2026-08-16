@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
+import com.smarttool.videodownloader.core.ui.theme.Muted
 import com.smarttool.videodownloader.core.ui.theme.Primary
 
 /**
@@ -39,7 +39,7 @@ fun SplashScreen(
     loadingText: String,
     progressView: View,
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(ScreenGradient)) {
+    Box(modifier = Modifier.fillMaxSize().background(ScreenBg)) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -69,7 +69,7 @@ fun SplashScreen(
             Text(
                 text = loadingText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = AppWhite,
+                color = Muted,
             )
 
             AndroidView(

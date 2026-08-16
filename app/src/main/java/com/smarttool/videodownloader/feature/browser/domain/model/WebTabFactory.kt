@@ -8,7 +8,7 @@ class WebTabFactory {
 
         const val SEARCH_URL = "https://www.google.com/search?q=%s"
 
-        fun createWebTabFromInput(input: String): WebTab {
+        fun createWebTabFromInput(input: String, searchUrlTemplate: String = SEARCH_URL): WebTab {
             if (input.isEmpty()) return WebTab.HOME_TAB
 
             return when {
@@ -18,11 +18,14 @@ class WebTabFactory {
                 Patterns.WEB_URL.matcher(input).matches() ->
                     WebTab("https://$input", null)
 
-                else -> WebTab(String.format(SEARCH_URL, input), null)
+                else -> WebTab(String.format(searchUrlTemplate, input), null)
             }
         }
 
-        fun createTabModelFromInput(input: String): TabModel {
+        fun createTabModelFromInput(
+            input: String,
+            searchUrlTemplate: String = SEARCH_URL,
+        ): TabModel {
             if (input.isEmpty()) return TabModel(url = input, isSelected = true)
 
             return when {
@@ -32,7 +35,7 @@ class WebTabFactory {
                 Patterns.WEB_URL.matcher(input).matches() ->
                     TabModel(url = "https://$input", isSelected = true)
 
-                else -> TabModel(url = String.format(SEARCH_URL, input), isSelected = true)
+                else -> TabModel(url = String.format(searchUrlTemplate, input), isSelected = true)
             }
         }
     }

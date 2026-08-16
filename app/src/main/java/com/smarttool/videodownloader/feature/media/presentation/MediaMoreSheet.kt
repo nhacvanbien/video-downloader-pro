@@ -15,12 +15,16 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.TextPrimary
+import com.smarttool.videodownloader.core.ui.theme.AppLocaleProvider
+import com.smarttool.videodownloader.core.ui.theme.Error
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 
 /**
  * The player's "..." overflow menu. Only offered for downloaded items ([MediaContract.State.showMoreAction]) —
@@ -39,25 +43,30 @@ fun MediaMoreSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(),
-        containerColor = AppWhite,
+        containerColor = Surface,
     ) {
-        Column(modifier = Modifier.padding(bottom = 24.dp)) {
-            Text(
-                text = fileName,
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-            )
+        // The sheet composes in its own window, whose AbstractComposeView re-provides
+        // LocalContext from the Activity — discarding the override installed around the
+        // main composition. Without this the sheet keeps the launch-time language.
+        AppLocaleProvider {
+            Column(modifier = Modifier.padding(bottom = 24.dp)) {
+                Text(
+                    text = fileName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextColor,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                )
 
-            MoreActionRow(R.drawable.ic_edit, R.string.string_rename, onRename)
-            MoreActionRow(R.drawable.ic_share, R.string.string_share, onShare)
-            MoreActionRow(R.drawable.ic_delete, R.string.string_delete, onDelete)
+                MoreActionRow(R.drawable.ic_edit, R.string.string_rename, TextColor, onRename)
+                MoreActionRow(R.drawable.ic_share, R.string.string_share, TextColor, onShare)
+                MoreActionRow(R.drawable.ic_delete, R.string.string_delete, Error, onDelete)
+            }
         }
     }
 }
 
 @Composable
-private fun MoreActionRow(iconRes: Int, labelRes: Int, onClick: () -> Unit) {
+private fun MoreActionRow(iconRes: Int, labelRes: Int, tint: Color, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,14 +76,15 @@ private fun MoreActionRow(iconRes: Int, labelRes: Int, onClick: () -> Unit) {
     ) {
         Image(
             painter = painterResource(iconRes),
+            colorFilter = ColorFilter.tint(tint),
             contentDescription = null,
-            modifier = Modifier.size(22.dp),
+            modifier = Modifier.size(20.dp),
         )
 
         Text(
             text = stringResource(labelRes),
             style = MaterialTheme.typography.bodyLarge,
-            color = TextPrimary,
+            color = tint,
             modifier = Modifier.padding(start = 14.dp),
         )
     }

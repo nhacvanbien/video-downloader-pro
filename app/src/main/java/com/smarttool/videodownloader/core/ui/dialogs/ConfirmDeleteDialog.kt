@@ -11,14 +11,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.smarttool.videodownloader.android.R
+import com.smarttool.videodownloader.core.ui.theme.Error
+import com.smarttool.videodownloader.core.ui.theme.Primary
 
-private val DeleteButtonColor = Color(0xFFFF6666)
+private val DeleteButtonColor = Error
 
 @Composable
 fun ConfirmDeleteDialogContent(onDelete: () -> Unit, onCancel: () -> Unit) {
@@ -45,7 +46,7 @@ fun ConfirmDeleteDialogContent(onDelete: () -> Unit, onCancel: () -> Unit) {
                 .padding(horizontal = 10.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            DialogSecondaryButton(
+            DialogPrimaryButton(
                 text = stringResource(R.string.string_cancel),
                 onClick = onCancel,
                 modifier = Modifier.weight(1f),
@@ -54,7 +55,7 @@ fun ConfirmDeleteDialogContent(onDelete: () -> Unit, onCancel: () -> Unit) {
                 text = stringResource(R.string.string_delete),
                 onClick = onDelete,
                 modifier = Modifier.weight(1f),
-                backgroundColor = DeleteButtonColor,
+                backgroundColor = Primary,
             )
         }
     }

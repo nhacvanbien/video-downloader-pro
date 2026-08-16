@@ -2,14 +2,22 @@ package com.smarttool.videodownloader.feature.settings.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.smarttool.videodownloader.feature.browser.domain.model.SearchEngine
+import com.smarttool.videodownloader.feature.browser.domain.usecase.SetSearchEngineUseCase
+import com.smarttool.videodownloader.feature.downloads.domain.usecase.SetWifiOnlyUseCase
 import com.smarttool.videodownloader.feature.settings.domain.usecase.GetSettingsUseCase
+import com.smarttool.videodownloader.feature.settings.domain.usecase.SetDownloadLocationSubfolderUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val getSettings: GetSettingsUseCase,
+    private val setWifiOnly: SetWifiOnlyUseCase,
+    private val setSearchEngine: SetSearchEngineUseCase,
+    private val setDownloadLocationSubfolder: SetDownloadLocationSubfolderUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsContract.State())
@@ -22,6 +30,14 @@ class SettingsViewModel(
     fun onEvent(event: SettingsContract.Event) {
         when (event) {
             is SettingsContract.Event.Refresh -> refresh()
+            is SettingsContract.Event.SetWifiOnly -> onSetWifiOnly(event.enabled)
+            is SettingsContract.Event.SetSearchEngine -> onSetSearchEngine(event.engine)
+            is SettingsContract.Event.SetSearchEngineSheetVisible ->
+                _uiState.update { it.copy(searchEngineSheetVisible = event.visible) }
+            is SettingsContract.Event.SetDownloadLocationEditorVisible ->
+                _uiState.update { it.copy(downloadLocationEditorVisible = event.visible) }
+            is SettingsContract.Event.SetDownloadLocationSubfolder ->
+                onSetDownloadLocationSubfolder(event.name)
         }
     }
 
@@ -31,8 +47,29 @@ class SettingsViewModel(
             val settings = getSettings()
             _uiState.value = SettingsContract.State(
                 downloadLocation = settings.downloadLocation,
+                downloadLocationSubfolder = settings.downloadLocationSubfolder,
                 showRateRow = !settings.isRated,
+                wifiOnly = settings.wifiOnly,
+                searchEngine = settings.searchEngine,
             )
         }
+    }
+
+    private fun onSetDownloadLocationSubfolder(name: String) {
+        _uiState.update { it.copy(downloadLocationEditorVisible = false) }
+        viewModelScope.launch {
+            setDownloadLocationSubfolder(name)
+            refresh()
+        }
+    }
+
+    private fun onSetWifiOnly(enabled: Boolean) {
+        _uiState.update { it.copy(wifiOnly = enabled) }
+        viewModelScope.launch { setWifiOnly(enabled) }
+    }
+
+    private fun onSetSearchEngine(engine: SearchEngine) {
+        _uiState.update { it.copy(searchEngine = engine, searchEngineSheetVisible = false) }
+        viewModelScope.launch { setSearchEngine(engine) }
     }
 }

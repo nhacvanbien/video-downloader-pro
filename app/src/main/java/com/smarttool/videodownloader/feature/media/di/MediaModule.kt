@@ -6,6 +6,7 @@ import com.smarttool.videodownloader.feature.media.domain.usecase.GetPlaybackSet
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetFillModeUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetLoopingUseCase
 import com.smarttool.videodownloader.feature.media.domain.usecase.SetPlaybackSpeedUseCase
+import com.smarttool.videodownloader.feature.media.presentation.ImageGalleryViewModel
 import com.smarttool.videodownloader.feature.media.presentation.MediaViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -17,4 +18,5 @@ val mediaModule = module {
     factory { SetLoopingUseCase(get()) }
     factory { SetFillModeUseCase(get()) }
     viewModel { MediaViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ImageGalleryViewModel(get(), get(), get()) }
 }

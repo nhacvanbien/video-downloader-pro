@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">加载中....</string>
     <string name="string_applied_language">应用语言...</string>
-    <string name="string_this_action_can_contain_ads">此操作可能包含广告</string>
     <string name="string_loading">加载中 (%s%%)...</string>
     <string name="string_languages">语言</string>
     <string name="string_please_select_language">请选择语言</string>
@@ -31,15 +29,7 @@
     <string name="string_content_terms_of_service">通过使用本应用程序，您同意我们的服务条款和隐私政策。请仔细阅读。</string>
     <string name="string_agree">同意</string>
     <string name="string_rate">评分</string>
-    <string name="string_not_now">现在不</string>
-    <string name="string_thank_for_rate">感谢您对应用程序的评分</string>
-    <string name="string_please_feedback">请提供反馈</string>
-    <string name="string_stay">停留</string>
-    <string name="string_exit">退出</string>
-    <string name="exit_app">您确定要退出吗？</string>
-    <string name="string_are_you_sure_you_want_to_exit">您确定要退出吗？</string>
     <string name="string_browser">浏览器</string>
-    <string name="string_processing">处理中</string>
     <string name="string_downloaded">已下载</string>
     <string name="string_settings">设置</string>
     <string name="string_download_location">下载位置</string>
@@ -60,17 +50,13 @@
     <string name="string_tiktok">TikTok</string>
     <string name="string_vimeo">Vimeo</string>
     <string name="string_dailymotion">Dailymotion</string>
-    <string name="player_resolution">播放器中的视频分辨率</string>
     <string name="string_download_successful">下载成功！！！</string>
-    <string name="string_your_download_is_complete_you_can_now_access_your_file">您的下载已完成。您现在可以访问您的文件</string>
     <string name="string_cancel">取消</string>
-    <string name="string_open">打开</string>
     <string name="string_confirm_delete">确认删除</string>
     <string name="string_are_you_sure_want_to_delete_photo">您确定要删除照片吗？</string>
     <string name="string_delete">删除</string>
     <string name="download_open_in_app">在应用中打开</string>
     <string name="download_watch_in_app">在应用中观看</string>
-    <string name="app_download_channel_id" translatable="false">download_channel_id</string>
     <string name="string_close_all">关闭所有</string>
     <string name="string_num_tabs">%s 标签</string>
     <string name="string_go_see_the_sites">去看看这些网站吧！您访问的页面将显示在这里！</string>
@@ -102,9 +88,7 @@
     <string name="go_to_setting">前往设置</string>
     <string name="string_save_to_bookmarks_successfully">成功保存到书签</string>
     <string name="string_notification">通知</string>
-    <string name="settings_message_open_folder">您的设备上没有文件管理器</string>
     <string name="video_share_message">您的设备上没有可用的视频共享应用</string>
-    <string name="cookies_cleared">Cookies 已清除</string>
     <string name="string_paste">粘贴</string>
     <string name="string_paste_link_here">在此粘贴链接</string>
     <string name="string_remove_from_private">从私人文件夹移除</string>
@@ -151,17 +135,43 @@
     <string name="string_error_deleting_file">删除文件时出错！</string>
     <string name="string_step_1_process"><![CDATA[<b>步骤 1:</b>]]> 打开应用程序并复制链接。</string>
     <string name="string_step_2_process"><![CDATA[<b>步骤 2:</b>]]> 返回应用程序，选择“粘贴链接”进行下载。</string>
-    <string name="string_name_contains_special_characters">名称包含特殊字符！</string>
     <string name="string_popular_apps">热门应用</string>
     <string name="string_x">X（推特）</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">下载视频</string>
-    <string name="string_select_type">选择类型</string>
     <string name="string_start">开始</string>
     <string name="txt_continue">继续</string>
     <string name="clear_history">清除历史记录</string>
     <string name="string_download_failed">下载失败 !!!</string>
     <string name="string_downloading">正在下载</string>
     <string name="string_select_languages">选择语言</string>
+    <string name="string_audio">音频</string>
+    <string name="string_bing">Bing</string>
+    <string name="string_download_failed_short">下载失败</string>
+    <string name="string_download_size">下载大小：%s</string>
+    <string name="string_downloads">下载内容</string>
+    <string name="string_duckduckgo">DuckDuckGo</string>
+    <string name="string_got_it">知道了</string>
+    <string name="string_login_required_to_download">下载此视频前，请先在浏览器中登录 %1$s</string>
+    <string name="string_no_media_found">未找到媒体内容</string>
+    <string name="string_no_media_found_desc">页面可能仍在加载、需要登录，或暂不受支持。</string>
+    <string name="string_num_selected">已选择 %s 项</string>
+    <string name="string_press_back_again_to_exit">再按一次返回键退出</string>
+    <string name="string_report_issue">反馈问题</string>
+    <string name="string_retry">重试</string>
+    <string name="string_retry_download">重新下载</string>
+    <string name="string_save_to_private_folder">保存到隐私文件夹</string>
+    <string name="string_search_downloads">搜索下载内容</string>
+    <string name="string_search_engine">搜索引擎</string>
+    <string name="string_select_items">选择项目</string>
+    <string name="string_waiting_for_wifi">正在等待 Wi-Fi…</string>
+    <string name="string_wifi_only">仅限 Wi-Fi</string>
+    <string name="string_wifi_only_desc">等待 Wi-Fi 连接后再下载</string>
+    <string name="string_yahoo">Yahoo</string>
 
+    <string name="string_download_location_folder_hint">文件夹名称</string>
+    <string name="string_moving_to_private">正在移入私密</string>
+    <string name="string_moving_out_of_private">正在移出私密</string>
+    <string name="string_do_not_close_app">请在完成前保持应用处于打开状态。</string>
+    <string name="string_moving_file_count">第 %1$s 个文件，共 %2$s 个</string>
 </resources>

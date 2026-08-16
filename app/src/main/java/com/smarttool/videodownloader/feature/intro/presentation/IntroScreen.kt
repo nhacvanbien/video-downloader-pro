@@ -31,13 +31,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.Primary
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Pri
+import com.smarttool.videodownloader.core.ui.theme.PriInk
+import com.smarttool.videodownloader.core.ui.theme.ShapePill
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.core.ui.theme.TextSub
 
-private val DotInactive = Color(0xFFCBD4E1)
-private val DotActive = Color(0xFF9EA5AD)
-private val TitleColor = Color(0xFF1A1D1F)
+private val DotInactive = Border
+private val DotActive = Pri
+private val TitleColor = TextColor
 
 @Composable
 fun IntroScreen(
@@ -46,7 +50,7 @@ fun IntroScreen(
     onNext: () -> Unit,
     onFinish: () -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(AppWhite)) {
+    Box(modifier = Modifier.fillMaxSize().background(Surface)) {
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { pageIndex ->
             Image(
                 painter = painterResource(pages[pageIndex].imageRes),
@@ -64,12 +68,12 @@ fun IntroScreen(
                         .fillMaxWidth()
                         .height(120.dp)
                         .background(
-                            Brush.verticalGradient(listOf(Color.Transparent, AppWhite)),
+                            Brush.verticalGradient(listOf(Color.Transparent, Surface)),
                         ),
                 )
 
                 Column(
-                    modifier = Modifier.fillMaxWidth().background(AppWhite).padding(top = 16.dp),
+                    modifier = Modifier.fillMaxWidth().background(Surface).padding(top = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
@@ -115,14 +119,14 @@ fun IntroScreen(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                         ),
-                        color = AppWhite,
+                        color = PriInk,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(bottom = 16.dp)
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(120.dp))
-                            .background(Primary)
+                            .clip(ShapePill)
+                            .background(Pri)
                             .clickable {
                                 if (pagerState.currentPage == pages.lastIndex) onFinish() else onNext()
                             }

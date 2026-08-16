@@ -13,35 +13,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
-import com.smarttool.videodownloader.core.ui.theme.Primary
+import com.smarttool.videodownloader.core.ui.theme.Bg
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 
-/** Compose equivalent of `@drawable/bg_browser` — the orange-to-white screen gradient. */
-val ScreenGradient = Brush.verticalGradient(
-    0f to Primary,
-    0.3f to Color(0xFFFFF6ED),
-    1f to AppWhite,
-)
+/** Flat Pinboard screen background — no gradient, no shadow. */
+val ScreenBg = Bg
 
-/** Rounded white content sheet, matching `@drawable/bg_popular_apps`. */
-val SheetCornerRadius = 16.dp
+/** Rounded top corners for the bottom-sheet-style content card. */
+val SheetCornerRadius = 18.dp
 
 /**
- * Toolbar shared by the detail screens: centered title on the gradient, optional
- * back arrow and trailing action.
+ * Toolbar shared by the detail screens: centered title, optional back arrow and
+ * trailing action.
  */
 @Composable
 fun AppTopBar(
     title: String,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
-    titleColor: Color = AppWhite,
+    titleColor: Color = TextColor,
     trailing: @Composable (() -> Unit)? = null,
 ) {
     Row(

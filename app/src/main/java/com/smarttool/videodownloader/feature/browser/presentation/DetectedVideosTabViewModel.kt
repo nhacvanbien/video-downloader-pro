@@ -140,9 +140,9 @@ class DetectedVideosTabViewModel(
             }
         }
 
-        if (state.detectedVideos.isNotEmpty()) {
-            _effect.trySend(DetectedVideosContract.Effect.ShowDetectedVideos)
-        }
+        // Sent even when empty: the host tells the sheet and the "no media found" dialog
+        // apart by re-checking `detectedVideos` itself when this effect lands.
+        _effect.trySend(DetectedVideosContract.Effect.ShowDetectedVideos)
     }
 
     private fun verifyLinkStatus(
@@ -195,6 +195,12 @@ class DetectedVideosTabViewModel(
                         if (result.id.isNotEmpty()) {
                             if (result.isM3u8 && !hlsTitle.isNullOrEmpty()) {
                                 result.title = hlsTitle
+                            } else {
+                                // No tab-wide title stamped over it — this is whatever
+                                // videoServiceLocal parsed straight off this specific
+                                // video's own page, so it's trustworthy per-item, unlike
+                                // hlsTitle (see pushNewVideoInfoToAll).
+                                result.isTitleTrusted = true
                             }
                             pushNewVideoInfoToAll(result)
                         } else {
@@ -237,13 +243,45 @@ class DetectedVideosTabViewModel(
         }
 
         val detected = _uiState.value.detectedVideos.toList()
+
+        // An untrusted title is a snapshot of the tab's *current* document.title, stamped
+        // onto whichever manifest happened to be in flight at that moment — see
+        // VideoInfo.isTitleTrusted. A feed page (several videos on one screen, e.g. a
+        // Reels-style widget that prefetches upcoming items' manifests well before the
+        // user swipes to them) fires many such requests while the title is stuck on
+        // whichever item is currently visible, so an identical stamped title landing more
+        // than once is a red flag that these are *different* videos sharing a coincidental
+        // label, not proof they're the same one (their format/manifest URLs plainly
+        // differ — that's exactly why the content-based dedup below doesn't catch them).
+        // Relabel *both* sides to something each actually owns instead of either hiding
+        // this one or leaving a stale, now-known-unreliable label on the earlier one — a
+        // trusted push later still overwrites either with the real title (see
+        // upgradeTitleIfMoreTrusted).
+        if (!newInfo.isTitleTrusted && newInfo.title.isNotBlank()) {
+            val colliding = detected.firstOrNull { it.title == newInfo.title }
+            if (colliding != null) {
+                Timber.d("pushNewVideoInfoToAll: relabeling collision on '${newInfo.title}'")
+                newInfo.title = distinctFallbackTitle(newInfo)
+
+                if (!colliding.isTitleTrusted) {
+                    val relabeled = colliding.copy(title = distinctFallbackTitle(colliding))
+                    val updated = _uiState.value.detectedVideos.map {
+                        if (it.id == colliding.id) relabeled else it
+                    }.toSet()
+                    _uiState.update { it.copy(detectedVideos = updated) }
+                }
+            }
+        }
+
         var contains = false
+        var matchedExisting: VideoInfo? = null
         if (newInfo.isRegularDownload) {
             for (vid in detected) {
                 val one = vid.firstUrlToString
                 val searching = newInfo.firstUrlToString
                 contains = one == searching
                 if (contains) {
+                    matchedExisting = vid
                     break
                 }
             }
@@ -262,11 +300,15 @@ class DetectedVideosTabViewModel(
                 }
                 if (vid.originalUrl == newInfo.originalUrl) {
                     contains = true
+                }
+                if (contains) {
+                    matchedExisting = vid
                     break
                 }
             }
         }
         if (contains) {
+            upgradeTitleIfMoreTrusted(matchedExisting, newInfo)
             return
         }
 
@@ -275,6 +317,71 @@ class DetectedVideosTabViewModel(
         _uiState.update { it.copy(detectedVideos = updated) }
         _effect.trySend(DetectedVideosContract.Effect.VideoPushed)
         setButtonState(DownloadButtonStateCanDownload(newInfo))
+    }
+
+    /**
+     * A page listing several videos (a feed) fires one manifest request per item, but the
+     * tab only ever has one current title, so [startVerifyProcess] stamps every one of them
+     * with whatever `document.title` happened to be at that moment — correct for at most
+     * one item, wrong for the rest. The requests aren't ordered by relevance, so the first
+     * copy of a given video to land here can easily be one of the wrongly-stamped ones,
+     * while a later request for the *same* video (matched via [matchedExisting]) resolves
+     * its title straight from that video's own page ([VideoInfo.isTitleTrusted]) and is
+     * dropped as a plain "duplicate" by the caller. Patch the earlier entry's title in place
+     * instead of losing that better title, so the sheet doesn't end up with several rows
+     * that share a name none of them actually has.
+     */
+    private fun upgradeTitleIfMoreTrusted(matchedExisting: VideoInfo?, newInfo: VideoInfo) {
+        if (matchedExisting == null) return
+        if (matchedExisting.isTitleTrusted || !newInfo.isTitleTrusted) return
+        if (newInfo.title.isBlank() || newInfo.title == matchedExisting.title) return
+
+        Timber.d(
+            "upgradeTitleIfMoreTrusted: '${matchedExisting.title}' -> '${newInfo.title}' " +
+                "(id=${matchedExisting.id}, originalUrl=${matchedExisting.originalUrl})",
+        )
+
+        val updated = _uiState.value.detectedVideos.map { video ->
+            if (video.id == matchedExisting.id) {
+                video.copy(title = newInfo.title, isTitleTrusted = true)
+            } else {
+                video
+            }
+        }.toSet()
+
+        _uiState.update { it.copy(detectedVideos = updated) }
+    }
+
+    /**
+     * A readable stand-in title derived from [info]'s own manifest/original URL — used only
+     * once we've proven (via a title collision in [pushNewVideoInfoToAll]) that the tab-title
+     * stamp can't be trusted for this entry. Picks the longest hyphen-heavy path segment
+     * (article/asset slugs are long and word-separated; template segments a CDN reuses
+     * across every video on the site — encoded quality lists, "index-v1-a1", "master" —
+     * don't have enough hyphens or length to qualify), strips a trailing "-<digits>" id, and
+     * turns the hyphens into spaces. Distinct per video by construction, since it comes from
+     * the same URL the content-based dedup above already treats as this video's identity —
+     * falls back to the (colliding) stamped title if nothing slug-like is found.
+     */
+    private fun distinctFallbackTitle(info: VideoInfo): String {
+        val source = info.originalUrl.ifBlank { info.formats.formats.firstOrNull()?.url.orEmpty() }
+        val path = try {
+            java.net.URI(source).path.orEmpty()
+        } catch (e: Throwable) {
+            source
+        }
+
+        val segment = path.split("/")
+            .filter { it.length >= 12 && it.count { c -> c == '-' } >= 2 }
+            .maxByOrNull { it.length }
+            ?: return info.title
+
+        return segment.replace(Regex("-\\d+$"), "")
+            .replace('-', ' ')
+            .trim()
+            .takeIf { it.length >= 8 }
+            ?.replaceFirstChar { it.uppercase() }
+            ?: info.title
     }
 
     fun checkRegularMp4(request: Request?): Job? {

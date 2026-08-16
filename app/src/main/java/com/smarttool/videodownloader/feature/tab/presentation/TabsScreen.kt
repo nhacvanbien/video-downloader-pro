@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.feature.tab.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,14 +19,14 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -35,15 +36,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttool.videodownloader.android.R
-import com.smarttool.videodownloader.core.ui.components.ScreenGradient
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.components.ScreenBg
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Pri
 import com.smarttool.videodownloader.core.ui.theme.Primary
-import com.smarttool.videodownloader.core.ui.theme.TextPrimary
+import com.smarttool.videodownloader.core.ui.theme.PriInk
+import com.smarttool.videodownloader.core.ui.theme.PriSoft
+import com.smarttool.videodownloader.core.ui.theme.ShapeMd
+import com.smarttool.videodownloader.core.ui.theme.ShapePill
+import com.smarttool.videodownloader.core.ui.theme.Surface
+import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
-
-private val SelectedTint = Primary
-private val NormalTint = Color(0xFFF2F2F2)
-private val SelectedBackground = Color(0xFFF6F2FE)
 
 @Composable
 fun TabsScreen(
@@ -52,51 +55,67 @@ fun TabsScreen(
     onDeleteTab: (TabModel) -> Unit,
     onCloseAll: () -> Unit,
     onNewTab: () -> Unit,
+    onHome: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(ScreenGradient).statusBarsPadding()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 13.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_add),
-                colorFilter = ColorFilter.tint(AppWhite),
-                contentDescription = null,
-                modifier = Modifier.size(28.dp).clickable(onClick = onNewTab).padding(4.dp),
-            )
+    Box(modifier = Modifier.fillMaxSize().background(ScreenBg)) {
+        Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 13.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_home),
+                    colorFilter = ColorFilter.tint(TextColor),
+                    contentDescription = null,
+                    modifier = Modifier.size(26.dp).clickable(onClick = onHome).padding(3.dp),
+                )
 
-            Text(
-                text = stringResource(R.string.string_num_tabs, tabs.size.toString()),
-                style = MaterialTheme.typography.titleLarge,
-                color = AppWhite,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-            )
+                Text(
+                    text = stringResource(R.string.string_num_tabs, tabs.size.toString()),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = TextColor,
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                )
 
-            Text(
-                text = stringResource(R.string.string_close_all),
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 11.sp),
-                color = Primary,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(120.dp))
-                    .background(AppWhite)
-                    .clickable(onClick = onCloseAll)
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-            )
-        }
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp).navigationBarsPadding(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            items(tabs, key = { it.id }) { tab ->
-                TabCard(
-                    tab = tab,
-                    onOpen = { onOpenTab(tab) },
-                    onDelete = { onDeleteTab(tab) },
+                Text(
+                    text = stringResource(R.string.string_close_all),
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 11.sp),
+                    color = Pri,
+                    modifier = Modifier
+                        .clip(ShapePill)
+                        .background(Surface)
+                        .border(1.dp, Border, ShapePill)
+                        .clickable(onClick = onCloseAll)
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                 )
             }
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp).navigationBarsPadding(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                items(tabs, key = { it.id }) { tab ->
+                    TabCard(
+                        tab = tab,
+                        onOpen = { onOpenTab(tab) },
+                        onDelete = { onDeleteTab(tab) },
+                    )
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = onNewTab,
+            containerColor = Primary,
+            contentColor = PriInk,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .navigationBarsPadding()
+                .padding(20.dp),
+        ) {
+            Icon(painterResource(R.drawable.ic_add), contentDescription = null)
         }
     }
 }
@@ -111,13 +130,14 @@ private fun TabCard(
 
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (tab.isSelected) SelectedTint else NormalTint)
+            .clip(ShapeMd)
+            .background(Surface)
+            .border(1.dp, if (tab.isSelected) Pri else Border, ShapeMd)
             .clickable(onClick = onOpen)
-            .padding(2.dp),
+            .padding(8.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(6.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (favicon != null) {
@@ -131,7 +151,7 @@ private fun TabCard(
             Text(
                 text = tab.url,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 11.sp),
-                color = TextPrimary,
+                color = TextColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
@@ -148,8 +168,9 @@ private fun TabCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(10.dp))
-                .background(if (tab.isSelected) SelectedBackground else NormalTint),
+                .padding(top = 8.dp)
+                .clip(ShapeMd)
+                .background(PriSoft),
             contentAlignment = Alignment.Center,
         ) {
             if (favicon != null) {

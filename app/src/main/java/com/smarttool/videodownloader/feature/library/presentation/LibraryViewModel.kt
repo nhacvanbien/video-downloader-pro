@@ -20,7 +20,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -55,9 +57,13 @@ class LibraryViewModel(
         }
     }
 
+    // Keyed on `query` alone: flatMapLatest over the whole state would tear down and re-run the
+    // Room query on every unrelated change, including each progress tick of a private move.
     val items: StateFlow<List<VideoTaskItem>> = _uiState
-        .flatMapLatest { state ->
-            if (isPrivate) observePrivateLibrary(state.query) else observeLibrary(state.query)
+        .map { it.query }
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (isPrivate) observePrivateLibrary(query) else observeLibrary(query)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
@@ -65,7 +71,6 @@ class LibraryViewModel(
         when (event) {
             is LibraryContract.Event.FilterChange -> onFilterChange(event.filter)
             is LibraryContract.Event.SearchChange -> onSearchChange(event.search)
-            is LibraryContract.Event.SetSearchVisible -> setSearchVisible(event.visible)
             is LibraryContract.Event.SortChange -> onSortChange(event.sort)
             is LibraryContract.Event.SetSortSheetVisible -> setSortSheetVisible(event.visible)
             is LibraryContract.Event.SetSelectionMode -> setSelectionMode(event.enabled)
@@ -75,26 +80,20 @@ class LibraryViewModel(
             is LibraryContract.Event.DeleteSelected -> deleteSelected()
             is LibraryContract.Event.Delete -> delete(event.item)
             is LibraryContract.Event.Rename -> rename(event.context, event.item, event.newName)
-            is LibraryContract.Event.MoveSelectedToPrivate -> moveSelectedToPrivate(event.makePrivate)
+            is LibraryContract.Event.MoveSelectedToPrivate ->
+                moveSelectedToPrivate(event.context, event.makePrivate)
         }
     }
 
     private fun onFilterChange(filter: MediaFilter) {
+        // selectionMode and selectedIds are intentionally left untouched: item ids are
+        // stable across filters, so a selection made under one chip should still show
+        // selected after switching to another (and back), not silently reset.
         _uiState.update { it.copy(query = it.query.copy(filter = filter)) }
-        clearSelection()
     }
 
     private fun onSearchChange(search: String) {
         _uiState.update { it.copy(query = it.query.copy(search = search)) }
-    }
-
-    private fun setSearchVisible(visible: Boolean) {
-        _uiState.update {
-            it.copy(
-                searchVisible = visible,
-                query = if (visible) it.query else it.query.copy(search = ""),
-            )
-        }
     }
 
     private fun onSortChange(sort: SortState) {
@@ -154,13 +153,55 @@ class LibraryViewModel(
         }
     }
 
-    /** Moves the selected items into, or out of, the PIN-protected area. */
-    private fun moveSelectedToPrivate(makePrivate: Boolean) {
+    /**
+     * Moves the selected items into, or out of, the PIN-protected area. Each item's file is
+     * physically relocated, so a failure for one item must not be reported as success.
+     */
+    private fun moveSelectedToPrivate(context: Context, makePrivate: Boolean) {
         val ids = _uiState.value.selectedIds
+        val targets = items.value.filter { it.mId in ids }
+        if (targets.isEmpty()) return
 
         viewModelScope.launch {
-            ids.forEach { setMediaPrivate(it, makePrivate) }
+            _uiState.update {
+                it.copy(
+                    privateMoveProgress = PrivateMoveProgress(
+                        movingToPrivate = makePrivate,
+                        completed = 0,
+                        total = targets.size,
+                    ),
+                )
+            }
+
+            var allMoved = true
+            targets.forEachIndexed { index, item ->
+                val moved = setMediaPrivate(context, item, makePrivate) { fraction ->
+                    _uiState.update { state ->
+                        state.copy(
+                            privateMoveProgress = state.privateMoveProgress?.copy(
+                                currentFileFraction = fraction,
+                            ),
+                        )
+                    }
+                }
+                if (!moved) allMoved = false
+
+                _uiState.update { state ->
+                    state.copy(
+                        privateMoveProgress = state.privateMoveProgress?.copy(
+                            completed = index + 1,
+                            currentFileFraction = 0f,
+                        ),
+                    )
+                }
+            }
+
+            _uiState.update { it.copy(privateMoveProgress = null) }
             clearSelection()
+
+            if (!allMoved) {
+                _effect.send(LibraryContract.Effect.MoveToPrivateFailed)
+            }
         }
     }
 }

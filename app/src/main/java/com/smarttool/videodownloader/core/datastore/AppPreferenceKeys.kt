@@ -41,4 +41,8 @@ object AppPreferenceKeys {
     val COUNT_EXIT = intPreferencesKey("count_exit")
 
     val TIKTOK_DEVICE_ID = stringPreferencesKey("TIKTOK_DEVICE_ID")
+
+    val WIFI_ONLY = booleanPreferencesKey("wifi_only")
+    val SEARCH_ENGINE_ID = stringPreferencesKey("search_engine_id")
+    val DOWNLOAD_LOCATION_SUBFOLDER = stringPreferencesKey("download_location_subfolder")
 }

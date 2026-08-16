@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import org.koin.androidx.compose.koinViewModel
 
 /** The Browser tab: search box plus popular-site tiles. */
@@ -29,7 +28,7 @@ fun BrowserHomeRoute(
 
     val openTab: (String) -> Unit = { input ->
         viewModel.onEvent(
-            BrowserHomeContract.Event.OpenTab(WebTabFactory.createTabModelFromInput(input)),
+            BrowserHomeContract.Event.OpenTab(viewModel.tabModelFromInput(input)),
         )
     }
 

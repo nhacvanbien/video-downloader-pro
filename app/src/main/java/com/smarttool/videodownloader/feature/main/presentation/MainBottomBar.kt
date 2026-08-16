@@ -18,16 +18,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smarttool.videodownloader.core.ui.theme.AppGray
-import com.smarttool.videodownloader.core.ui.theme.AppWhite
+import com.smarttool.videodownloader.core.ui.theme.Border
+import com.smarttool.videodownloader.core.ui.theme.Muted
+import com.smarttool.videodownloader.core.ui.theme.Surface
 
-private val InactiveTabColor = Color(0xFFBFBFBF)
+private val InactiveTabColor = Muted
 
 @Composable
 fun MainBottomBar(
@@ -37,9 +37,9 @@ fun MainBottomBar(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         // Matches the old custom bar's hairline separator; NavigationBar has no border of its own.
-        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(AppGray))
+        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Border))
 
-        NavigationBar(containerColor = AppWhite, tonalElevation = 0.dp) {
+        NavigationBar(containerColor = Surface, tonalElevation = 0.dp) {
             MainTab.entries.forEach { tab ->
                 val isSelected = tab == selected
                 val interactionSource = remember { MutableInteractionSource() }
