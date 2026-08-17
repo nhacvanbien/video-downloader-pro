@@ -11,7 +11,9 @@ object AppPreferenceKeys {
     val SHOWED_START_LANGUAGE = booleanPreferencesKey("pref_showed_start_language")
     val SHOWED_ONBOARDING = booleanPreferencesKey("pref_showed_onboarding")
     val SHOW_PERMISSION = booleanPreferencesKey("show_permission")
-    val RATED = booleanPreferencesKey("rate")
+    val RATING_PROMPT_SHOWN = booleanPreferencesKey("rate")
+    val RATING_SUCCESSFUL_DOWNLOAD_COUNT = intPreferencesKey("rating_successful_download_count")
+    val RATING_LAST_PROMPTED_DOWNLOAD_COUNT = intPreferencesKey("rating_last_prompted_download_count")
 
     val PROXY_IP_PORT = stringPreferencesKey("PROXY_IP_PORT")
     val IS_PROXY_TURN_ON = booleanPreferencesKey("IS_PROXY_TURN_ON")
@@ -39,8 +41,6 @@ object AppPreferenceKeys {
 
     val TYPE_SORT = intPreferencesKey("TYPE_SORT")
     val COUNT_EXIT = intPreferencesKey("count_exit")
-
-    val TIKTOK_DEVICE_ID = stringPreferencesKey("TIKTOK_DEVICE_ID")
 
     val WIFI_ONLY = booleanPreferencesKey("wifi_only")
     val SEARCH_ENGINE_ID = stringPreferencesKey("search_engine_id")

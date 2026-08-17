@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -138,12 +139,44 @@ private fun DetectedVideoRow(
             )
         }
 
-        FormatChipRow(
-            formats = video.formats,
-            selectedFormat = video.selectedFormat,
-            onSelect = onSelectFormat,
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-        )
+        val videoFormats = video.formats.filterNot { it.isAudio }
+        val audioFormats = video.formats.filter { it.isAudio }
+
+        if (videoFormats.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.string_video),
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+                color = TextSub,
+                modifier = Modifier.padding(top = 10.dp),
+            )
+            FormatChipRow(
+                formats = videoFormats,
+                selectedFormat = video.selectedFormat,
+                onSelect = onSelectFormat,
+                modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+            )
+        }
+
+        if (audioFormats.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.string_audio),
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+                color = TextSub,
+                modifier = Modifier.padding(top = 10.dp),
+            )
+            FormatChipRow(
+                formats = audioFormats,
+                selectedFormat = video.selectedFormat,
+                onSelect = onSelectFormat,
+                modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+            )
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -181,6 +214,13 @@ private fun DetectedVideoRow(
             )
         }
 
+        val selectedIsAudio = video.formats.find { it.format == video.selectedFormat }?.isAudio == true
+        val downloadLabel = if (selectedIsAudio) {
+            R.string.string_download_audio
+        } else {
+            R.string.string_download_video
+        }
+
         Box(
             modifier = Modifier
                 .padding(top = 12.dp)
@@ -192,7 +232,7 @@ private fun DetectedVideoRow(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = stringResource(R.string.string_download_video),
+                text = stringResource(downloadLabel),
                 style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp),
                 color = AppWhite,
                 textAlign = TextAlign.Center,

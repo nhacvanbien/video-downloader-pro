@@ -37,7 +37,7 @@ interface DetectedVideosContract {
 
     sealed interface Effect : UiEffect {
         data object ShowDetectedVideos : Effect
-        data object VideoPushed : Effect
+        data class VideoPushed(val videoInfo: VideoInfo) : Effect
         data class LoginRequired(val host: String) : Effect
     }
 }

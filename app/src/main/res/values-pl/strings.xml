@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Nieprawidłowe dane!</string>
     <string name="string_video_found">Znaleziono wideo</string>
+    <string name="string_audio_found">Znaleziono audio</string>
     <string name="string_login_required_to_download">Zaloguj się do %1$s w przeglądarce przed pobraniem tego wideo</string>
     <string name="whatshould">Co powinniśmy zrobić?</string>
     <string name="dontshow">Nie pokazuj ponownie</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Zapisz</string>
     <string name="string_rename">Zmień nazwę</string>
     <string name="download_started">Pobieranie wideo rozpoczęte pomyślnie!!!</string>
+    <string name="audio_download_started">Pobieranie audio rozpoczęte pomyślnie!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Musisz włączyć uprawnienie, aby korzystać z tej funkcji</string>
     <string name="go_to_setting">Przejdź do ustawień</string>
     <string name="string_save_to_bookmarks_successfully">Pomyślnie zapisano w zakładkach</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Pobierz wideo</string>
+    <string name="string_download_audio">Pobierz audio</string>
     <string name="string_save_to_private_folder">Zapisz w folderze prywatnym</string>
     <string name="string_start">Start</string>
     <string name="txt_continue">KONTYNUUJ</string>

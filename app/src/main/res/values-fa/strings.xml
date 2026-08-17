@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">داده نامعتبر!</string>
     <string name="string_video_found">ویدیو پیدا شد</string>
+    <string name="string_audio_found">صدا پیدا شد</string>
     <string name="string_login_required_to_download">لطفاً قبل از دانلود این ویدیو در مرورگر وارد %1$s شوید</string>
     <string name="whatshould">چه کاری انجام دهیم؟</string>
     <string name="dontshow">دیگر نشان نده</string>
@@ -84,6 +85,7 @@
     <string name="string_save">ذخیره</string>
     <string name="string_rename">تغییر نام</string>
     <string name="download_started">دانلود ویدیو با موفقیت آغاز شد!!!</string>
+    <string name="audio_download_started">دانلود صدا با موفقیت آغاز شد!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">برای استفاده از این قابلیت باید مجوز را فعال کنید</string>
     <string name="go_to_setting">رفتن به تنظیمات</string>
     <string name="string_save_to_bookmarks_successfully">با موفقیت در نشانک‌ها ذخیره شد</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">دانلود ویدیو</string>
+    <string name="string_download_audio">دانلود صدا</string>
     <string name="string_save_to_private_folder">ذخیره در پوشه خصوصی</string>
     <string name="string_start">شروع</string>
     <string name="txt_continue">ادامه</string>

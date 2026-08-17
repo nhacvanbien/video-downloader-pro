@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Hindi wastong data!</string>
     <string name="string_video_found">May nakitang video</string>
+    <string name="string_audio_found">May nakitang audio</string>
     <string name="string_login_required_to_download">Mag-log in muna sa %1$s sa browser bago i-download ang video na ito</string>
     <string name="whatshould">Ano ang gusto mong gawin?</string>
     <string name="dontshow">Huwag nang ipakita ulit</string>
@@ -84,6 +85,7 @@
     <string name="string_save">I-save</string>
     <string name="string_rename">Palitan ang pangalan</string>
     <string name="download_started">Matagumpay na nasimulan ang pag-download ng video!!!</string>
+    <string name="audio_download_started">Matagumpay na nasimulan ang pag-download ng audio!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Kailangan mong i-enable ang pahintulot para magamit ang feature na ito</string>
     <string name="go_to_setting">Pumunta sa mga setting</string>
     <string name="string_save_to_bookmarks_successfully">Matagumpay na na-save sa mga bookmark</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">I-download ang video</string>
+    <string name="string_download_audio">I-download ang audio</string>
     <string name="string_save_to_private_folder">I-save sa Private folder</string>
     <string name="string_start">Simulan</string>
     <string name="txt_continue">MAGPATULOY</string>

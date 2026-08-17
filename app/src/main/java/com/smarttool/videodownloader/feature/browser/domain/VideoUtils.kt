@@ -9,6 +9,11 @@ import timber.log.Timber
 class VideoUtils {
     companion object {
 
+        /** Extensions unambiguous enough to classify as audio without a network round trip. */
+        private val AUDIO_EXTENSIONS = listOf(
+            ".mp3", ".m4a", ".aac", ".wav", ".flac", ".opus", ".wma", ".oga"
+        )
+
         fun getContentTypeByUrl(
             url: String,
             headers: Headers?,
@@ -29,6 +34,7 @@ class VideoUtils {
             if (cleanedUrl.contains(".mp4")) return ContentType.MP4
             if (cleanedUrl.contains(".m3u8")) return ContentType.M3U8
             if (cleanedUrl.contains(".mpd")) return ContentType.MPD
+            if (AUDIO_EXTENSIONS.any { cleanedUrl.contains(it) }) return ContentType.AUDIO
 
             val client = okHttpProxyClient.getProxyOkHttpClient()
             val request = Request.Builder()
@@ -57,6 +63,10 @@ class VideoUtils {
 
                 contentTypeStr?.contains("mp4") == true -> {
                     contentType = ContentType.MP4
+                }
+
+                contentTypeStr?.startsWith("audio/") == true -> {
+                    contentType = ContentType.AUDIO
                 }
 
                 contentTypeStr?.contains("application/octet-stream") == true -> {

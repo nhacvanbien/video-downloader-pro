@@ -94,6 +94,7 @@ fun DownloadsScreen(
     onItemMenu: (DownloadListItem) -> Unit,
     onPauseResume: (ProgressInfo) -> Unit,
     onCancel: (ProgressInfo) -> Unit,
+    onRetry: (ProgressInfo) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         DownloadsHeader(
@@ -188,6 +189,7 @@ fun DownloadsScreen(
                             onMenu = { onItemMenu(item) },
                             onPauseResume = onPauseResume,
                             onCancel = onCancel,
+                            onRetry = onRetry,
                         )
                     }
                 }
@@ -385,10 +387,11 @@ private fun DownloadListRow(
     onMenu: () -> Unit,
     onPauseResume: (ProgressInfo) -> Unit,
     onCancel: (ProgressInfo) -> Unit,
+    onRetry: (ProgressInfo) -> Unit,
 ) {
     when (item) {
         is DownloadListItem.Active -> when {
-            item.isFailed -> FailedRow(item, selectionMode, selected, onClick, onMenu)
+            item.isFailed -> FailedRow(item, selectionMode, selected, onClick, onMenu, onRetry)
             item.isWaitingForWifi -> WaitingForWifiRow(item, selectionMode, selected, onClick, onCancel)
             else -> DownloadingRow(item, selectionMode, selected, onClick, onPauseResume, onCancel)
         }
@@ -492,6 +495,7 @@ private fun FailedRow(
     selected: Boolean,
     onClick: () -> Unit,
     onMenu: () -> Unit,
+    onRetry: (ProgressInfo) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -528,6 +532,7 @@ private fun FailedRow(
                 .size(30.dp)
                 .clip(ShapePill)
                 .background(Error)
+                .clickable { onRetry(item.progressInfo) }
                 .padding(7.dp),
         )
 

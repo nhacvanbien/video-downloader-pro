@@ -103,6 +103,10 @@ data class VideoInfo(
 
     val isMaster get() = isM3u8 && formats.formats.size > 1
 
+    /** True when every format on this video is audio-only — a plain audio detection, not a video that merely offers an audio option. */
+    val isAudioOnly: Boolean
+        get() = formats.formats.isNotEmpty() && formats.formats.all { it.isAudioOnly }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

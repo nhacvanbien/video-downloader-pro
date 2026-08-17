@@ -141,6 +141,9 @@ fun DownloadsRoute(
         onCancel = { info ->
             processingViewModel.onEvent(ProcessingContract.Event.Cancel(info, removeFile = true))
         },
+        onRetry = { info ->
+            processingViewModel.onEvent(ProcessingContract.Event.Resume(info))
+        },
     )
 
     DetectedVideosSheetHost(presenter = host.detected)

@@ -12,7 +12,6 @@ import com.smarttool.videodownloader.core.file.FileNameCleaner
 import com.smarttool.videodownloader.core.file.FileUtil
 import com.smarttool.videodownloader.core.network.Proxy
 import com.smarttool.videodownloader.core.network.TikTokExtractionSupport
-import com.smarttool.videodownloader.core.network.TikTokExtractionSupport.applyTikTokDeviceId
 import com.smarttool.videodownloader.data.downloader.generic_downloader.GenericDownloader
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
@@ -176,16 +175,9 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         val request = YoutubeDLRequest(url)
         val tikTokHost = url.toUri().host
 
-        // See VideoService.handleYoutubeDlUrl for why TikTok skips the cookie jar.
-        cookieFile = if (TikTokExtractionSupport.isTikTokHost(tikTokHost)) {
-            null
-        } else {
-            CookieUtils.addCookiesToRequest(
-                applicationContext, url, request, inputData.getString(GenericDownloader.ORIGIN_KEY)
-            )
-        }
-
-        request.applyTikTokDeviceId(tikTokHost, preferences.tikTokDeviceIdBlocking())
+        cookieFile = CookieUtils.addCookiesToRequest(
+            applicationContext, url, request, inputData.getString(GenericDownloader.ORIGIN_KEY)
+        )
 
         tmpFile = File(
             "${fileUtil.tmpDir}/$taskId"
@@ -328,7 +320,13 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             disposable = workerScope.launch {
                 try {
                     val dlResponse: YoutubeDLResponse =
-                        TikTokExtractionSupport.retryTikTokExtraction(tikTokHost) {
+                        TikTokExtractionSupport.retryTikTokExtraction(tikTokHost) { attempt ->
+                        if (attempt > 1 && TikTokExtractionSupport.isTikTokHost(tikTokHost)) {
+                            request.addOption(
+                                "--add-header",
+                                "User-Agent:${TikTokExtractionSupport.randomUserAgent()}"
+                            )
+                        }
                         YoutubeDL.getInstance().execute(request, taskId) { pr, _, line ->
                             if (line.contains("[download] Destination:")) {
                                 isDownloadJustStarted = true

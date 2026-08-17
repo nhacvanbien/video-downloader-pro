@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Μη έγκυρα δεδομένα!</string>
     <string name="string_video_found">Βρέθηκε βίντεο</string>
+    <string name="string_audio_found">Βρέθηκε ήχος</string>
     <string name="string_login_required_to_download">Συνδεθείτε στο %1$s από το πρόγραμμα περιήγησης πριν κατεβάσετε αυτό το βίντεο</string>
     <string name="whatshould">Τι θέλετε να κάνετε;</string>
     <string name="dontshow">Να μην εμφανιστεί ξανά</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Αποθήκευση</string>
     <string name="string_rename">Μετονομασία</string>
     <string name="download_started">Η λήψη του βίντεο ξεκίνησε με επιτυχία!!!</string>
+    <string name="audio_download_started">Η λήψη του ήχου ξεκίνησε με επιτυχία!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Πρέπει να ενεργοποιήσετε την άδεια για να χρησιμοποιήσετε αυτή τη λειτουργία</string>
     <string name="go_to_setting">Μετάβαση στις ρυθμίσεις</string>
     <string name="string_save_to_bookmarks_successfully">Αποθηκεύτηκε στους σελιδοδείκτες</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Λήψη βίντεο</string>
+    <string name="string_download_audio">Λήψη ήχου</string>
     <string name="string_save_to_private_folder">Αποθήκευση στον Ιδιωτικό φάκελο</string>
     <string name="string_start">Έναρξη</string>
     <string name="txt_continue">ΣΥΝΕΧΕΙΑ</string>

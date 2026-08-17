@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Некоректні дані!</string>
     <string name="string_video_found">Відео знайдено</string>
+    <string name="string_audio_found">Аудіо знайдено</string>
     <string name="string_login_required_to_download">Увійдіть у %1$s в браузері, перш ніж завантажувати це відео</string>
     <string name="whatshould">Що зробити?</string>
     <string name="dontshow">Більше не показувати</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Зберегти</string>
     <string name="string_rename">Перейменувати</string>
     <string name="download_started">Завантаження відео успішно розпочато!!!</string>
+    <string name="audio_download_started">Завантаження аудіо успішно розпочато!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Щоб користуватися цією функцією, потрібно надати дозвіл</string>
     <string name="go_to_setting">Перейти до налаштувань</string>
     <string name="string_save_to_bookmarks_successfully">Успішно збережено в закладках</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Завантажити відео</string>
+    <string name="string_download_audio">Завантажити аудіо</string>
     <string name="string_save_to_private_folder">Зберегти в приватну папку</string>
     <string name="string_start">Почати</string>
     <string name="txt_continue">ПРОДОВЖИТИ</string>

@@ -105,15 +105,16 @@ fun DialogPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    enabled: Boolean = true,
 ) {
     Text(
         text = text,
         modifier = modifier
             .clip(ShapePill)
-            .background(backgroundColor)
-            .clickable(onClick = onClick)
+            .background(if (enabled) backgroundColor else SecondaryButtonBackground)
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 11.dp),
-        color = PriInk,
+        color = if (enabled) PriInk else DialogSecondaryText,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,

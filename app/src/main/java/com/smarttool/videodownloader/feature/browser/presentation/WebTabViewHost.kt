@@ -39,12 +39,13 @@ import com.smarttool.videodownloader.core.permission.StoragePermissionSheet
 import com.smarttool.videodownloader.core.ui.SystemUiController
 import com.smarttool.videodownloader.core.ui.dialogs.DialogInformationImage
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
+import com.smarttool.videodownloader.data.network.entity.VideoInfo
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTab
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideoUiMapper
 import com.smarttool.videodownloader.feature.downloads.presentation.DetectedVideosPresenter
 import com.smarttool.videodownloader.feature.downloads.presentation.ProcessingViewModel
-import com.vimalcvs.materialrating.DialogManager
+import com.smarttool.videodownloader.feature.rating.presentation.RatingPromptController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -108,6 +109,7 @@ class WebTabViewHost(
     private val proxyController: CustomProxyController by inject()
     private val okHttpProxyClient: OkHttpProxyClient by inject()
     private val detectedVideoUiMapper: DetectedVideoUiMapper by inject()
+    private val ratingPromptController: RatingPromptController by inject()
 
     /** Set by the route composable so the host can drive navigation. */
     var onPreviewMedia: (url: String, title: String, headers: String) -> Unit = { _, _, _ -> }
@@ -274,7 +276,7 @@ class WebTabViewHost(
                         if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
                     }
 
-                    DetectedVideosContract.Effect.VideoPushed -> onVideoPushed()
+                    is DetectedVideosContract.Effect.VideoPushed -> onVideoPushed(effect.videoInfo)
 
                     is DetectedVideosContract.Effect.LoginRequired ->
                         Toast.makeText(
@@ -301,8 +303,9 @@ class WebTabViewHost(
                     when (info.downloadStatus) {
                         VideoTaskState.SUCCESS -> if (notifiedSuccess.add(info.id)) {
                             toast(R.string.string_download_successful)
-                            DialogManager.showRatingAfterSuccessfulDownload(
+                            ratingPromptController.maybeShowAfterSuccessfulDownload(
                                 activity,
+                                activity.lifecycleScope,
                                 AppConstant.FEEDBACK_EMAIL,
                             )
                         }
@@ -387,23 +390,28 @@ class WebTabViewHost(
 
     // ------------------------------------------------------------------ detected videos
 
-    private fun onVideoPushed() {
-        toast(R.string.string_video_found)
+    private fun onVideoPushed(videoInfo: VideoInfo) {
+        val foundTextRes = if (videoInfo.isAudioOnly) {
+            R.string.string_audio_found
+        } else {
+            R.string.string_video_found
+        }
+        toast(foundTextRes)
 
         val isDownloadsVisible = true
         val isCond = !tabViewModel.uiState.value.isDownloadDialogShown && !isDownloadsVisible
 
         if (settingsViewModel.uiState.value.showVideoAlert && isCond) {
-            showAlertVideoFound()
+            showAlertVideoFound(foundTextRes)
         }
     }
 
-    private fun showAlertVideoFound() {
+    private fun showAlertVideoFound(titleRes: Int) {
         if (tabViewModel.uiState.value.isDownloadDialogShown) return
 
         tabViewModel.onEvent(WebTabPipelineContract.Event.SetDownloadDialogShown(true))
 
-        videoAlert = MaterialAlertDialogBuilder(activity).setTitle(R.string.string_video_found)
+        videoAlert = MaterialAlertDialogBuilder(activity).setTitle(titleRes)
 
         videoAlert?.setOnDismissListener { videoAlert = null }
         videoAlert?.setMessage(R.string.whatshould)

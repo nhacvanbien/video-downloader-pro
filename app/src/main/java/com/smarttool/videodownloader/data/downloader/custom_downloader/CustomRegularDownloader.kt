@@ -110,10 +110,7 @@ class CustomRegularDownloader : GenericDownloader() {
                 headersMap[name] = headers?.get(name) ?: ""
             }
 
-            var fileName = videoInfo.name
-            if (!videoInfo.name.endsWith(".mp4")) {
-                fileName = "${videoInfo.name}.mp4"
-            }
+            val fileName = videoInfo.name
 
             val cookie = headersMap["Cookie"]
             if (skipCookie && cookie != null) {

@@ -5,5 +5,6 @@ enum class ContentType {
     M3U8,
     MPD,
     MP4,
+    AUDIO,
     OTHER,
 }

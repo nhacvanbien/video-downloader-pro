@@ -3,18 +3,18 @@ package com.smarttool.videodownloader.feature.settings.presentation
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.android.BuildConfig
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.core.AppConstant
-import com.smarttool.videodownloader.core.ui.components.findComponentActivity
-import com.vimalcvs.materialrating.DialogManager
+import com.smarttool.videodownloader.feature.rating.presentation.RatingPromptController
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 /** The Settings tab. */
 @Composable
@@ -22,6 +22,8 @@ fun SettingsRoute(onOpenLanguage: () -> Unit) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val ratingPromptController: RatingPromptController = koinInject()
 
     val appName = stringResource(R.string.app_name)
     val recommendText = stringResource(R.string.string_let_me_recommend_you_this_application)
@@ -45,10 +47,7 @@ fun SettingsRoute(onOpenLanguage: () -> Unit) {
             viewModel.onEvent(SettingsContract.Event.SetDownloadLocationEditorVisible(true))
         },
         onRateClick = {
-            DialogManager.showRating(
-                context.findComponentActivity() as FragmentActivity,
-                AppConstant.FEEDBACK_EMAIL,
-            )
+            ratingPromptController.showRating(context, coroutineScope, AppConstant.FEEDBACK_EMAIL)
         },
         onShareClick = {
             val storeUrl =

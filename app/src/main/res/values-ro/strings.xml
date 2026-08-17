@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Date invalide!</string>
     <string name="string_video_found">Videoclip găsit</string>
+    <string name="string_audio_found">Audio găsit</string>
     <string name="string_login_required_to_download">Conectează-te la %1$s în browser înainte de a descărca acest videoclip</string>
     <string name="whatshould">Ce vrei să faci?</string>
     <string name="dontshow">Nu mai afișa</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Salvează</string>
     <string name="string_rename">Redenumește</string>
     <string name="download_started">Descărcarea videoclipului a început cu succes!!!</string>
+    <string name="audio_download_started">Descărcarea audio a început cu succes!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Trebuie să activezi permisiunea pentru a folosi această funcție</string>
     <string name="go_to_setting">Mergi la setări</string>
     <string name="string_save_to_bookmarks_successfully">Salvat în favorite cu succes</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Descarcă videoclipul</string>
+    <string name="string_download_audio">Descarcă audio</string>
     <string name="string_save_to_private_folder">Salvează în folderul Privat</string>
     <string name="string_start">Începe</string>
     <string name="txt_continue">CONTINUĂ</string>

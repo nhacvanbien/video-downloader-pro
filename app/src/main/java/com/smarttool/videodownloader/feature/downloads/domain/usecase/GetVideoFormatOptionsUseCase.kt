@@ -31,7 +31,7 @@ class GetVideoFormatOptionsUseCase {
                 label = label,
                 format = format.format ?: continue,
                 url = format.url,
-                isAudio = label == AUDIO_LABEL,
+                isAudio = label == AUDIO_LABEL || format.isAudioOnly,
             )
         }
 

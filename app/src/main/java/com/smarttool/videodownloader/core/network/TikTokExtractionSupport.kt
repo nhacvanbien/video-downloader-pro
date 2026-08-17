@@ -1,6 +1,5 @@
 package com.smarttool.videodownloader.core.network
 
-import com.yausername.youtubedl_android.YoutubeDLRequest
 import kotlin.random.Random
 
 /**
@@ -11,9 +10,6 @@ import kotlin.random.Random
  * successes, mirroring what manually re-submitting the same link does.
  */
 object TikTokExtractionSupport {
-
-    private const val DEVICE_ID_MIN = 7_250_000_000_000_000_000L
-    private const val DEVICE_ID_MAX = 7_325_099_899_999_994_577L
 
     private val RETRIABLE_MESSAGE_PATTERNS = listOf(
         // TikTok/Akamai-side signatures (JS challenge or soft block resolves on retry)
@@ -35,18 +31,22 @@ object TikTokExtractionSupport {
 
     fun isTikTokHost(host: String?): Boolean = host?.contains("tiktok.") == true
 
-    /** Matches the range yt-dlp itself uses when it generates a device id (tiktok.py). */
-    fun generateDeviceId(): String = Random.nextLong(DEVICE_ID_MIN, DEVICE_ID_MAX).toString()
+    private val CHROME_MAJOR_VERSION_RANGE = 118..131
 
     /**
-     * Opts into yt-dlp's TikTok mobile-API extraction path (`_extract_aweme_app`), which
-     * needs no TLS impersonation at all — only enabled when a device id is supplied.
+     * yt-dlp's own default User-Agent (`std_headers` in its `utils/networking.py`) is a
+     * module-level constant computed once and then reused for every request for the
+     * lifetime of the embedded Python interpreter — which itself is a singleton kept alive
+     * for the app process's whole lifetime, not re-created per call. Left alone, every
+     * TikTok request the app ever makes — across all 5 retry attempts of one video and
+     * across every other video in the same app session — carries the exact same
+     * fingerprint. Generating a fresh one per attempt and forcing it via `--add-header`
+     * (which overrides yt-dlp's default per YoutubeDL.py's `HTTPHeaderDict(std_headers,
+     * http_headers)` merge) is what actually makes a "retry" a different request.
      */
-    fun YoutubeDLRequest.applyTikTokDeviceId(host: String?, deviceId: String) {
-        if (isTikTokHost(host)) {
-            addOption("--extractor-args", "tiktok:device_id=$deviceId")
-        }
-    }
+    fun randomUserAgent(): String =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+            "Chrome/${Random.nextInt(CHROME_MAJOR_VERSION_RANGE.first, CHROME_MAJOR_VERSION_RANGE.last + 1)}.0.0.0 Safari/537.36"
 
     private fun isRetriableFailure(message: String?): Boolean {
         val lower = message?.lowercase() ?: return false
@@ -55,23 +55,26 @@ object TikTokExtractionSupport {
 
     /**
      * Runs [block], retrying on TikTok's known-transient failure signature. No-op passthrough
-     * for every other host. Blocks the calling thread between attempts — callers already run
-     * this off the main thread (worker/IO dispatcher). Delay grows with each attempt (doubling)
-     * plus up to 500ms of jitter, since a fixed delay tends to re-hit the same Akamai edge/DNS
-     * hiccup instead of giving it time to clear.
+     * for every other host (called with attempt=1). Blocks the calling thread between
+     * attempts — callers already run this off the main thread (worker/IO dispatcher). Delay
+     * grows with each attempt (doubling) plus up to 500ms of jitter, since a fixed delay
+     * tends to re-hit the same Akamai edge/DNS hiccup instead of giving it time to clear.
+     * [block] receives the 1-based attempt number so the caller can vary the request (e.g.
+     * rotate the User-Agent via [randomUserAgent]) — retrying the exact same request is
+     * pointless against a block keyed on the request's fingerprint rather than pure chance.
      */
     fun <T> retryTikTokExtraction(
         host: String?,
         attempts: Int = 5,
         initialDelayMillis: Long = 2_000,
-        block: () -> T,
+        block: (attempt: Int) -> T,
     ): T {
-        if (!isTikTokHost(host)) return block()
+        if (!isTikTokHost(host)) return block(1)
 
         var delayMillis = initialDelayMillis
         for (attempt in 1..attempts) {
             try {
-                return block()
+                return block(attempt)
             } catch (e: Throwable) {
                 if (attempt == attempts || !isRetriableFailure(e.message)) throw e
                 Thread.sleep(delayMillis + Random.nextLong(500))

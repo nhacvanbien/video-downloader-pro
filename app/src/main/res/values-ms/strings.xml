@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Data tidak sah!</string>
     <string name="string_video_found">Video dijumpai</string>
+    <string name="string_audio_found">Audio dijumpai</string>
     <string name="string_login_required_to_download">Sila log masuk ke %1$s dalam pelayar sebelum memuat turun video ini</string>
     <string name="whatshould">Apa yang anda mahu lakukan?</string>
     <string name="dontshow">Jangan tunjuk lagi</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Simpan</string>
     <string name="string_rename">Namakan semula</string>
     <string name="download_started">Muat turun video berjaya dimulakan!!!</string>
+    <string name="audio_download_started">Muat turun audio berjaya dimulakan!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Anda perlu membenarkan kebenaran untuk menggunakan ciri ini</string>
     <string name="go_to_setting">Pergi ke tetapan</string>
     <string name="string_save_to_bookmarks_successfully">Berjaya disimpan ke penanda halaman</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Muat turun video</string>
+    <string name="string_download_audio">Muat turun audio</string>
     <string name="string_save_to_private_folder">Simpan ke folder Peribadi</string>
     <string name="string_start">Mula</string>
     <string name="txt_continue">TERUSKAN</string>

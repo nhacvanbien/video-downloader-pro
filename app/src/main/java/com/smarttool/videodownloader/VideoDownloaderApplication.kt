@@ -20,6 +20,7 @@ import com.smarttool.videodownloader.feature.main.di.mainModule
 import com.smarttool.videodownloader.feature.media.di.mediaModule
 import com.smarttool.videodownloader.feature.onboarding.di.onboardingModule
 import com.smarttool.videodownloader.feature.pin.di.pinModule
+import com.smarttool.videodownloader.feature.rating.di.ratingModule
 import com.smarttool.videodownloader.feature.settings.di.settingsModule
 import com.smarttool.videodownloader.feature.tab.di.tabModule
 import com.yausername.ffmpeg.FFmpeg
@@ -73,6 +74,7 @@ class VideoDownloaderApplication : Application() {
                 legacyViewModelModule,
                 onboardingModule,
                 mainModule,
+                ratingModule,
             )
         }
 

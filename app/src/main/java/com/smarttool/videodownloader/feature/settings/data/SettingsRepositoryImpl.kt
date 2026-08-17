@@ -14,7 +14,7 @@ class SettingsRepositoryImpl(
 
     override fun downloadLocation(): String = fileUtil.folderDir.path
 
-    override suspend fun isRated(): Boolean = preferences.rated.first()
+    override suspend fun isRated(): Boolean = preferences.ratingPromptShown.first()
 
     override suspend fun wifiOnly(): Boolean = preferences.wifiOnly.first()
 

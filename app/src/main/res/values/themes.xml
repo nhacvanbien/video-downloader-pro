@@ -14,16 +14,6 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="CustomRatingBarStyle" parent="Widget.AppCompat.RatingBar">
-        <item name="android:progressDrawable">@drawable/custom_ratingbar</item>
-        <item name="android:minHeight">15dip</item>
-        <item name="android:maxHeight">47dip</item>
-    </style>
-
-    <style name="CustomAlertDialogRate" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
-
     <style name="keyboard_row">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

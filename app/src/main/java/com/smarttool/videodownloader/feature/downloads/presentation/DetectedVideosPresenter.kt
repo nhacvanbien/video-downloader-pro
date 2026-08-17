@@ -117,7 +117,9 @@ class DetectedVideosPresenter(
         processingViewModel.onEvent(ProcessingContract.Event.Start(info))
         isSheetVisible = false
 
-        if (announceDownloadStart) toast(R.string.download_started)
+        if (announceDownloadStart) {
+            toast(if (info.isAudioOnly) R.string.audio_download_started else R.string.download_started)
+        }
     }
 
     override fun onSelectFormat(videoInfo: VideoInfo, format: String) {

@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Neplatná data!</string>
     <string name="string_video_found">Video nalezeno</string>
+    <string name="string_audio_found">Audio nalezeno</string>
     <string name="string_login_required_to_download">Před stažením tohoto videa se v prohlížeči přihlaste na %1$s</string>
     <string name="whatshould">Co chcete udělat?</string>
     <string name="dontshow">Příště nezobrazovat</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Uložit</string>
     <string name="string_rename">Přejmenovat</string>
     <string name="download_started">Stahování videa bylo úspěšně zahájeno!!!</string>
+    <string name="audio_download_started">Stahování audia bylo úspěšně zahájeno!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Pro použití této funkce musíte povolit oprávnění</string>
     <string name="go_to_setting">Přejít do nastavení</string>
     <string name="string_save_to_bookmarks_successfully">Úspěšně uloženo do záložek</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Stáhnout video</string>
+    <string name="string_download_audio">Stáhnout audio</string>
     <string name="string_save_to_private_folder">Uložit do soukromé složky</string>
     <string name="string_start">Spustit</string>
     <string name="txt_continue">POKRAČOVAT</string>

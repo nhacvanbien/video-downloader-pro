@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Dati non validi!</string>
     <string name="string_video_found">Video trovato</string>
+    <string name="string_audio_found">Audio trovato</string>
     <string name="string_login_required_to_download">Accedi a %1$s nel browser prima di scaricare questo video</string>
     <string name="whatshould">Cosa vuoi fare?</string>
     <string name="dontshow">Non mostrare più</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Salva</string>
     <string name="string_rename">Rinomina</string>
     <string name="download_started">Download del video avviato con successo!!!</string>
+    <string name="audio_download_started">Download dell\'audio avviato con successo!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Devi abilitare l\'autorizzazione per usare questa funzione</string>
     <string name="go_to_setting">Vai alle impostazioni</string>
     <string name="string_save_to_bookmarks_successfully">Salvato nei preferiti</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Scarica video</string>
+    <string name="string_download_audio">Scarica audio</string>
     <string name="string_save_to_private_folder">Salva nella cartella Privata</string>
     <string name="string_start">Avvia</string>
     <string name="txt_continue">CONTINUA</string>

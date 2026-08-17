@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">غلط ڈیٹا!</string>
     <string name="string_video_found">ویڈیو مل گئی</string>
+    <string name="string_audio_found">آڈیو مل گئی</string>
     <string name="string_login_required_to_download">یہ ویڈیو ڈاؤن لوڈ کرنے سے پہلے براؤزر میں %1$s پر لاگ ان کریں</string>
     <string name="whatshould">ہمیں کیا کرنا چاہیے؟</string>
     <string name="dontshow">دوبارہ نہ دکھائیں</string>
@@ -84,6 +85,7 @@
     <string name="string_save">محفوظ کریں</string>
     <string name="string_rename">نام تبدیل کریں</string>
     <string name="download_started">ویڈیو ڈاؤن لوڈ کامیابی سے شروع ہو گیا!!!</string>
+    <string name="audio_download_started">آڈیو ڈاؤن لوڈ کامیابی سے شروع ہو گیا!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">اس خصوصیت کو استعمال کرنے کے لیے آپ کو اجازت فعال کرنا ہوگی</string>
     <string name="go_to_setting">ترتیبات پر جائیں</string>
     <string name="string_save_to_bookmarks_successfully">بک مارکس میں کامیابی سے محفوظ ہو گیا</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">ویڈیو ڈاؤن لوڈ کریں</string>
+    <string name="string_download_audio">آڈیو ڈاؤن لوڈ کریں</string>
     <string name="string_save_to_private_folder">نجی فولڈر میں محفوظ کریں</string>
     <string name="string_start">شروع کریں</string>
     <string name="txt_continue">جاری رکھیں</string>

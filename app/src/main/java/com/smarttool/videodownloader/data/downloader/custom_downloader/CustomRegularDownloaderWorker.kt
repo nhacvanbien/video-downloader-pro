@@ -338,6 +338,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
     override fun fixFileName(fileName: String): String {
         val currentFile = File(fileName)
+        val ext = currentFile.extension.ifBlank { "mp4" }
         val hasChunks = currentFile.parentFile?.listFiles()?.firstOrNull {
             it.name.contains("chunk")
         } != null
@@ -345,25 +346,25 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
         return if (!currentFile.exists()) {
             var fixedFileName =
-                File("${currentFile.parent}/${currentFile.nameWithoutExtension}.mp4")
+                File("${currentFile.parent}/${currentFile.nameWithoutExtension}.$ext")
 
             while (fixedFileName.exists()) {
                 fixedFileName =
-                    File("${fixedFileName.parent}/${fixedFileName.nameWithoutExtension}_copy.mp4")
+                    File("${fixedFileName.parent}/${fixedFileName.nameWithoutExtension}_copy.$ext")
             }
             fixedFileName.absolutePath
         } else {
 
             var fixedFileName = if (hasChunks) {
-                File("${currentFile.parent}/${currentFile.nameWithoutExtension}.mp4")
+                File("${currentFile.parent}/${currentFile.nameWithoutExtension}.$ext")
             } else {
-                File("${currentFile.parent}/${currentFile.nameWithoutExtension}_copy.mp4")
+                File("${currentFile.parent}/${currentFile.nameWithoutExtension}_copy.$ext")
             }
 
 
             while (fixedFileName.exists() && !hasChunks) {
                 fixedFileName =
-                    File("${fixedFileName.parent}/${fixedFileName.nameWithoutExtension}_copy.mp4")
+                    File("${fixedFileName.parent}/${fixedFileName.nameWithoutExtension}_copy.$ext")
             }
             fixedFileName.absolutePath
         }

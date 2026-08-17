@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.smarttool.videodownloader.core.coroutines.AppScope
-import com.smarttool.videodownloader.core.network.TikTokExtractionSupport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -86,11 +85,27 @@ class AppPreferencesDataSource(
     /** Synchronous read for `Activity.attachBaseContext`, which cannot suspend. */
     fun currentLanguageBlocking(): String = latest()[AppPreferenceKeys.CURRENT_LANGUAGE] ?: ""
 
-    // --- Settings ---------------------------------------------------------------
+    // --- Rating prompt ------------------------------------------------------------
 
-    val rated: Flow<Boolean> = read(AppPreferenceKeys.RATED, false)
+    val ratingPromptShown: Flow<Boolean> = read(AppPreferenceKeys.RATING_PROMPT_SHOWN, false)
 
-    suspend fun setRated(rated: Boolean) = write(AppPreferenceKeys.RATED, rated)
+    suspend fun setRatingPromptShown(shown: Boolean) =
+        write(AppPreferenceKeys.RATING_PROMPT_SHOWN, shown)
+
+    val ratingLastPromptedDownloadCount: Flow<Int> =
+        read(AppPreferenceKeys.RATING_LAST_PROMPTED_DOWNLOAD_COUNT, 0)
+
+    suspend fun setRatingLastPromptedDownloadCount(count: Int) =
+        write(AppPreferenceKeys.RATING_LAST_PROMPTED_DOWNLOAD_COUNT, count)
+
+    suspend fun incrementRatingSuccessfulDownloadCount(): Int {
+        var updated = 0
+        dataStore.editSafely {
+            updated = (it[AppPreferenceKeys.RATING_SUCCESSFUL_DOWNLOAD_COUNT] ?: 0) + 1
+            it[AppPreferenceKeys.RATING_SUCCESSFUL_DOWNLOAD_COUNT] = updated
+        }
+        return updated
+    }
 
     // --- Storage ----------------------------------------------------------------
 
@@ -225,19 +240,6 @@ class AppPreferencesDataSource(
 
     fun setProxyOnBlocking(isOn: Boolean) =
         writeBlocking(AppPreferenceKeys.IS_PROXY_TURN_ON, isOn)
-
-    /**
-     * Stable per-install id for TikTok's mobile-API extractor-arg (see
-     * [com.smarttool.videodownloader.core.network.TikTokExtractionSupport]). Generated once
-     * and persisted — TikTok is more likely to treat a device id that stays the same across
-     * requests as genuine than one that changes every call.
-     */
-    fun tikTokDeviceIdBlocking(): String {
-        latest()[AppPreferenceKeys.TIKTOK_DEVICE_ID]?.let { return it }
-        val generated = TikTokExtractionSupport.generateDeviceId()
-        writeBlocking(AppPreferenceKeys.TIKTOK_DEVICE_ID, generated)
-        return generated
-    }
 
     // --- Internals --------------------------------------------------------------
 

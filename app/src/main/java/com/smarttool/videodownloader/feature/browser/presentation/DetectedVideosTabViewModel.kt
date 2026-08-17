@@ -119,7 +119,14 @@ class DetectedVideosTabViewModel(
         _uiState.update {
             it.copy(downloadButtonState = DownloadButtonStateCanNotDownload(), detectedVideos = emptySet())
         }
-        cancelAllChecks()
+        // Not killProcesses=true: this runs on every `doUpdateVisitedHistory` WebView
+        // callback, which SPA-heavy pages (TikTok) fire repeatedly for the *same* video —
+        // each hop differs only in a tracking query param, so taskUrlCleaned (below) stays
+        // identical across them. Killing in-flight extractions here would abort a request
+        // that's about to succeed every time such a page re-navigates internally; only an
+        // actual tab close/back/forward/new-URL-submit (which dispatch CancelAllChecks
+        // directly) should do that.
+        cancelAllChecks(killProcesses = false)
 
         if (url.isBlank() || !url.startsWith("http")) return
 
@@ -180,7 +187,7 @@ class DetectedVideosTabViewModel(
             viewModelScope.launch(baseSchedulers.videoService) {
                 try {
                     val info = try {
-                        videoServiceLocal.getVideoInfo(resourceRequest, isM3u8)?.videoInfo
+                        videoServiceLocal.getVideoInfo(resourceRequest, isM3u8, taskUrlCleaned)?.videoInfo
                     } catch (e: LoginRequiredException) {
                         _effect.trySend(DetectedVideosContract.Effect.LoginRequired(e.host))
                         null
@@ -286,6 +293,15 @@ class DetectedVideosTabViewModel(
                 }
             }
         } else {
+            // CDN format URLs are signed per extraction call (fresh signature/expiry every
+            // time, even for the exact same video), and TikTok's own short-link redirect
+            // chain can resolve the same video to several differently-shaped page URLs
+            // (with/without username, sec_uid form...) — see the WebTabViewHost redirect
+            // log. Both existing checks below (format URL overlap, exact originalUrl match)
+            // silently fail against each other for these, so the same video lands twice.
+            // The numeric id in the path is the one thing TikTok keeps stable across all of
+            // that, so fall back to it before giving up on a match.
+            val newTikTokId = tikTokVideoId(newInfo.originalUrl)
             for (vid in detected) {
                 for (vF in vid.formats.formats) {
                     for (k in newInfo.formats.formats) {
@@ -299,6 +315,9 @@ class DetectedVideosTabViewModel(
                     }
                 }
                 if (vid.originalUrl == newInfo.originalUrl) {
+                    contains = true
+                }
+                if (!contains && newTikTokId != null && newTikTokId == tikTokVideoId(vid.originalUrl)) {
                     contains = true
                 }
                 if (contains) {
@@ -315,9 +334,13 @@ class DetectedVideosTabViewModel(
         Timber.d("PUSHING $newInfo  to list: \n  ${_uiState.value.detectedVideos}")
         val updated = _uiState.value.detectedVideos + newInfo
         _uiState.update { it.copy(detectedVideos = updated) }
-        _effect.trySend(DetectedVideosContract.Effect.VideoPushed)
+        _effect.trySend(DetectedVideosContract.Effect.VideoPushed(newInfo))
         setButtonState(DownloadButtonStateCanDownload(newInfo))
     }
+
+    /** TikTok's own numeric video id out of the URL path, e.g. `7665934019430862100` — stable across the `@user/`, `@/` and `@sec_uid/` page-URL shapes the same video can resolve to. */
+    private fun tikTokVideoId(url: String): String? =
+        Regex("""tiktok\.[a-z.]+/[^?#]*?/video/(\d+)""").find(url)?.groupValues?.getOrNull(1)
 
     /**
      * A page listing several videos (a feed) fires one manifest request per item, but the
@@ -424,10 +447,30 @@ class DetectedVideosTabViewModel(
         }
     }
 
-    private fun cancelAllChecks() {
-        _uiState.update { it.copy(regularLoading = emptySet(), m3u8Loading = emptySet()) }
+    /**
+     * @param killProcesses Cancelling a Job alone only stops it at its next suspension
+     * point — it can't interrupt the blocking yt-dlp subprocess call a job is parked on
+     * (e.g. TikTok's up-to-45s retry loop); the taskId keyed here (see [startVerifyProcess])
+     * is what actually reaches into [VideoServiceLocal] to kill it. Real exits (tab close,
+     * back/forward, submitting a new URL) want that. [startPage] does not: it also runs on
+     * every same-page `doUpdateVisitedHistory` hop an SPA like TikTok fires while a check
+     * for that exact video is still in flight, where killing it would abort a request that
+     * was about to succeed.
+     */
+    private fun cancelAllChecks(killProcesses: Boolean = true) {
         executorReload.cancel()
         executorRegular.cancel()
+        if (!killProcesses) return
+        // Only touched when checks are actually being torn down: these sets are what
+        // drive the floating button's spinner (see setButtonState), and the jobs/processes
+        // left alive on the killProcesses=false path are still legitimately populating
+        // them — clearing it out from under still-running work stops the spinner while
+        // detection is still genuinely in progress, then the button jumps straight to
+        // "detected" once that preserved job finally lands.
+        _uiState.update { it.copy(regularLoading = emptySet(), m3u8Loading = emptySet()) }
+        verifyVideoLinkJobStorage.keys.toList().forEach { taskId ->
+            videoServiceLocal.cancelExtraction(taskId)
+        }
         verifyVideoLinkJobStorage.values.toList().forEach { process ->
             process.cancel()
         }
@@ -615,14 +658,16 @@ class DetectedVideosTabViewModel(
                     val emptyHeadersReq = Request.Builder().url(finlUrlPairEmpty.first).build()
                     val emptyRes =
                         okHttpProxyClient.getProxyOkHttpClient().newCall(emptyHeadersReq).execute()
-                    if (emptyRes.body.contentType().toString()
-                            .contains("video") && length > treshold
+                    val emptyResType = emptyRes.body.contentType().toString()
+                    if ((emptyResType.contains("video") || emptyResType.contains("audio")) &&
+                        length > treshold
                     ) {
                         setVideoInfoWrapperFromUrl(
                             finlUrlPairEmpty.first,
                             webTabModel?.uiState?.value?.tabUrl,
                             finlUrlPairEmpty.second.toMap(),
-                            length
+                            length,
+                            emptyResType
                         )
                         emptyRes.close()
 
@@ -632,14 +677,16 @@ class DetectedVideosTabViewModel(
             }
 
             val isTikTok = url.contains(".tiktok.com/")
-            if (type.toString()
-                    .contains("video") && (length > treshold || (isTikTok && length > 1024 * 1024 / 3))
+            val typeStr = type.toString()
+            if ((typeStr.contains("video") || typeStr.contains("audio")) &&
+                (length > treshold || (isTikTok && length > 1024 * 1024 / 3))
             ) {
                 setVideoInfoWrapperFromUrl(
                     finlUrlPair.first,
                     webTabModel?.uiState?.value?.tabUrl,
                     finlUrlPair.second.toMap(),
-                    length
+                    length,
+                    typeStr
                 )
             }
         } catch (e: InterruptedIOException) {
@@ -655,9 +702,10 @@ class DetectedVideosTabViewModel(
         url: URL,
         originalUrl: String?,
         alternativeHeaders: Map<String, String> = emptyMap(),
-        contentLength: Long
+        contentLength: Long,
+        contentType: String? = null,
     ) {
-        Timber.d("setVideoInfoWrapperFromUrl: url=$url contentLength=$contentLength")
+        Timber.d("setVideoInfoWrapperFromUrl: url=$url contentLength=$contentLength contentType=$contentType")
         try {
             if (!url.toString().startsWith("http")) {
                 return
@@ -676,21 +724,26 @@ class DetectedVideosTabViewModel(
             // Extract format/resolution label from URL or fallback to file size
             val formatLabel = inferFormatLabel(url.toString(), alternativeHeaders, contentLength)
 
+            val isAudio = contentType?.contains("audio", ignoreCase = true) == true
+            val ext = if (isAudio) inferAudioExt(contentType, url.toString()) else "mp4"
+
             val video = VideoInfoWrapper(
                 VideoInfo(
                     downloadUrls = downloadUrls,
                     title = webTabModel?.uiState?.value?.currentTitle ?: "no_title",
-                    ext = "mp4",
+                    ext = ext,
                     originalUrl = webTabModel?.uiState?.value?.tabUrl ?: "",
                     formats = VideFormatEntityList(
                         mutableListOf(
                             VideoFormatEntity(
                                 formatId = "0",
                                 format = formatLabel,
-                                ext = "mp4",
+                                ext = ext,
                                 url = downloadUrls.first().url.toString(),
                                 httpHeaders = downloadUrls.first().headers.toMap(),
-                                fileSize = contentLength
+                                fileSize = contentLength,
+                                vcodec = if (isAudio) "none" else null,
+                                acodec = if (isAudio) "aac" else null,
                             )
                         )
                     ),
@@ -700,6 +753,29 @@ class DetectedVideosTabViewModel(
             video.videoInfo?.let { pushNewVideoInfoToAll(it) }
         } catch (e: Throwable) {
             Timber.e(e, "setVideoInfoWrapperFromUrl failed")
+        }
+    }
+
+    /**
+     * Best-effort audio container guess for a regular (non-yt-dlp) download: the URL's own
+     * extension is more reliable than the server's Content-Type (many hosts just say
+     * "audio/mpeg" for anything), so it's tried first.
+     */
+    private fun inferAudioExt(contentType: String?, url: String): String {
+        val urlExt = url.substringBefore("?").substringAfterLast('.', "").lowercase()
+        val knownAudioExts = setOf("mp3", "m4a", "aac", "wav", "flac", "opus", "wma", "oga", "ogg")
+        if (urlExt in knownAudioExts) return urlExt
+
+        val type = contentType.orEmpty().lowercase()
+        return when {
+            type.contains("mpeg") -> "mp3"
+            type.contains("mp4") || type.contains("m4a") -> "m4a"
+            type.contains("aac") -> "aac"
+            type.contains("wav") -> "wav"
+            type.contains("flac") -> "flac"
+            type.contains("ogg") -> "ogg"
+            type.contains("webm") -> "weba"
+            else -> "mp3"
         }
     }
 

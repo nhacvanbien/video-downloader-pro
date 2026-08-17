@@ -115,7 +115,7 @@ class VideoSniffer(
                     ),
                 )
             }
-        } else if (probeEveryNonManifest || contentType == ContentType.MP4) {
+        } else if (probeEveryNonManifest || contentType == ContentType.MP4 || contentType == ContentType.AUDIO) {
             trackRegularProbe(requestWithCookies)
         }
     }

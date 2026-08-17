@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Ongeldige gegevens!</string>
     <string name="string_video_found">Video gevonden</string>
+    <string name="string_audio_found">Audio gevonden</string>
     <string name="string_login_required_to_download">Log in bij %1$s in de browser voordat je deze video downloadt</string>
     <string name="whatshould">Wat wil je doen?</string>
     <string name="dontshow">Niet meer tonen</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Opslaan</string>
     <string name="string_rename">Naam wijzigen</string>
     <string name="download_started">Video downloaden succesvol gestart!!!</string>
+    <string name="audio_download_started">Audio downloaden succesvol gestart!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Je moet toestemming inschakelen om deze functie te gebruiken</string>
     <string name="go_to_setting">Ga naar instellingen</string>
     <string name="string_save_to_bookmarks_successfully">Opgeslagen in bladwijzers</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Video downloaden</string>
+    <string name="string_download_audio">Audio downloaden</string>
     <string name="string_save_to_private_folder">Opslaan in Privémap</string>
     <string name="string_start">Starten</string>
     <string name="txt_continue">DOORGAAN</string>

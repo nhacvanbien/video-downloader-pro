@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Érvénytelen adat!</string>
     <string name="string_video_found">Videó található</string>
+    <string name="string_audio_found">Hang található</string>
     <string name="string_login_required_to_download">A videó letöltése előtt jelentkezz be a következőbe a böngészőben: %1$s</string>
     <string name="whatshould">Mit szeretnél tenni?</string>
     <string name="dontshow">Ne jelenjen meg többé</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Mentés</string>
     <string name="string_rename">Átnevezés</string>
     <string name="download_started">A videó letöltése sikeresen elindult!!!</string>
+    <string name="audio_download_started">A hang letöltése sikeresen elindult!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">A funkció használatához engedélyezned kell a hozzáférést</string>
     <string name="go_to_setting">Ugrás a beállításokhoz</string>
     <string name="string_save_to_bookmarks_successfully">Sikeresen mentve a könyvjelzők közé</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Videó letöltése</string>
+    <string name="string_download_audio">Hang letöltése</string>
     <string name="string_save_to_private_folder">Mentés a Privát mappába</string>
     <string name="string_start">Indítás</string>
     <string name="txt_continue">FOLYTATÁS</string>

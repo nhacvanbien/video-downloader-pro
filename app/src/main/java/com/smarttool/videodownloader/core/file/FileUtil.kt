@@ -14,6 +14,7 @@ import android.os.StatFs
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
@@ -657,9 +658,12 @@ class FileUtil constructor(
         } else {
             MediaStore.Downloads.INTERNAL_CONTENT_URI
         }
+        val mimeType = MimeTypeMap.getSingleton()
+            .getMimeTypeFromExtension(File(fileName).extension.lowercase())
+            ?: "video/mp4"
         return moveFileToMediaStoreCollection(
             contentResolver, sourceFile, fileName, folderDir, collectionUri,
-            downloadsRelativePath(), "video/mp4", onProgress,
+            downloadsRelativePath(), mimeType, onProgress,
         )
     }
 

@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">ข้อมูลไม่ถูกต้อง!</string>
     <string name="string_video_found">พบวิดีโอ</string>
+    <string name="string_audio_found">พบเสียง</string>
     <string name="string_login_required_to_download">กรุณาเข้าสู่ระบบ %1$s ในเบราว์เซอร์ก่อนดาวน์โหลดวิดีโอนี้</string>
     <string name="whatshould">เราควรทำอย่างไรดี?</string>
     <string name="dontshow">ไม่ต้องแสดงอีก</string>
@@ -84,6 +85,7 @@
     <string name="string_save">บันทึก</string>
     <string name="string_rename">เปลี่ยนชื่อ</string>
     <string name="download_started">เริ่มดาวน์โหลดวิดีโอสำเร็จแล้ว!!!</string>
+    <string name="audio_download_started">เริ่มดาวน์โหลดเสียงสำเร็จแล้ว!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">คุณต้องเปิดใช้งานสิทธิ์การเข้าถึงเพื่อใช้ฟีเจอร์นี้</string>
     <string name="go_to_setting">ไปที่การตั้งค่า</string>
     <string name="string_save_to_bookmarks_successfully">บันทึกลงบุ๊กมาร์กสำเร็จ</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">ดาวน์โหลดวิดีโอ</string>
+    <string name="string_download_audio">ดาวน์โหลดเสียง</string>
     <string name="string_save_to_private_folder">บันทึกลงโฟลเดอร์ส่วนตัว</string>
     <string name="string_start">เริ่ม</string>
     <string name="txt_continue">ดำเนินการต่อ</string>

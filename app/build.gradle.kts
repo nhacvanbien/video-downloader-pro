@@ -173,12 +173,14 @@ dependencies {
 
     implementation(libs.youtube.dl)
     implementation(libs.youtube.dl.ffmpeg)
+    // Transitive dep of youtube-dl (its own getInfo() uses it internally); declared
+    // explicitly so VideoServiceLocal can call YoutubeDL.getInstance().objectMapper
+    // directly instead of duplicating a second Jackson mapper instance/config.
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.11.1")
     implementation(libs.jsoup)
     implementation(libs.retrofit.converter.gson)
     implementation("com.daimajia.androidanimations:library:2.4@aar")
     implementation("com.daimajia.easing:library:2.4@aar")
     implementation(libs.material)
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
-
-    implementation(project(":rating-library"))
 }

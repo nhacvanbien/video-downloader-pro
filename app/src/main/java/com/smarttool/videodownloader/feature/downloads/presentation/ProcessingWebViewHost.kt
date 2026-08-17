@@ -202,7 +202,13 @@ class ProcessingWebViewHost(
                         if (permissionChecker.hasAll()) detected?.show() else permissionSheet.show()
                     }
 
-                    DetectedVideosContract.Effect.VideoPushed -> toast(R.string.string_video_found)
+                    is DetectedVideosContract.Effect.VideoPushed -> toast(
+                        if (effect.videoInfo.isAudioOnly) {
+                            R.string.string_audio_found
+                        } else {
+                            R.string.string_video_found
+                        },
+                    )
 
                     is DetectedVideosContract.Effect.LoginRequired ->
                         Toast.makeText(

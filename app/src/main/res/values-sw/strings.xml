@@ -77,6 +77,7 @@
     <string name="string_url">URL</string>
     <string name="string_invalid_data">Data si sahihi!</string>
     <string name="string_video_found">Video imepatikana</string>
+    <string name="string_audio_found">Sauti imepatikana</string>
     <string name="string_login_required_to_download">Tafadhali ingia kwenye %1$s kwenye kivinjari kabla ya kupakua video hii</string>
     <string name="whatshould">Tufanye nini?</string>
     <string name="dontshow">Usionyeshe tena</string>
@@ -84,6 +85,7 @@
     <string name="string_save">Hifadhi</string>
     <string name="string_rename">Badilisha jina</string>
     <string name="download_started">Upakuaji wa video umeanza kwa mafanikio!!!</string>
+    <string name="audio_download_started">Upakuaji wa sauti umeanza kwa mafanikio!!!</string>
     <string name="string_you_need_to_enable_permission_to_use_this_features">Unahitaji kuwasha ruhusa ili kutumia kipengele hiki</string>
     <string name="go_to_setting">Nenda kwenye mipangilio</string>
     <string name="string_save_to_bookmarks_successfully">Imehifadhiwa kwenye alamisho kwa mafanikio</string>
@@ -158,6 +160,7 @@
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Pakua video</string>
+    <string name="string_download_audio">Pakua sauti</string>
     <string name="string_save_to_private_folder">Hifadhi kwenye folda ya Faragha</string>
     <string name="string_start">Anza</string>
     <string name="txt_continue">ENDELEA</string>
