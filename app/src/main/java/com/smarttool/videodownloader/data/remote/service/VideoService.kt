@@ -135,7 +135,19 @@ open class VideoServiceLocal(
 
         try {
             val info = TikTokExtractionSupport.retryTikTokExtraction(url.url.host) { attempt ->
-                if (attempt > 1 && TikTokExtractionSupport.isTikTokHost(url.url.host)) {
+                if (!TikTokExtractionSupport.isTikTokHost(url.url.host)) {
+                    // Every other site keeps using the library's own fire-and-forget
+                    // getInfo(request) exactly as before — the cancellable, taskId-tracked
+                    // execute() path below is TikTok-only. taskId here is taskUrlCleaned
+                    // (see DetectedVideosTabViewModel.startVerifyProcess), which several
+                    // near-simultaneous WebView requests for the same page can share; for
+                    // TikTok that's safe because retryTikTokExtraction absorbs the
+                    // resulting "Process ID already exists" as a retriable failure, but
+                    // other hosts don't get that retry treatment, so the same collision
+                    // there was an outright, unretried failure — e.g. Facebook broke.
+                    return@retryTikTokExtraction YoutubeDL.getInstance().getInfo(request)
+                }
+                if (attempt > 1) {
                     request.addOption(
                         "--add-header",
                         "User-Agent:${TikTokExtractionSupport.randomUserAgent()}"
