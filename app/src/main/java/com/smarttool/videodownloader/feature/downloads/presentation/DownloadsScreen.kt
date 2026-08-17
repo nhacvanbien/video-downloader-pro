@@ -1,6 +1,8 @@
 package com.smarttool.videodownloader.feature.downloads.presentation
 
 import android.view.View
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +29,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -425,65 +428,83 @@ private fun DownloadingRow(
     val info = item.progressInfo
     val isPaused = info.downloadStatus == VideoTaskState.PAUSE
 
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(DownloadActiveRowHeight)
             .clip(ShapeLg)
             .background(WarnSoft)
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (selectionMode) SelectionDot(selected)
+        if (selectionMode) SelectionDot(selected)
 
-            Text(
-                text = item.displayTitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
+        MediaThumbnail(
+            filePath = info.videoInfo.thumbnail,
+            mediaType = if (info.videoInfo.isAudioOnly) MediaKind.AUDIO else MediaKind.VIDEO,
+            modifier = Modifier.fillMaxHeight().aspectRatio(1f).clip(ShapeMd),
+        )
 
-            Image(
-                painter = painterResource(if (isPaused) R.drawable.ic_play else R.drawable.ic_pause),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(30.dp)
-                    .clip(ShapePill)
-                    .background(Surface)
-                    .clickable { onPauseResume(info) }
-                    .padding(6.dp),
-            )
+        Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = item.displayTitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
 
-            Image(
-                painter = painterResource(R.drawable.ic_close),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 6.dp)
-                    .size(30.dp)
-                    .clip(ShapePill)
-                    .background(Surface)
-                    .clickable { onCancel(info) }
-                    .padding(8.dp),
-            )
-        }
+                Image(
+                    painter = painterResource(if (isPaused) R.drawable.ic_play else R.drawable.ic_pause),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(30.dp)
+                        .clip(ShapePill)
+                        .background(Surface)
+                        .clickable { onPauseResume(info) }
+                        .padding(6.dp),
+                )
 
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
-            LinearProgressIndicator(
-                progress = { info.progress / 100f },
-                color = Warn,
-                trackColor = Warn.copy(alpha = 0.25f),
-                modifier = Modifier.weight(1f).height(4.dp).clip(ShapePill),
-            )
+                Image(
+                    painter = painterResource(R.drawable.ic_close),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                        .size(30.dp)
+                        .clip(ShapePill)
+                        .background(Surface)
+                        .clickable { onCancel(info) }
+                        .padding(8.dp),
+                )
+            }
 
-            Text(
-                text = "${info.progress}%",
-                style = MaterialTheme.typography.labelSmall,
-                color = Warn,
-                modifier = Modifier.padding(start = 8.dp),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
+                // Progress updates arrive roughly once a second from the download worker;
+                // animating the fraction smooths the bar's motion between those steps instead
+                // of snapping it forward.
+                val animatedProgress by animateFloatAsState(
+                    targetValue = info.progress / 100f,
+                    animationSpec = tween(durationMillis = 400),
+                    label = "downloadProgress",
+                )
+                LinearProgressIndicator(
+                    progress = { animatedProgress },
+                    color = Warn,
+                    trackColor = Warn.copy(alpha = 0.25f),
+                    modifier = Modifier.weight(1f).height(4.dp).clip(ShapePill),
+                )
+
+                Text(
+                    text = "${info.progress}%",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Warn,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
         }
     }
 }

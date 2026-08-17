@@ -6,14 +6,10 @@ import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.data.repository.ProgressRepository
 import com.smarttool.videodownloader.feature.downloads.domain.DownloadsRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-
-private const val POLL_INTERVAL_MILLIS = 1000L
 
 class DownloadsRepositoryImpl(
     private val progressRepository: ProgressRepository,
@@ -21,23 +17,20 @@ class DownloadsRepositoryImpl(
 ) : DownloadsRepository {
 
     /**
-     * The engines write progress into the store rather than emitting it, so the list
-     * is polled. Finished rows are deleted as they are seen — leaving them behind
-     * makes their IDs collide with new regular downloads and their progress stops
-     * rendering.
+     * Reacts directly to Room's Flow, which already emits on every write the engines
+     * make (see ProgressDao). Polling this on a separate timer used to drift out of
+     * phase with the workers' own ~1s save cadence, so the UI saw updates in uneven
+     * bursts instead of one per write. Finished rows are deleted as they are seen —
+     * leaving them behind makes their IDs collide with new regular downloads and their
+     * progress stops rendering.
      */
-    override fun observeActiveDownloads(): Flow<List<ProgressInfo>> = flow {
-        while (true) {
-            val all = progressRepository.getProgressInfos().first()
-
+    override fun observeActiveDownloads(): Flow<List<ProgressInfo>> =
+        progressRepository.getProgressInfos().map { all ->
             all.filter { it.downloadStatus == VideoTaskState.SUCCESS }
                 .forEach { progressRepository.deleteProgressInfo(it) }
 
-            emit(all.filter { it.downloadStatus != VideoTaskState.SUCCESS }.sortedBy { it.id })
-
-            delay(POLL_INTERVAL_MILLIS)
-        }
-    }.flowOn(Dispatchers.IO)
+            all.filter { it.downloadStatus != VideoTaskState.SUCCESS }.sortedBy { it.id }
+        }.flowOn(Dispatchers.IO)
 
     override suspend fun save(progressInfo: ProgressInfo) = withContext(Dispatchers.IO) {
         progressRepository.saveProgressInfo(progressInfo)

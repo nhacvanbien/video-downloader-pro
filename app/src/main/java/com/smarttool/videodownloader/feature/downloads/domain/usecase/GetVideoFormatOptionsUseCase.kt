@@ -68,7 +68,11 @@ class GetVideoFormatOptionsUseCase {
      * resolution digits to sort by, so they rank at the conventional pixel height
      * that label implies — this interleaves them correctly next to numeric labels
      * instead of always landing first/last regardless of actual quality. Anything
-     * else unrecognized (e.g. the "MP4"/"Error" fallbacks) sorts after all of these.
+     * else unrecognized (e.g. a watermarked "download" format with no known
+     * width/height, or the "MP4"/"Error" fallbacks) sorts *before* every real
+     * resolution — DetectedVideoUiMapper defaults the picker to `options.last()`
+     * as "best quality", so ranking an unknown-resolution format anywhere near the
+     * high end makes it win that default over formats we actually know are better.
      */
     private fun qualityRank(label: String): Int {
         if (label == AUDIO_LABEL) return Int.MAX_VALUE
@@ -77,7 +81,7 @@ class GetVideoFormatOptionsUseCase {
         return when (label) {
             "SD" -> SD_RANK
             "HD" -> HD_RANK
-            else -> Int.MAX_VALUE - 1
+            else -> Int.MIN_VALUE
         }
     }
 
