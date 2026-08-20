@@ -172,6 +172,7 @@
     <string name="string_report_issue">Reportar un problema</string>
     <string name="string_retry">REINTENTAR</string>
     <string name="string_retry_download">Reintentar descarga</string>
+    <string name="string_download_now">Descargar ahora</string>
     <string name="string_save_to_private_folder">Guardar en carpeta privada</string>
     <string name="string_search_downloads">Buscar descargas</string>
     <string name="string_search_language">Buscar idioma</string>

@@ -149,6 +149,7 @@
     <string name="string_num_selected">%s ang napili</string>
     <string name="string_select_items">Pumili ng mga item</string>
     <string name="string_retry_download">Subukan ulit ang download</string>
+    <string name="string_download_now">I-download na ngayon</string>
     <string name="string_retry">SUBUKAN ULIT</string>
     <string name="string_download_failed_short">Nabigo ang download</string>
     <string name="string_no_media_found">Walang nakitang media</string>

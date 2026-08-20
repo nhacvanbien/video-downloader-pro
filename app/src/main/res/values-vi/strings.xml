@@ -149,6 +149,7 @@
     <string name="string_num_selected">Đã chọn %s</string>
     <string name="string_select_items">Chọn mục</string>
     <string name="string_retry_download">Thử tải lại</string>
+    <string name="string_download_now">Tải xuống ngay</string>
     <string name="string_retry">THỬ LẠI</string>
     <string name="string_download_failed_short">Tải xuống thất bại</string>
     <string name="string_no_media_found">Không tìm thấy nội dung</string>

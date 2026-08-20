@@ -16,10 +16,18 @@ interface DetectedVideosContract {
         val formatTitles: Map<String, String> = emptyMap(),
         val m3u8Loading: Set<String> = emptySet(),
         val regularLoading: Set<String> = emptySet(),
+        /** True once the current page has already had one manual retry (see [DetectedVideosContract.Event.ShowVideoInfo]) — a further tap while still empty shows "no media found" instead of retrying forever. */
+        val retryAttempted: Boolean = false,
     ) : UiState
 
     sealed interface Event : UiEvent {
-        data class StartPage(val url: String, val userAgent: String) : Event
+        /**
+         * @param isRetry True when this probe is a manual retry re-run (see
+         * [DetectedVideosTabViewModel.showVideoInfo]) rather than a genuine navigation —
+         * keeps [State.retryAttempted] from being reset back to false by the very probe
+         * it triggered, which would otherwise let a manual retry loop forever.
+         */
+        data class StartPage(val url: String, val userAgent: String, val isRetry: Boolean = false) : Event
         data object ShowVideoInfo : Event
         data class VerifyLinkStatus(
             val request: Request,
@@ -42,5 +50,14 @@ interface DetectedVideosContract {
 
         /** The page being probed belongs to a platform we deliberately don't support (e.g. YouTube). */
         data object PlatformNotAllowed : Effect
+
+        /**
+         * A manual retry (first tap on the download button while nothing's been found)
+         * needs the WebView host itself to reload the page, not just re-run yt-dlp against
+         * the already-loaded URL: the sniffer that actually finds m3u8/mp4 requests only
+         * sees them as the page makes them, and those already fired (or didn't) on the
+         * first load. The host owns the WebView, so it's the one that has to act on this.
+         */
+        data object RequestReloadForRetry : Effect
     }
 }

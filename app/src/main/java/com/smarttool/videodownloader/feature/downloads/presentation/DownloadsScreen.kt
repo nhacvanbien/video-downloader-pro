@@ -374,10 +374,12 @@ private fun DownloadButton(buttonState: DownloadButtonUiState, onClick: () -> Un
             modifier = Modifier.padding(start = 8.dp).size(40.dp).clickable(onClick = onClick),
         )
 
+        // Disabled is also the retryable state (see DetectedVideosTabViewModel.showVideoInfo) —
+        // stays clickable so the user can retry detection or surface "no media found".
         DownloadButtonUiState.Disabled -> Image(
             painter = painterResource(R.drawable.ic_download_disable_update),
             contentDescription = null,
-            modifier = Modifier.padding(start = 8.dp).size(40.dp),
+            modifier = Modifier.padding(start = 8.dp).size(40.dp).clickable(onClick = onClick),
         )
     }
 }

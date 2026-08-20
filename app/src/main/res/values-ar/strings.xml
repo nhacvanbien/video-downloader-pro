@@ -172,6 +172,7 @@
     <string name="string_report_issue">الإبلاغ عن مشكلة</string>
     <string name="string_retry">إعادة المحاولة</string>
     <string name="string_retry_download">إعادة محاولة التنزيل</string>
+    <string name="string_download_now">تنزيل الآن</string>
     <string name="string_save_to_private_folder">حفظ في المجلد الخاص</string>
     <string name="string_search_downloads">البحث في التنزيلات</string>
     <string name="string_search_language">البحث عن لغة</string>

@@ -171,6 +171,7 @@
     <string name="string_report_issue">Laporkan masalah</string>
     <string name="string_retry">COBA LAGI</string>
     <string name="string_retry_download">Coba unduh lagi</string>
+    <string name="string_download_now">Unduh sekarang</string>
     <string name="string_save_to_private_folder">Simpan ke folder Privat</string>
     <string name="string_search_downloads">Cari unduhan</string>
     <string name="string_search_language">Cari bahasa</string>

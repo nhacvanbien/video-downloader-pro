@@ -23,7 +23,6 @@ import com.smarttool.videodownloader.feature.browser.domain.model.DownloadButton
 import com.smarttool.videodownloader.feature.browser.domain.usecase.GetVideoDetectionThresholdUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Headers.Companion.toHeaders
@@ -40,6 +40,7 @@ import timber.log.Timber
 import java.io.InterruptedIOException
 import java.net.HttpCookie
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 
 /**
@@ -68,10 +69,11 @@ class DetectedVideosTabViewModel(
     var webTabModel: WebTabViewModel? = null
         private set
 
-    private val executorRegular = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-
-    @Volatile
-    private var verifyVideoLinkJobStorage = mutableMapOf<String, Job>()
+    // ConcurrentHashMap, not a plain map: written from the WebView's own request threads
+    // and read (checked/iterated in cancelAllChecks) from up to a dozen+ videoService pool
+    // threads concurrently — a plain map here previously risked ConcurrentModificationException
+    // or a silently dropped entry (a job that never gets cancelled).
+    private val verifyVideoLinkJobStorage = ConcurrentHashMap<String, Job>()
 
     /**
      * Binds the detector to the page it watches and primes the ad-host list it filters
@@ -93,7 +95,7 @@ class DetectedVideosTabViewModel(
 
     fun onEvent(event: DetectedVideosContract.Event) {
         when (event) {
-            is DetectedVideosContract.Event.StartPage -> startPage(event.url, event.userAgent)
+            is DetectedVideosContract.Event.StartPage -> startPage(event.url, event.userAgent, event.isRetry)
             DetectedVideosContract.Event.ShowVideoInfo -> showVideoInfo()
             is DetectedVideosContract.Event.VerifyLinkStatus ->
                 verifyLinkStatus(event.request, event.hlsTitle, event.isM3u8)
@@ -115,9 +117,16 @@ class DetectedVideosTabViewModel(
         }
     }
 
-    private fun startPage(url: String, userAgent: String) {
+    private fun startPage(url: String, userAgent: String, isRetry: Boolean = false) {
         _uiState.update {
-            it.copy(downloadButtonState = DownloadButtonStateCanNotDownload(), detectedVideos = emptySet())
+            it.copy(
+                downloadButtonState = DownloadButtonStateCanNotDownload(),
+                detectedVideos = emptySet(),
+                // A genuine navigation gets a fresh retry chance; a manual retry
+                // (isRetry=true, called from showVideoInfo below) must not reset the
+                // flag it just set, or a second failed attempt would look like a first.
+                retryAttempted = if (isRetry) it.retryAttempted else false,
+            )
         }
         // Not killProcesses=true: this runs on every `doUpdateVisitedHistory` WebView
         // callback, which SPA-heavy pages (TikTok) fire repeatedly for the *same* video —
@@ -143,18 +152,20 @@ class DetectedVideosTabViewModel(
         val state = _uiState.value
         Timber.d("showVideoInfo: state=${state.downloadButtonState}")
 
-        // Nothing detected yet: treat the tap as a retry instead of immediately popping
-        // the "no media found" dialog — ShowDetectedVideos fires synchronously below, well
-        // before a re-run startPage could possibly land a result, so sending it here would
-        // always show that dialog rather than give the retry a chance.
-        if (state.downloadButtonState is DownloadButtonStateCanNotDownload) {
+        // Nothing detected yet: treat the first tap as a retry instead of immediately
+        // popping the "no media found" dialog. Only one retry per page though — without
+        // [DetectedVideosContract.State.retryAttempted] a page that genuinely has no
+        // downloadable media would retry forever and the dialog could never show.
+        // The retry itself has to reload the WebView (see Effect.RequestReloadForRetry
+        // doc), which only the host can do, so this just asks for that rather than
+        // re-running yt-dlp directly against the (already stale) tab URL.
+        if (state.downloadButtonState is DownloadButtonStateCanNotDownload && !state.retryAttempted) {
             val tabUrl = webTabModel?.uiState?.value?.tabUrl.orEmpty()
             if (tabUrl.startsWith("http")) {
-                viewModelScope.launch(executorRegular) {
-                    startPage(tabUrl.trim(), webTabModel?.uiState?.value?.userAgent ?: BrowserUserAgent.MOBILE)
-                }
+                _uiState.update { it.copy(retryAttempted = true) }
+                _effect.trySend(DetectedVideosContract.Effect.RequestReloadForRetry)
+                return
             }
-            return
         }
 
         // Sent even when empty: the host tells the sheet and the "no media found" dialog
@@ -197,7 +208,16 @@ class DetectedVideosTabViewModel(
             viewModelScope.launch(baseSchedulers.videoService) {
                 try {
                     val info = try {
-                        videoServiceLocal.getVideoInfo(resourceRequest, isM3u8, taskUrlCleaned)?.videoInfo
+                        // `isActive` here is CoroutineScope.isActive (this launch block's
+                        // receiver) — passed through so a blocking TikTok retry loop deep
+                        // inside stops spawning fresh extraction processes once this job is
+                        // cancelled (see TikTokExtractionSupport.retryTikTokExtraction).
+                        videoServiceLocal.getVideoInfo(
+                            resourceRequest,
+                            isM3u8,
+                            taskUrlCleaned,
+                            isActive = { isActive },
+                        )?.videoInfo
                     } catch (e: LoginRequiredException) {
                         _effect.trySend(DetectedVideosContract.Effect.LoginRequired(e.host))
                         null
@@ -482,8 +502,6 @@ class DetectedVideosTabViewModel(
      * was about to succeed.
      */
     private fun cancelAllChecks(killProcesses: Boolean = true) {
-        executorReload.cancel()
-        executorRegular.cancel()
         if (!killProcesses) return
         // Only touched when checks are actually being torn down: these sets are what
         // drive the floating button's spinner (see setButtonState), and the jobs/processes

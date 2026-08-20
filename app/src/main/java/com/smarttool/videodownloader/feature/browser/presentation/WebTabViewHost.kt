@@ -294,6 +294,8 @@ class WebTabViewHost(
                             activity.getString(R.string.string_platform_not_allowed),
                             Toast.LENGTH_LONG,
                         ).show()
+
+                    DetectedVideosContract.Effect.RequestReloadForRetry -> reloadPage(isRetry = true)
                 }
             }
         }
@@ -368,8 +370,11 @@ class WebTabViewHost(
     /**
      * Doubles as stop-loading: while a page is in flight the control shows a close
      * icon, matching [WebTabPipelineContract.State.isShowProgress].
+     *
+     * @param isRetry True when called from [DetectedVideosContract.Effect.RequestReloadForRetry]
+     * rather than the user tapping the visible reload button — see [DetectedVideosContract.Event.StartPage].
      */
-    fun reloadPage() {
+    fun reloadPage(isRetry: Boolean = false) {
         if (tabViewModel.uiState.value.isShowProgress) {
             tabViewModel.onEvent(WebTabPipelineContract.Event.PageStop(webTab.getWebView()))
             return
@@ -392,7 +397,7 @@ class WebTabViewHost(
         detector.viewModelScope.launch(
             detector.executorReload,
         ) {
-            detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent))
+            detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent, isRetry))
         }
 
         if (url.contains("www.facebook") && urlWasChange) {

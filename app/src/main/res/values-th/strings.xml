@@ -149,6 +149,7 @@
     <string name="string_num_selected">เลือกแล้ว %s รายการ</string>
     <string name="string_select_items">เลือกรายการ</string>
     <string name="string_retry_download">ลองดาวน์โหลดอีกครั้ง</string>
+    <string name="string_download_now">ดาวน์โหลดตอนนี้</string>
     <string name="string_retry">ลองอีกครั้ง</string>
     <string name="string_download_failed_short">ดาวน์โหลดล้มเหลว</string>
     <string name="string_no_media_found">ไม่พบสื่อ</string>

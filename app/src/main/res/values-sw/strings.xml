@@ -149,6 +149,7 @@
     <string name="string_num_selected">%s zimechaguliwa</string>
     <string name="string_select_items">Chagua vipengee</string>
     <string name="string_retry_download">Jaribu kupakua tena</string>
+    <string name="string_download_now">Pakua sasa</string>
     <string name="string_retry">JARIBU TENA</string>
     <string name="string_download_failed_short">Upakuaji umeshindwa</string>
     <string name="string_no_media_found">Hakuna maudhui yaliyopatikana</string>

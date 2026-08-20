@@ -67,13 +67,18 @@ open class VideoServiceLocal(
         runCatching { YoutubeDL.getInstance().destroyProcessById(taskId) }
     }
 
-    fun getVideoInfo(url: Request, isM3u8OrMpd: Boolean, taskId: String = UUID.randomUUID().toString()): VideoInfoWrapper? {
+    fun getVideoInfo(
+        url: Request,
+        isM3u8OrMpd: Boolean,
+        taskId: String = UUID.randomUUID().toString(),
+        isActive: () -> Boolean = { true },
+    ): VideoInfoWrapper? {
         Timber.d("getVideoInfo: url=${url.url} isM3u8OrMpd=$isM3u8OrMpd hasCookie=${url.header("Cookie") != null}")
 
         var result: VideoInfoWrapper? = null
 
         try {
-            result = handleYoutubeDlUrl(url, isM3u8OrMpd, taskId)
+            result = handleYoutubeDlUrl(url, isM3u8OrMpd, taskId, isActive)
         } catch (e: Throwable) {
             Timber.e(e, "youtube-dl failed for ${url.url}")
             if (isLoginRequiredError(e.message)) {
@@ -96,7 +101,12 @@ open class VideoServiceLocal(
         return videoInfo ?: throw YoutubeDLException("Failed to fetch video information")
     }
 
-    private fun handleYoutubeDlUrl(url: Request, isM3u8OrMpd: Boolean = false, taskId: String): VideoInfoWrapper {
+    private fun handleYoutubeDlUrl(
+        url: Request,
+        isM3u8OrMpd: Boolean = false,
+        taskId: String,
+        isActive: () -> Boolean,
+    ): VideoInfoWrapper {
         if (!isM3u8OrMpd && !isYotubeDlSupportedHost(url.url.host)) {
             throw Throwable("host not in supported list")
         }
@@ -134,7 +144,7 @@ open class VideoServiceLocal(
         val tmpCookieFile = CookieUtils.addCookiesToRequest(appContext, url.url.toString(), request)
 
         try {
-            val info = TikTokExtractionSupport.retryTikTokExtraction(url.url.host) { attempt ->
+            val info = TikTokExtractionSupport.retryTikTokExtraction(url.url.host, isActive = isActive) { attempt ->
                 if (!TikTokExtractionSupport.isTikTokHost(url.url.host)) {
                     // Every other site keeps using the library's own fire-and-forget
                     // getInfo(request) exactly as before — the cancellable, taskId-tracked

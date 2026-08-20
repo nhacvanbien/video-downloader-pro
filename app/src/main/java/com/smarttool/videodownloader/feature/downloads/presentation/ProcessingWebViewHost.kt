@@ -97,6 +97,14 @@ class ProcessingWebViewHost(
     private var webView: WebView? = null
     private var started = false
 
+    /**
+     * Set right before [webView] is reloaded for [DetectedVideosContract.Effect.RequestReloadForRetry]
+     * and consumed by the very next `doUpdateVisitedHistory` callback that reload causes,
+     * so that one `StartPage` dispatch (and no other) carries `isRetry = true` — see
+     * [DetectedVideosContract.Event.StartPage].
+     */
+    private var pendingRetryReload = false
+
     /** The off-screen probe WebView the screen keeps attached at 1dp. */
     val detectionWebView: WebView get() = requireNotNull(webView)
 
@@ -226,6 +234,12 @@ class ProcessingWebViewHost(
                             activity.getString(R.string.string_platform_not_allowed),
                             Toast.LENGTH_LONG,
                         ).show()
+
+                    DetectedVideosContract.Effect.RequestReloadForRetry -> {
+                        pendingRetryReload = true
+                        webView?.stopLoading()
+                        webView?.reload()
+                    }
                 }
             }
         }
@@ -249,8 +263,10 @@ class ProcessingWebViewHost(
             val userAgent = view?.settings?.userAgentString ?: BrowserUserAgent.MOBILE
 
             if (url != null) {
+                val isRetry = pendingRetryReload
+                pendingRetryReload = false
                 activity.lifecycleScope.launch(Dispatchers.IO) {
-                    detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent))
+                    detector.onEvent(DetectedVideosContract.Event.StartPage(url, userAgent, isRetry))
                     tabViewModel.onEvent(
                         WebTabPipelineContract.Event.UpdateVisitedHistory(url, title, userAgent),
                     )

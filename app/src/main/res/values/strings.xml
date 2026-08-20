@@ -156,6 +156,7 @@
     <string name="string_num_selected">%s selected</string>
     <string name="string_select_items">Select items</string>
     <string name="string_retry_download">Retry download</string>
+    <string name="string_download_now">Download now</string>
     <string name="string_retry">RETRY</string>
     <string name="string_download_failed_short">Download failed</string>
     <string name="string_no_media_found">No media found</string>

@@ -149,6 +149,7 @@
     <string name="string_num_selected">%s kiválasztva</string>
     <string name="string_select_items">Elemek kiválasztása</string>
     <string name="string_retry_download">Letöltés újrapróbálása</string>
+    <string name="string_download_now">Letöltés most</string>
     <string name="string_retry">ÚJRA</string>
     <string name="string_download_failed_short">A letöltés sikertelen</string>
     <string name="string_no_media_found">Nem található média</string>

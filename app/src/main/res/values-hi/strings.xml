@@ -171,6 +171,7 @@
     <string name="string_report_issue">समस्या की रिपोर्ट करें</string>
     <string name="string_retry">पुनः प्रयास करें</string>
     <string name="string_retry_download">डाउनलोड पुनः प्रयास करें</string>
+    <string name="string_download_now">अभी डाउनलोड करें</string>
     <string name="string_save_to_private_folder">प्राइवेट फ़ोल्डर में सहेजें</string>
     <string name="string_search_downloads">डाउनलोड खोजें</string>
     <string name="string_search_language">भाषा खोजें</string>

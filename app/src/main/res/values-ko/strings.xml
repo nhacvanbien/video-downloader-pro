@@ -171,6 +171,7 @@
     <string name="string_report_issue">문제 신고</string>
     <string name="string_retry">다시 시도</string>
     <string name="string_retry_download">다운로드 재시도</string>
+    <string name="string_download_now">지금 다운로드</string>
     <string name="string_save_to_private_folder">비공개 폴더에 저장</string>
     <string name="string_search_downloads">다운로드 검색</string>
     <string name="string_search_language">언어 검색</string>

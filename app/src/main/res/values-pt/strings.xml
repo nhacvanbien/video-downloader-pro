@@ -171,6 +171,7 @@
     <string name="string_report_issue">Reportar um problema</string>
     <string name="string_retry">TENTAR NOVAMENTE</string>
     <string name="string_retry_download">Tentar transferir novamente</string>
+    <string name="string_download_now">Transferir agora</string>
     <string name="string_save_to_private_folder">Guardar na pasta privada</string>
     <string name="string_search_downloads">Pesquisar transferências</string>
     <string name="string_search_language">Pesquisar idioma</string>

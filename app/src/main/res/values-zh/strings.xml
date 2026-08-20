@@ -171,6 +171,7 @@
     <string name="string_report_issue">反馈问题</string>
     <string name="string_retry">重试</string>
     <string name="string_retry_download">重新下载</string>
+    <string name="string_download_now">立即下载</string>
     <string name="string_save_to_private_folder">保存到隐私文件夹</string>
     <string name="string_search_downloads">搜索下载内容</string>
     <string name="string_search_language">搜索语言</string>

@@ -171,6 +171,7 @@
     <string name="string_report_issue">問題を報告</string>
     <string name="string_retry">再試行</string>
     <string name="string_retry_download">ダウンロードを再試行</string>
+    <string name="string_download_now">今すぐダウンロード</string>
     <string name="string_save_to_private_folder">プライベートフォルダに保存</string>
     <string name="string_search_downloads">ダウンロードを検索</string>
     <string name="string_search_language">言語を検索</string>

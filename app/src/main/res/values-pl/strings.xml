@@ -149,6 +149,7 @@
     <string name="string_num_selected">Wybrano %s</string>
     <string name="string_select_items">Wybierz elementy</string>
     <string name="string_retry_download">Ponów pobieranie</string>
+    <string name="string_download_now">Pobierz teraz</string>
     <string name="string_retry">PONÓW</string>
     <string name="string_download_failed_short">Pobieranie nie powiodło się</string>
     <string name="string_no_media_found">Nie znaleziono multimediów</string>
