@@ -127,6 +127,13 @@
     <string name="string_file_size">حجم الملف</string>
     <string name="string_large_to_small">(من الكبير إلى الصغير)</string>
     <string name="string_small_to_large">(من الصغير إلى الكبير)</string>
+    <string name="string_sort">فرز</string>
+    <string name="string_sort_newest_first">الأحدث أولاً</string>
+    <string name="string_sort_oldest_first">الأقدم أولاً</string>
+    <string name="string_sort_name_az">الاسم (أ-ي)</string>
+    <string name="string_sort_name_za">الاسم (ي-أ)</string>
+    <string name="string_sort_largest_first">الأكبر أولاً</string>
+    <string name="string_sort_smallest_first">الأصغر أولاً</string>
     <string name="permission_setting">يجب منح الوصول لأداء هذه المهمة. انتقل إلى شاشة الإعدادات.</string>
     <string name="string_copied_to_clipboard">تم النسخ إلى الحافظة</string>
     <string name="string_private_file">ملف خاص</string>
@@ -157,6 +164,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">فهمت</string>
     <string name="string_login_required_to_download">يرجى تسجيل الدخول إلى %1$s في المتصفح قبل تنزيل هذا الفيديو</string>
+    <string name="string_platform_not_allowed">نظرًا لسياسة المنصة، لا يُسمح بالتنزيل من هذه المنصة</string>
     <string name="string_no_media_found">لم يتم العثور على وسائط</string>
     <string name="string_no_media_found_desc">قد تكون الصفحة لا تزال قيد التحميل، أو تتطلب تسجيل الدخول، أو غير مدعومة بعد.</string>
     <string name="string_num_selected">%s محدد</string>
@@ -166,9 +174,12 @@
     <string name="string_retry_download">إعادة محاولة التنزيل</string>
     <string name="string_save_to_private_folder">حفظ في المجلد الخاص</string>
     <string name="string_search_downloads">البحث في التنزيلات</string>
+    <string name="string_search_language">البحث عن لغة</string>
     <string name="string_search_engine">محرك البحث</string>
     <string name="string_select_items">تحديد العناصر</string>
     <string name="string_waiting_for_wifi">في انتظار الواي فاي…</string>
+    <string name="string_queued">في قائمة الانتظار</string>
+    <string name="string_fetching_video_info">جارٍ الحصول على معلومات الفيديو…</string>
     <string name="string_wifi_only">الواي فاي فقط</string>
     <string name="string_wifi_only_desc">انتظر الواي فاي قبل التنزيل</string>
     <string name="string_yahoo">Yahoo</string>

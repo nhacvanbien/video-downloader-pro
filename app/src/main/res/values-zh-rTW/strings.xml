@@ -128,6 +128,13 @@
     <string name="string_file_size">檔案大小</string>
     <string name="string_large_to_small">(從大到小)</string>
     <string name="string_small_to_large">(從小到大)</string>
+    <string name="string_sort">排序</string>
+    <string name="string_sort_newest_first">最新優先</string>
+    <string name="string_sort_oldest_first">最早優先</string>
+    <string name="string_sort_name_az">名稱 (A - Z)</string>
+    <string name="string_sort_name_za">名稱 (Z - A)</string>
+    <string name="string_sort_largest_first">最大優先</string>
+    <string name="string_sort_smallest_first">最小優先</string>
     <string name="permission_setting">您需要授權才能執行此操作，請前往設定。</string>
     <string name="string_copied_to_clipboard">已複製到剪貼簿</string>
     <string name="string_private_file">私人檔案</string>
@@ -156,6 +163,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">知道了</string>
     <string name="string_login_required_to_download">下載此影片前，請先在瀏覽器中登入 %1$s</string>
+    <string name="string_platform_not_allowed">由於平台政策，不允許從此平台下載</string>
     <string name="string_no_media_found">找不到媒體內容</string>
     <string name="string_no_media_found_desc">頁面可能仍在載入、需要登入，或目前尚未支援。</string>
     <string name="string_num_selected">已選取 %s 項</string>
@@ -165,9 +173,12 @@
     <string name="string_retry_download">重新下載</string>
     <string name="string_save_to_private_folder">儲存到私密資料夾</string>
     <string name="string_search_downloads">搜尋下載項目</string>
+    <string name="string_search_language">搜尋語言</string>
     <string name="string_search_engine">搜尋引擎</string>
     <string name="string_select_items">選取項目</string>
     <string name="string_waiting_for_wifi">正在等待 Wi-Fi…</string>
+    <string name="string_queued">排隊中</string>
+    <string name="string_fetching_video_info">正在取得影片資訊…</string>
     <string name="string_wifi_only">僅限 Wi-Fi</string>
     <string name="string_wifi_only_desc">等待 Wi-Fi 連線後再下載</string>
     <string name="string_yahoo">Yahoo</string>

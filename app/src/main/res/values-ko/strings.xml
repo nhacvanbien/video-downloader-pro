@@ -128,6 +128,13 @@
     <string name="string_file_size">파일 크기</string>
     <string name="string_large_to_small">(큰 파일부터)</string>
     <string name="string_small_to_large">(작은 파일부터)</string>
+    <string name="string_sort">정렬</string>
+    <string name="string_sort_newest_first">최신순</string>
+    <string name="string_sort_oldest_first">오래된순</string>
+    <string name="string_sort_name_az">이름 (A–Z)</string>
+    <string name="string_sort_name_za">이름 (Z–A)</string>
+    <string name="string_sort_largest_first">큰 파일부터</string>
+    <string name="string_sort_smallest_first">작은 파일부터</string>
     <string name="permission_setting">이 작업을 수행하려면 권한을 허용해야 합니다. 설정 화면으로 이동하세요.</string>
     <string name="string_copied_to_clipboard">클립보드에 복사되었습니다</string>
     <string name="string_private_file">개인 파일</string>
@@ -156,6 +163,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">확인</string>
     <string name="string_login_required_to_download">이 동영상을 다운로드하기 전에 브라우저에서 %1$s에 로그인해 주세요</string>
+    <string name="string_platform_not_allowed">플랫폼 정책에 따라 이 플랫폼에서는 다운로드가 허용되지 않습니다</string>
     <string name="string_no_media_found">미디어를 찾을 수 없습니다</string>
     <string name="string_no_media_found_desc">페이지가 아직 로딩 중이거나, 로그인이 필요하거나, 아직 지원되지 않을 수 있습니다.</string>
     <string name="string_num_selected">%s개 선택됨</string>
@@ -165,9 +173,12 @@
     <string name="string_retry_download">다운로드 재시도</string>
     <string name="string_save_to_private_folder">비공개 폴더에 저장</string>
     <string name="string_search_downloads">다운로드 검색</string>
+    <string name="string_search_language">언어 검색</string>
     <string name="string_search_engine">검색 엔진</string>
     <string name="string_select_items">항목 선택</string>
     <string name="string_waiting_for_wifi">Wi-Fi 연결 대기 중...</string>
+    <string name="string_queued">대기 중</string>
+    <string name="string_fetching_video_info">동영상 정보를 가져오는 중...</string>
     <string name="string_wifi_only">Wi-Fi에서만</string>
     <string name="string_wifi_only_desc">다운로드 전에 Wi-Fi 연결을 기다립니다</string>
     <string name="string_yahoo">Yahoo</string>

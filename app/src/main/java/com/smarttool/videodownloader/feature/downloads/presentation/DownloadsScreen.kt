@@ -60,6 +60,7 @@ import com.smarttool.videodownloader.core.ui.theme.ShapePill
 import com.smarttool.videodownloader.core.ui.theme.Surface
 import com.smarttool.videodownloader.core.ui.theme.Text as TextColor
 import com.smarttool.videodownloader.core.ui.theme.Warn
+import com.smarttool.videodownloader.core.ui.theme.WarnInk
 import com.smarttool.videodownloader.core.ui.theme.WarnSoft
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
@@ -395,7 +396,7 @@ private fun DownloadListRow(
     when (item) {
         is DownloadListItem.Active -> when {
             item.isFailed -> FailedRow(item, selectionMode, selected, onClick, onMenu, onRetry)
-            item.isWaitingForWifi -> WaitingForWifiRow(item, selectionMode, selected, onClick, onCancel)
+            item.isWaitingForWifi -> WaitingForWifiRow(item, selectionMode, selected, onClick, onMenu)
             else -> DownloadingRow(item, selectionMode, selected, onClick, onPauseResume, onCancel)
         }
 
@@ -412,9 +413,13 @@ private fun SelectionDot(selected: Boolean) {
     )
 }
 
-// Downloading rows are taller than a single-line row (title + pause/cancel row, then progress
-// row). Other row types match this so all items in the list share one row height.
-private val DownloadActiveRowHeight = 68.dp
+// Active rows (downloading, failed, waiting-for-wifi) all share this height so the list doesn't
+// jump between row sizes. Sized to fit the larger 40dp tap targets these rows use for their
+// primary action buttons (pause/cancel/retry) rather than the smaller 30dp used elsewhere.
+private val DownloadActiveRowHeight = 84.dp
+private val ActiveRowButtonSize = 40.dp
+private val OverflowMenuGlyphSize = 20.dp
+private val OverflowMenuButtonWidth = 26.dp
 
 @Composable
 private fun DownloadingRow(
@@ -427,6 +432,7 @@ private fun DownloadingRow(
 ) {
     val info = item.progressInfo
     val isPaused = info.downloadStatus == VideoTaskState.PAUSE
+    val isAudio = info.videoInfo.isAudioOnly
 
     Row(
         modifier = Modifier
@@ -442,7 +448,7 @@ private fun DownloadingRow(
 
         MediaThumbnail(
             filePath = info.videoInfo.thumbnail,
-            mediaType = if (info.videoInfo.isAudioOnly) MediaKind.AUDIO else MediaKind.VIDEO,
+            mediaType = if (isAudio) MediaKind.AUDIO else MediaKind.VIDEO,
             modifier = Modifier.fillMaxHeight().aspectRatio(1f).clip(ShapeMd),
         )
 
@@ -462,11 +468,11 @@ private fun DownloadingRow(
                     contentDescription = null,
                     modifier = Modifier
                         .padding(start = 8.dp)
-                        .size(30.dp)
+                        .size(ActiveRowButtonSize)
                         .clip(ShapePill)
                         .background(Surface)
                         .clickable { onPauseResume(info) }
-                        .padding(6.dp),
+                        .padding(9.dp),
                 )
 
                 Image(
@@ -474,36 +480,64 @@ private fun DownloadingRow(
                     contentDescription = null,
                     modifier = Modifier
                         .padding(start = 6.dp)
-                        .size(30.dp)
+                        .size(ActiveRowButtonSize)
                         .clip(ShapePill)
                         .background(Surface)
                         .clickable { onCancel(info) }
-                        .padding(8.dp),
+                        .padding(11.dp),
                 )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
-                // Progress updates arrive roughly once a second from the download worker;
-                // animating the fraction smooths the bar's motion between those steps instead
-                // of snapping it forward.
-                val animatedProgress by animateFloatAsState(
-                    targetValue = info.progress / 100f,
-                    animationSpec = tween(durationMillis = 400),
-                    label = "downloadProgress",
-                )
-                LinearProgressIndicator(
-                    progress = { animatedProgress },
-                    color = Warn,
-                    trackColor = Warn.copy(alpha = 0.25f),
-                    modifier = Modifier.weight(1f).height(4.dp).clip(ShapePill),
-                )
-
+            if (info.isFetchingInfo) {
+                // No byte count exists yet (queued, or yt-dlp still extracting metadata) —
+                // a "0%" bar here would read as stalled instead of as work in progress.
                 Text(
-                    text = "${info.progress}%",
+                    text = stringResource(
+                        if (isAudio) {
+                            R.string.string_fetching_audio_info
+                        } else {
+                            R.string.string_fetching_video_info
+                        },
+                    ),
                     style = MaterialTheme.typography.labelSmall,
-                    color = Warn,
-                    modifier = Modifier.padding(start = 8.dp),
+                    color = Muted,
+                    maxLines = 1,
+                    modifier = Modifier.padding(top = 6.dp),
                 )
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
+                    // Progress updates arrive roughly once a second from the download worker;
+                    // animating the fraction smooths the bar's motion between those steps instead
+                    // of snapping it forward.
+                    val animatedProgress by animateFloatAsState(
+                        targetValue = info.progress / 100f,
+                        animationSpec = tween(durationMillis = 400),
+                        label = "downloadProgress",
+                    )
+                    LinearProgressIndicator(
+                        progress = { animatedProgress },
+                        color = Warn,
+                        trackColor = Warn.copy(alpha = 0.25f),
+                        modifier = Modifier.weight(1f).height(4.dp).clip(ShapePill),
+                    )
+
+                    if (info.speedFormatted.isNotEmpty()) {
+                        Text(
+                            text = info.speedFormatted,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Muted,
+                            maxLines = 1,
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    }
+
+                    Text(
+                        text = "${info.progress}%",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Warn,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
             }
         }
     }
@@ -521,6 +555,7 @@ private fun FailedRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(DownloadActiveRowHeight)
             .clip(ShapeLg)
             .background(Error.copy(alpha = 0.1f))
             .clickable(onClick = onClick)
@@ -529,7 +564,13 @@ private fun FailedRow(
     ) {
         if (selectionMode) SelectionDot(selected)
 
-        Column(modifier = Modifier.weight(1f)) {
+        MediaThumbnail(
+            filePath = item.progressInfo.videoInfo.thumbnail,
+            mediaType = if (item.progressInfo.videoInfo.isAudioOnly) MediaKind.AUDIO else MediaKind.VIDEO,
+            modifier = Modifier.fillMaxHeight().aspectRatio(1f).clip(ShapeMd),
+        )
+
+        Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
             Text(
                 text = item.displayTitle,
                 style = MaterialTheme.typography.bodyMedium,
@@ -546,25 +587,43 @@ private fun FailedRow(
             )
         }
 
+        // Same tap target size as the pause/cancel buttons on the downloading row, so all
+        // active-row action buttons feel consistent.
         Image(
             painter = painterResource(R.drawable.ic_reload),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(PriInk),
             modifier = Modifier
-                .size(30.dp)
+                .size(ActiveRowButtonSize)
                 .clip(ShapePill)
                 .background(Error)
                 .clickable { onRetry(item.progressInfo) }
-                .padding(7.dp),
+                .padding(9.dp),
         )
 
+        OverflowMenuButton(onMenu)
+    }
+}
+
+/**
+ * The glyph sits flush against the tap target's trailing edge so it lands the same distance
+ * from the row border as the completed row's menu button, which has no tap-target padding.
+ * The target is narrower than it is tall: the slack all falls on the leading side, where it
+ * would otherwise push the neighbouring button away from the glyph.
+ */
+@Composable
+private fun OverflowMenuButton(onMenu: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(width = OverflowMenuButtonWidth, height = ActiveRowButtonSize)
+            .clip(ShapePill)
+            .clickable(onClick = onMenu),
+        contentAlignment = Alignment.CenterEnd,
+    ) {
         Image(
             painter = painterResource(R.drawable.ic_more),
             contentDescription = null,
-            modifier = Modifier
-                .padding(start = 4.dp)
-                .size(30.dp)
-                .clickable(onClick = onMenu)
-                .padding(7.dp),
+            modifier = Modifier.size(OverflowMenuGlyphSize),
         )
     }
 }
@@ -575,14 +634,14 @@ private fun WaitingForWifiRow(
     selectionMode: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
-    onCancel: (ProgressInfo) -> Unit,
+    onMenu: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(DownloadActiveRowHeight)
             .clip(ShapeLg)
-            .background(Muted.copy(alpha = 0.1f))
+            .background(WarnSoft)
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -590,15 +649,20 @@ private fun WaitingForWifiRow(
         if (selectionMode) SelectionDot(selected)
 
         Image(
-            painter = painterResource(R.drawable.ic_wifi_only),
+            painter = painterResource(R.drawable.ic_wifi_off),
             contentDescription = null,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier
+                .size(40.dp)
+                .clip(ShapePill)
+                .background(Surface)
+                .padding(9.dp),
         )
 
         Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
             Text(
                 text = item.displayTitle,
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
                 color = TextColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -607,21 +671,26 @@ private fun WaitingForWifiRow(
             Text(
                 text = stringResource(R.string.string_waiting_for_wifi),
                 style = MaterialTheme.typography.labelSmall,
-                color = Muted,
+                color = WarnInk,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(top = 2.dp),
             )
         }
 
-        Image(
-            painter = painterResource(R.drawable.ic_close),
-            contentDescription = null,
+        Text(
+            text = stringResource(R.string.string_queued),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = TextColor,
             modifier = Modifier
-                .size(30.dp)
+                .padding(start = 8.dp)
                 .clip(ShapePill)
                 .background(Surface)
-                .clickable { onCancel(item.progressInfo) }
-                .padding(8.dp),
+                .padding(horizontal = 14.dp, vertical = 8.dp),
         )
+
+        OverflowMenuButton(onMenu)
     }
 }
 
@@ -649,7 +718,7 @@ private fun CompletedRow(
 
         MediaThumbnail(
             filePath = videoTaskItem.filePath,
-            mediaType = MediaKind.fromMimeType(videoTaskItem.mimeType),
+            mediaType = MediaKind.forFile(videoTaskItem.mimeType, videoTaskItem.fileName),
             modifier = Modifier.fillMaxHeight().aspectRatio(1f).clip(ShapeMd),
         )
 

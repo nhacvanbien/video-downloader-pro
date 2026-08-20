@@ -128,6 +128,13 @@
     <string name="string_file_size">फाइल आकार</string>
     <string name="string_large_to_small">(बड़ा से छोटा)</string>
     <string name="string_small_to_large">(छोटा से बड़ा)</string>
+    <string name="string_sort">क्रमबद्ध करें</string>
+    <string name="string_sort_newest_first">सबसे नया पहले</string>
+    <string name="string_sort_oldest_first">सबसे पुराना पहले</string>
+    <string name="string_sort_name_az">नाम (A–Z)</string>
+    <string name="string_sort_name_za">नाम (Z–A)</string>
+    <string name="string_sort_largest_first">सबसे बड़ा पहले</string>
+    <string name="string_sort_smallest_first">सबसे छोटा पहले</string>
     <string name="permission_setting">इस कार्य को करने के लिए आपको अनुमति देना आवश्यक है। सेटिंग्स स्क्रीन पर जाएं।</string>
     <string name="string_copied_to_clipboard">क्लिपबोर्ड में कॉपी किया गया</string>
     <string name="string_private_file">प्राइवेट फाइल</string>
@@ -156,6 +163,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">समझ गया</string>
     <string name="string_login_required_to_download">इस वीडियो को डाउनलोड करने से पहले कृपया ब्राउज़र में %1$s में लॉगिन करें</string>
+    <string name="string_platform_not_allowed">प्लेटफ़ॉर्म नीति के कारण, इस प्लेटफ़ॉर्म से डाउनलोड करने की अनुमति नहीं है</string>
     <string name="string_no_media_found">कोई मीडिया नहीं मिला</string>
     <string name="string_no_media_found_desc">पेज अभी भी लोड हो रहा हो सकता है, लॉगिन की आवश्यकता हो सकती है, या अभी तक समर्थित न हो।</string>
     <string name="string_num_selected">%s चयनित</string>
@@ -165,9 +173,12 @@
     <string name="string_retry_download">डाउनलोड पुनः प्रयास करें</string>
     <string name="string_save_to_private_folder">प्राइवेट फ़ोल्डर में सहेजें</string>
     <string name="string_search_downloads">डाउनलोड खोजें</string>
+    <string name="string_search_language">भाषा खोजें</string>
     <string name="string_search_engine">सर्च इंजन</string>
     <string name="string_select_items">आइटम चुनें</string>
     <string name="string_waiting_for_wifi">Wi-Fi की प्रतीक्षा हो रही है...</string>
+    <string name="string_queued">कतार में</string>
+    <string name="string_fetching_video_info">वीडियो जानकारी प्राप्त की जा रही है...</string>
     <string name="string_wifi_only">केवल Wi-Fi</string>
     <string name="string_wifi_only_desc">डाउनलोड करने से पहले Wi-Fi की प्रतीक्षा करें</string>
     <string name="string_yahoo">Yahoo</string>

@@ -77,6 +77,9 @@ class ProcessingViewModel(
                 val started = startDownload(event.videoInfo)
                 if (!started) _effect.send(ProcessingContract.Effect.WaitingForWifi)
             }
+            is ProcessingContract.Event.StartNow -> appScope.launch {
+                startDownload(event.progressInfo.videoInfo, ignoreWifiOnly = true)
+            }
             is ProcessingContract.Event.Pause -> appScope.launch { pauseDownload(event.progressInfo) }
             is ProcessingContract.Event.Resume -> appScope.launch { resumeDownload(event.progressInfo) }
             is ProcessingContract.Event.Cancel ->

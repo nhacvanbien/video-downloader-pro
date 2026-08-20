@@ -108,6 +108,7 @@
     <string name="string_video_found">Video found</string>
     <string name="string_audio_found">Audio found</string>
     <string name="string_login_required_to_download">Please log in to %1$s in the browser before downloading this video</string>
+    <string name="string_platform_not_allowed">Due to platform policy, downloading from this platform is not allowed</string>
     <string name="whatshould">What should we do?</string>
     <string name="dontshow">Don\'t show again</string>
     <string name="view">View</string>
@@ -164,6 +165,9 @@
     <string name="string_wifi_only">Wi-Fi Only</string>
     <string name="string_wifi_only_desc">Wait for Wi-Fi before downloading</string>
     <string name="string_waiting_for_wifi">Waiting for Wi-Fi…</string>
+    <string name="string_queued">Queued</string>
+    <string name="string_fetching_video_info">Getting video info…</string>
+    <string name="string_fetching_audio_info">Getting audio info…</string>
     <string name="string_search_engine">Search Engine</string>
     <string name="string_bing">Bing</string>
     <string name="string_yahoo">Yahoo</string>

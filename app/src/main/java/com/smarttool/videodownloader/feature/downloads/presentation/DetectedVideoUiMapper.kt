@@ -27,7 +27,16 @@ class DetectedVideoUiMapper(
             typeLabel = typeLabel(videoInfo),
             readableSize = readableSize(videoInfo),
             formats = options,
-            selectedFormat = selectedFormats[videoInfo.id] ?: options.lastOrNull()?.format,
+            // The Audio chip always sorts last (see GetVideoFormatOptionsUseCase.qualityRank)
+            // regardless of what video qualities are also on offer, since almost every
+            // video carries an audio-only option alongside its real resolutions (see
+            // VideoServiceLocal.handleYoutubeDlUrl) — so plain options.lastOrNull() picked
+            // Audio as the default nearly every time a video existed to pick instead.
+            // Preferring the best non-audio option keeps Audio as the fallback only for
+            // genuinely audio-only results.
+            selectedFormat = selectedFormats[videoInfo.id]
+                ?: options.lastOrNull { !it.isAudio }?.format
+                ?: options.lastOrNull()?.format,
         )
     }
 

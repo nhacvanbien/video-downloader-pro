@@ -128,6 +128,13 @@
     <string name="string_file_size">Taille du fichier</string>
     <string name="string_large_to_small">(grand au petit)</string>
     <string name="string_small_to_large">(petit au grand)</string>
+    <string name="string_sort">Trier</string>
+    <string name="string_sort_newest_first">Plus récents d\'abord</string>
+    <string name="string_sort_oldest_first">Plus anciens d\'abord</string>
+    <string name="string_sort_name_az">Nom (A–Z)</string>
+    <string name="string_sort_name_za">Nom (Z–A)</string>
+    <string name="string_sort_largest_first">Plus grands d\'abord</string>
+    <string name="string_sort_smallest_first">Plus petits d\'abord</string>
     <string name="permission_setting">Vous devez accorder l\'accès pour effectuer cette tâche. Allez dans les paramètres.</string>
     <string name="string_copied_to_clipboard">Copié dans le presse-papiers</string>
     <string name="string_private_file">Fichier privé</string>
@@ -157,6 +164,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">Compris</string>
     <string name="string_login_required_to_download">Veuillez vous connecter à %1$s dans le navigateur avant de télécharger cette vidéo</string>
+    <string name="string_platform_not_allowed">En raison de la politique de la plateforme, le téléchargement depuis cette plateforme n\'est pas autorisé</string>
     <string name="string_no_media_found">Aucun média trouvé</string>
     <string name="string_no_media_found_desc">La page est peut-être encore en cours de chargement, nécessite une connexion, ou n\'est pas encore prise en charge.</string>
     <string name="string_num_selected">%s sélectionné(s)</string>
@@ -166,9 +174,12 @@
     <string name="string_retry_download">Réessayer le téléchargement</string>
     <string name="string_save_to_private_folder">Enregistrer dans le dossier privé</string>
     <string name="string_search_downloads">Rechercher des téléchargements</string>
+    <string name="string_search_language">Rechercher une langue</string>
     <string name="string_search_engine">Moteur de recherche</string>
     <string name="string_select_items">Sélectionner des éléments</string>
     <string name="string_waiting_for_wifi">En attente du Wi-Fi…</string>
+    <string name="string_queued">En attente</string>
+    <string name="string_fetching_video_info">Récupération des informations vidéo…</string>
     <string name="string_wifi_only">Wi-Fi uniquement</string>
     <string name="string_wifi_only_desc">Attendre le Wi-Fi avant de télécharger</string>
     <string name="string_yahoo">Yahoo</string>

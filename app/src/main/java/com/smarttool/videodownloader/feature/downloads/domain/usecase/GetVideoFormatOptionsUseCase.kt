@@ -37,7 +37,14 @@ class GetVideoFormatOptionsUseCase {
 
         // Sorted low to high by resolution. toSortedMap() compared labels as plain
         // strings, which put "1080P" before "240P" (lexicographic, not numeric).
-        return byLabel.values.sortedBy { qualityRank(it.label) }
+        val options = byLabel.values.sortedBy { qualityRank(it.label) }
+
+        // yt-dlp writes "unknown" where it could not read a resolution, sometimes trailed by
+        // a qualifier ("unknown (watermarked)"); that chip names no quality the user can
+        // weigh against the others. Hiding it is only safe while a labelled alternative
+        // survives — a video offering nothing else still needs a pickable chip.
+        val labelled = options.filterNot { it.label.startsWith(UNKNOWN_LABEL, ignoreCase = true) }
+        return labelled.ifEmpty { options }
     }
 
     /** Audio-only formats collapse to one [AUDIO_LABEL] chip instead of a resolution. */
@@ -45,8 +52,11 @@ class GetVideoFormatOptionsUseCase {
         val readable = (format ?: return ERROR).replace(Regex("-\\w+"), "")
 
         return when {
+            // "1920x1080" → "1080P", but the same shape carries "unknownxunknown",
+            // which leaves no digits and must not become a bare "P".
             readable.contains("x") ->
-                readable.substringAfterLast("x").replace(Regex("\\D"), "") + "P"
+                readable.substringAfterLast("x").replace(Regex("\\D"), "")
+                    .takeIf { it.isNotEmpty() }?.plus("P").orEmpty()
 
             readable.contains("audio only") -> AUDIO_LABEL
 
@@ -87,6 +97,7 @@ class GetVideoFormatOptionsUseCase {
 
     private companion object {
         const val ERROR = "Error"
+        const val UNKNOWN_LABEL = "unknown"
         const val SD_RANK = 480
         const val HD_RANK = 720
         const val AUDIO_LABEL = "Audio"

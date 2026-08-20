@@ -219,6 +219,13 @@ class ProcessingWebViewHost(
                             ),
                             Toast.LENGTH_LONG,
                         ).show()
+
+                    DetectedVideosContract.Effect.PlatformNotAllowed ->
+                        Toast.makeText(
+                            activity,
+                            activity.getString(R.string.string_platform_not_allowed),
+                            Toast.LENGTH_LONG,
+                        ).show()
                 }
             }
         }

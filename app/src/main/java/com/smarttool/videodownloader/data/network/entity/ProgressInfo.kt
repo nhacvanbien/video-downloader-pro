@@ -34,6 +34,9 @@ data class ProgressInfo(
     @ColumnInfo(defaultValue = "0")
     var progressTotal: Long = 0,
 
+    @ColumnInfo(defaultValue = "0")
+    var speedBytesPerSecond: Long = 0,
+
     var downloadStatus: Int = -1,
 
     var isLive: Boolean = false,
@@ -49,7 +52,12 @@ data class ProgressInfo(
 ) {
     var progress: Int = 0
         get() {
-            return (progressDownloaded * 100f / progressTotal).toInt()
+            if (progressTotal <= 0) return 0
+            // Workers write progressDownloaded/progressTotal from two independently-sourced
+            // async ticks (e.g. yt-dlp switching from a video-format download to the smaller
+            // audio-format one mid-merge); coerce here so a transient downloaded > total never
+            // leaks into the UI as a percentage above 100.
+            return (progressDownloaded * 100f / progressTotal).toInt().coerceIn(0, 100)
         }
 
     var progressSize: String = ""
@@ -58,6 +66,23 @@ data class ProgressInfo(
                 progressTotal.toDouble()
             ) + " - $downloadStatusFormatted"
         }
+
+    var speedFormatted: String = ""
+        get() = if (downloadStatus == VideoTaskState.DOWNLOADING && speedBytesPerSecond > 0) {
+            "${FileUtil.getFileSizeReadable(speedBytesPerSecond.toDouble())}/s"
+        } else {
+            ""
+        }
+
+    // PENDING/PREPARE cover the queueing + yt-dlp metadata-extraction phase before any byte
+    // count exists; a DOWNLOADING row with progressTotal still 0 is the same gap for the
+    // regular HTTP downloader (Content-Length not known yet) and for yt-dlp between emitting
+    // PREPARE and its first real progress line. In all of these the % text would otherwise
+    // read a stale/undefined "0%" while nothing visibly happens.
+    val isFetchingInfo: Boolean
+        get() = downloadStatus == VideoTaskState.PENDING ||
+            downloadStatus == VideoTaskState.PREPARE ||
+            (downloadStatus == VideoTaskState.DOWNLOADING && progressTotal <= 0)
 
     var downloadStatusFormatted: String = ""
         get() = when (downloadStatus) {
@@ -83,6 +108,7 @@ data class ProgressInfo(
         if (videoInfo != other.videoInfo) return false
         if (progressDownloaded != other.progressDownloaded) return false
         if (progressTotal != other.progressTotal) return false
+        if (speedBytesPerSecond != other.speedBytesPerSecond) return false
         if (downloadStatus != other.downloadStatus) return false
         if (isM3u8 != other.isM3u8) return false
         if (fragmentsDownloaded != other.fragmentsDownloaded) return false
@@ -99,6 +125,7 @@ data class ProgressInfo(
         result = 31 * result + videoInfo.hashCode()
         result = 31 * result + progressDownloaded.hashCode()
         result = 31 * result + progressTotal.hashCode()
+        result = 31 * result + speedBytesPerSecond.hashCode()
         result = 31 * result + downloadStatus
         result = 31 * result + isM3u8.hashCode()
         result = 31 * result + fragmentsDownloaded

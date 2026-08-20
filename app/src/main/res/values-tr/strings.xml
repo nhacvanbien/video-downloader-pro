@@ -128,6 +128,13 @@
     <string name="string_file_size">Dosya boyutu</string>
     <string name="string_large_to_small">(Büyükten küçüğe)</string>
     <string name="string_small_to_large">(Küçükten büyüğe)</string>
+    <string name="string_sort">Sırala</string>
+    <string name="string_sort_newest_first">Önce en yeni</string>
+    <string name="string_sort_oldest_first">Önce en eski</string>
+    <string name="string_sort_name_az">İsim (A - Z)</string>
+    <string name="string_sort_name_za">İsim (Z - A)</string>
+    <string name="string_sort_largest_first">Önce en büyük</string>
+    <string name="string_sort_smallest_first">Önce en küçük</string>
     <string name="permission_setting">Bu işlemi gerçekleştirmek için izin vermelisiniz. Ayarlara gidin.</string>
     <string name="string_copied_to_clipboard">Panoya kopyalandı</string>
     <string name="string_private_file">Özel dosya</string>
@@ -156,6 +163,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">Anladım</string>
     <string name="string_login_required_to_download">Bu videoyu indirmeden önce lütfen tarayıcıda %1$s hesabına giriş yapın</string>
+    <string name="string_platform_not_allowed">Platform politikası nedeniyle bu platformdan indirmeye izin verilmiyor</string>
     <string name="string_no_media_found">Medya bulunamadı</string>
     <string name="string_no_media_found_desc">Sayfa hâlâ yükleniyor olabilir, giriş gerektirebilir veya henüz desteklenmiyor olabilir.</string>
     <string name="string_num_selected">%s seçildi</string>
@@ -165,9 +173,12 @@
     <string name="string_retry_download">İndirmeyi tekrar dene</string>
     <string name="string_save_to_private_folder">Gizli klasöre kaydet</string>
     <string name="string_search_downloads">İndirilenlerde ara</string>
+    <string name="string_search_language">Dil ara</string>
     <string name="string_search_engine">Arama Motoru</string>
     <string name="string_select_items">Öğeleri seç</string>
     <string name="string_waiting_for_wifi">Wi-Fi bekleniyor…</string>
+    <string name="string_queued">Sırada</string>
+    <string name="string_fetching_video_info">Video bilgisi alınıyor…</string>
     <string name="string_wifi_only">Yalnızca Wi-Fi</string>
     <string name="string_wifi_only_desc">İndirmeden önce Wi-Fi\'yi bekle</string>
     <string name="string_yahoo">Yahoo</string>

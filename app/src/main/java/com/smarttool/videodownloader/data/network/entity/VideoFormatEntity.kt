@@ -115,9 +115,22 @@ data class VideoFormatEntity(
         get() = formatId != "0" || width > 0 || height > 0 ||
             !vcodec.isNullOrBlank() || !acodec.isNullOrBlank()
 
-    /** yt-dlp's own signature for an audio-only stream: has an audio codec, no video codec. */
+    /**
+     * yt-dlp's own signature for an audio-only stream: has an audio codec, no video codec.
+     *
+     * Not every extractor fills the codec fields — TikTok leaves both null, which reads as
+     * "not audio" here and left audio downloads from those sites looking like videos all the
+     * way through the pipeline. yt-dlp still writes "audio only" into the format description
+     * where a resolution would go, so that is accepted as the same signal.
+     */
     val isAudioOnly: Boolean
-        get() = acodec != "none" && vcodec == "none"
+        get() = (acodec != "none" && vcodec == "none") ||
+            format?.contains(AUDIO_ONLY_MARKER, ignoreCase = true) == true ||
+            formatNote?.contains(AUDIO_ONLY_MARKER, ignoreCase = true) == true
+
+    private companion object {
+        const val AUDIO_ONLY_MARKER = "audio only"
+    }
 }
 
 data class VideFormatEntityList(

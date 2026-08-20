@@ -2,6 +2,7 @@ package com.smarttool.videodownloader.core.ui.components
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Build
@@ -45,8 +46,12 @@ import android.util.Size
  * already a dependency but otherwise unused now that the View adapters are gone.
  *
  * Always shows a small centered [mediaType] badge so video/audio/image rows stay
- * distinguishable at a glance even when their real frames look alike (or, for audio,
- * don't exist at all) — falls back to a full-size tinted glyph when no frame decodes.
+ * distinguishable at a glance even when their real frames look alike — falls back to a
+ * full-size tinted glyph when no frame decodes.
+ *
+ * Audio deliberately never renders artwork: an audio file has no frame of its own, and the
+ * remote poster that sometimes accompanies one is the source video's still, which reads
+ * as a video row. Those rows show only the centered music glyph.
  */
 @Composable
 fun MediaThumbnail(
@@ -55,10 +60,14 @@ fun MediaThumbnail(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    var bitmap by remember(filePath) { mutableStateOf(MediaThumbnailCache.get(filePath)) }
+    val showsArtwork = mediaType != MediaKind.AUDIO
+    var bitmap by remember(filePath, mediaType) {
+        mutableStateOf(if (showsArtwork) MediaThumbnailCache.get(filePath) else null)
+    }
+    var resolvedKind by remember(filePath, mediaType) { mutableStateOf(mediaType) }
 
     LaunchedEffect(filePath, mediaType) {
-        if (bitmap != null) return@LaunchedEffect
+        if (!showsArtwork || bitmap != null) return@LaunchedEffect
 
         val decoded = withContext(Dispatchers.IO) {
             runCatching {
@@ -72,11 +81,22 @@ fun MediaThumbnail(
                     when (mediaType) {
                         MediaKind.IMAGE -> decodeScaledImage(filePath)
                         MediaKind.VIDEO -> createVideoThumbnail(filePath)
-                        // No frame to extract for a plain audio file.
                         MediaKind.AUDIO -> null
                     }
                 }
             }.getOrNull()
+        }
+
+        // A "video" that yields no frame may be an audio-only download saved into a video
+        // container — yt-dlp recodes everything to .mp4, so neither the extension nor the
+        // mime type recorded alongside it can tell. Rows written before the downloader
+        // started recording the picked format's kind still claim video; the file itself is
+        // the only remaining witness. Only reached when a decode already failed, so this
+        // costs nothing on rows that thumbnail normally.
+        if (decoded == null && mediaType == MediaKind.VIDEO) {
+            if (withContext(Dispatchers.IO) { lacksVideoTrack(filePath) }) {
+                resolvedKind = MediaKind.AUDIO
+            }
         }
 
         if (decoded != null) {
@@ -99,18 +119,18 @@ fun MediaThumbnail(
 
         when {
             frame == null -> Image(
-                painter = painterResource(mediaType.fallbackIconRes()),
+                painter = painterResource(resolvedKind.fallbackIconRes()),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(Pri),
             )
 
-            mediaType == MediaKind.VIDEO -> Image(
+            resolvedKind == MediaKind.VIDEO -> Image(
                 painter = painterResource(R.drawable.ic_play_media_fill),
                 contentDescription = null,
                 modifier = Modifier.size(26.dp),
             )
 
-            mediaType == MediaKind.IMAGE -> Box(
+            resolvedKind == MediaKind.IMAGE -> Box(
                 modifier = Modifier.size(22.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.45f)),
                 contentAlignment = Alignment.Center,
             ) {
@@ -122,8 +142,7 @@ fun MediaThumbnail(
                 )
             }
 
-            // Audio never has a real frame (see above), so this branch is unreached —
-            // kept only so the `when` stays exhaustive over MediaKind.
+            // Audio is filtered out before any decode, so it always took the branch above.
             else -> Unit
         }
     }
@@ -133,6 +152,26 @@ private fun MediaKind.fallbackIconRes(): Int = when (this) {
     MediaKind.VIDEO -> R.drawable.ic_play_download
     MediaKind.AUDIO -> R.drawable.ic_music_note
     MediaKind.IMAGE -> R.drawable.ic_media_type_image
+}
+
+/**
+ * True when the file carries no video track — i.e. it is audio despite being stored in a
+ * video container with a video mime type. Answers only for local files; a remote URL has
+ * nothing to inspect.
+ */
+private fun lacksVideoTrack(filePath: String): Boolean {
+    if (filePath.isEmpty() || filePath.startsWith("http")) return false
+
+    val retriever = MediaMetadataRetriever()
+    return try {
+        retriever.setDataSource(filePath)
+        retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) != "yes"
+    } catch (e: Exception) {
+        // Unreadable or missing file — no evidence either way, so leave the kind alone.
+        false
+    } finally {
+        runCatching { retriever.release() }
+    }
 }
 
 @SuppressLint("NewApi")

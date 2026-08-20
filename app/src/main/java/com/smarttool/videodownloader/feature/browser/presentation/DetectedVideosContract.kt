@@ -39,5 +39,8 @@ interface DetectedVideosContract {
         data object ShowDetectedVideos : Effect
         data class VideoPushed(val videoInfo: VideoInfo) : Effect
         data class LoginRequired(val host: String) : Effect
+
+        /** The page being probed belongs to a platform we deliberately don't support (e.g. YouTube). */
+        data object PlatformNotAllowed : Effect
     }
 }

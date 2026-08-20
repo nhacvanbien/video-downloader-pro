@@ -348,12 +348,18 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
                                 val totalBytes = (lineInfo?.total ?: 0).toLong()
 
-                                val downloadBytes = (totalBytes * (pr / 100)).toLong()
-                                val downloadBytesFixed = if (downloadBytes > 0) {
-                                    downloadBytes
-                                } else {
-                                    0
-                                }
+                                // Derive downloaded bytes from lineInfo's own percent (parsed
+                                // from the same "[download] XX% of ~YYY" line as totalBytes),
+                                // not from the library's separately-tracked `pr` callback arg.
+                                // The two can fall out of sync right when yt-dlp switches from
+                                // downloading the video stream to the (much smaller) audio
+                                // stream during a "-f video+bestaudio" merge: `pr` still
+                                // reflects the prior line's percent for one tick while
+                                // totalBytes has already jumped to the new, smaller total,
+                                // so totalBytes * pr/100 could land above the new total and
+                                // show as >100% in the Downloads list.
+                                val downloadBytesFixed = (lineInfo?.progress ?: 0.0).toLong()
+                                    .coerceIn(0L, if (totalBytes > 0) totalBytes else Long.MAX_VALUE)
                                 task.percent = pr
                                 task.totalSize = totalBytes
                                 task.downloadSize = downloadBytesFixed
@@ -415,6 +421,11 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                         finishWork(VideoTaskItem(url).also { f ->
                             f.filePath = movedFilePath
                             f.fileName = extractFileName(movedFilePath).first
+                            // "--recode-video mp4" above renames audio-only downloads to
+                            // .mp4 too, so the saved file's extension can no longer tell
+                            // the two apart. The picked format still can, and this is the
+                            // last point that still knows it.
+                            f.mimeType = if (vFormat.isAudioOnly) "audio" else "video"
                             f.title = task.title
                             f.isSecurity = task.isSecurity
                             f.errorCode = if (movedPath != null) 0 else 1
@@ -535,11 +546,12 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                 val indxT = totalStr.substring(0, tM.start())
                 val valT = totalStr.substring(tM.start())
                 val totalParsed = LineInfo.parse("$indxT $valT")
+                val speedBps = parseSpeedToken(tmp.getOrNull(indx + 2))
 
                 return if (tmp.last().contains(")")) {
                     val downloadedFrag =
                         tmp.last().split("/")[0].replace("(frag ", "").toIntOrNull()
-                    val totalFrag = tmp.last().split("/")[0].replace(") ", "").toIntOrNull()
+                    val totalFrag = tmp.last().split("/")[1].replace(")", "").toIntOrNull()
 
 
                     LineInfo(
@@ -548,11 +560,16 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
                         totalParsed,
                         downloadedFrag,
                         totalFrag,
+                        speedBps = speedBps,
                         sourceLine = line
                     )
                 } else {
                     LineInfo(
-                        "download", totalParsed * percent!! / 100, totalParsed, sourceLine = line
+                        "download",
+                        totalParsed * percent!! / 100,
+                        totalParsed,
+                        speedBps = speedBps,
+                        sourceLine = line
                     )
                 }
             }
@@ -563,12 +580,33 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         }
     }
 
+    // "438.62KiB/s" -> bytes/sec. yt-dlp also prints "Unknown" while it hasn't measured a
+    // rate yet; caught rather than pre-checked since the unit set (B/KB/KiB/MB/...) isn't
+    // exhaustively validated here and a malformed token must never take down the caller's
+    // percent/total parse with it.
+    private fun parseSpeedToken(token: String?): Long {
+        if (token == null || !token.endsWith("/s")) return 0L
+        return try {
+            val withoutRate = token.removeSuffix("/s")
+            val p: Pattern = Pattern.compile("\\p{L}")
+            val m: Matcher = p.matcher(withoutRate)
+            if (!m.find()) return 0L
+
+            val numPart = withoutRate.substring(0, m.start())
+            val unitPart = withoutRate.substring(m.start())
+            LineInfo.parse("$numPart $unitPart").toLong().coerceAtLeast(0)
+        } catch (e: Throwable) {
+            0L
+        }
+    }
+
     private class LineInfo(
         val id: String,
         val progress: Double,
         val total: Double,
         val fragDownloaded: Int? = null,
         val fragTotal: Int? = null,
+        val speedBps: Long = 0,
         val sourceLine: String
     ) {
         companion object {
@@ -730,6 +768,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
         dbTask?.fragmentsTotal = line?.fragTotal ?: 1
         dbTask?.fragmentsDownloaded = line?.fragDownloaded ?: 0
+        dbTask?.speedBytesPerSecond = line?.speedBps ?: 0
         dbTask?.downloadStatus = task.taskState
 
         dbTask?.infoLine = line?.sourceLine ?: ""

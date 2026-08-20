@@ -133,13 +133,13 @@ class WebTabViewHost(
         private set
 
     /**
-     * Lives for the Activity's whole lifetime, not per session: [start] is called again
-     * for every tab switch, and [processingViewModel] (hence its `downloads` flow) is
-     * backed by the same shared repository across sessions. Session-scoped sets here
-     * would see already-terminal downloads as new on every switch and re-toast them.
+     * Last status seen per download id, so [observeDownloadOutcomes] can toast on a
+     * *transition* into a terminal state rather than on merely observing one. Lives for
+     * the Activity's whole lifetime, not per session: [start] runs again for every tab
+     * switch and rebuilds [processingViewModel], whose `downloads` flow then replays the
+     * repository's whole snapshot.
      */
-    private val notifiedSuccess = mutableSetOf<String>()
-    private val notifiedError = mutableSetOf<String>()
+    private val lastKnownStatus = mutableMapOf<String, Int>()
 
     // ------------------------------------------------------------------ lifecycle
 
@@ -287,21 +287,35 @@ class WebTabViewHost(
                             ),
                             Toast.LENGTH_LONG,
                         ).show()
+
+                    DetectedVideosContract.Effect.PlatformNotAllowed ->
+                        Toast.makeText(
+                            activity,
+                            activity.getString(R.string.string_platform_not_allowed),
+                            Toast.LENGTH_LONG,
+                        ).show()
                 }
             }
         }
     }
 
     /**
-     * Surfaces one toast per finished download. The id sets guard against the polled
-     * flow re-emitting the same terminal state on every tick.
+     * Surfaces one toast per download that *finishes while being watched*. An id seen for
+     * the first time is only recorded, never announced: failed rows are kept in the DB
+     * forever (the Downloads tab's retry list needs them), so every fresh subscription
+     * replays them and would otherwise re-toast an old failure on entering the browser.
+     * Downloads started here always land in the DB non-terminal first, so a real failure
+     * is always seen as a transition.
      */
     private fun observeDownloadOutcomes() {
         activity.lifecycleScope.launch {
             processingViewModel.downloads.collect { downloads ->
                 for (info in downloads) {
+                    val previous = lastKnownStatus.put(info.id, info.downloadStatus)
+                    if (previous == null || previous == info.downloadStatus) continue
+
                     when (info.downloadStatus) {
-                        VideoTaskState.SUCCESS -> if (notifiedSuccess.add(info.id)) {
+                        VideoTaskState.SUCCESS -> {
                             toast(R.string.string_download_successful)
                             ratingPromptController.maybeShowAfterSuccessfulDownload(
                                 activity,
@@ -311,9 +325,10 @@ class WebTabViewHost(
                         }
 
                         VideoTaskState.ERROR, VideoTaskState.ENOSPC ->
-                            if (notifiedError.add(info.id)) toast(R.string.string_download_failed)
+                            toast(R.string.string_download_failed)
                     }
                 }
+                lastKnownStatus.keys.retainAll(downloads.mapTo(mutableSetOf()) { it.id })
             }
         }
     }

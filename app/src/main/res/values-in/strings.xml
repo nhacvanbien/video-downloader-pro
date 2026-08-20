@@ -128,6 +128,13 @@
     <string name="string_file_size">Ukuran file</string>
     <string name="string_large_to_small">(besar ke kecil)</string>
     <string name="string_small_to_large">(kecil ke besar)</string>
+    <string name="string_sort">Urutkan</string>
+    <string name="string_sort_newest_first">Terbaru lebih dulu</string>
+    <string name="string_sort_oldest_first">Terlama lebih dulu</string>
+    <string name="string_sort_name_az">Nama (A–Z)</string>
+    <string name="string_sort_name_za">Nama (Z–A)</string>
+    <string name="string_sort_largest_first">Terbesar lebih dulu</string>
+    <string name="string_sort_smallest_first">Terkecil lebih dulu</string>
     <string name="permission_setting">Anda perlu memberikan izin untuk melakukan tugas ini. Pergi ke layar pengaturan.</string>
     <string name="string_copied_to_clipboard">Disalin ke papan klip</string>
     <string name="string_private_file">File pribadi</string>
@@ -156,6 +163,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">Mengerti</string>
     <string name="string_login_required_to_download">Silakan masuk ke %1$s di browser sebelum mengunduh video ini</string>
+    <string name="string_platform_not_allowed">Karena kebijakan platform, mengunduh dari platform ini tidak diizinkan</string>
     <string name="string_no_media_found">Media tidak ditemukan</string>
     <string name="string_no_media_found_desc">Halaman mungkin masih memuat, memerlukan login, atau belum didukung.</string>
     <string name="string_num_selected">%s dipilih</string>
@@ -165,9 +173,12 @@
     <string name="string_retry_download">Coba unduh lagi</string>
     <string name="string_save_to_private_folder">Simpan ke folder Privat</string>
     <string name="string_search_downloads">Cari unduhan</string>
+    <string name="string_search_language">Cari bahasa</string>
     <string name="string_search_engine">Mesin Pencari</string>
     <string name="string_select_items">Pilih item</string>
     <string name="string_waiting_for_wifi">Menunggu Wi-Fi...</string>
+    <string name="string_queued">Dalam antrean</string>
+    <string name="string_fetching_video_info">Mengambil info video...</string>
     <string name="string_wifi_only">Hanya Wi-Fi</string>
     <string name="string_wifi_only_desc">Tunggu Wi-Fi sebelum mengunduh</string>
     <string name="string_yahoo">Yahoo</string>

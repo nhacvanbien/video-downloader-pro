@@ -346,7 +346,9 @@ private fun DownloadFab(
             .clip(CircleShape)
             .background(if (buttonState == DownloadButtonUiState.Disabled) Muted else Primary)
             .then(
-                if (buttonState == DownloadButtonUiState.Enabled) {
+                // Disabled (nothing detected) stays clickable so the user can retry
+                // detection; only Loading (a probe is already in flight) blocks taps.
+                if (buttonState != DownloadButtonUiState.Loading) {
                     Modifier.clickable(onClick = onClick)
                 } else {
                     Modifier
@@ -361,8 +363,15 @@ private fun DownloadFab(
                 modifier = Modifier.size(20.dp),
             )
         } else {
+            // Disabled is also the retryable state (see the click handling above), so it
+            // gets a distinct retry icon rather than the plain download arrow.
+            val iconRes = if (buttonState == DownloadButtonUiState.Disabled) {
+                R.drawable.ic_reload
+            } else {
+                R.drawable.ic_download_arrow
+            }
             Image(
-                painter = painterResource(R.drawable.ic_download_arrow),
+                painter = painterResource(iconRes),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(AppWhite),
                 modifier = Modifier.size(20.dp),

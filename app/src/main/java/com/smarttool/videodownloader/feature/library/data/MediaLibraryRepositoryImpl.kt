@@ -10,6 +10,7 @@ import com.smarttool.videodownloader.feature.library.domain.model.LibraryQuery
 import com.smarttool.videodownloader.feature.library.domain.model.MediaFilter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -18,21 +19,33 @@ class MediaLibraryRepositoryImpl(
     private val fileUtil: FileUtil,
 ) : MediaLibraryRepository {
 
+    // The type predicate is applied in Kotlin, not in SQL: `mime_type` says "video" for audio
+    // files written before the column started distinguishing them, so a SQL `mime_type = 'audio'`
+    // left those rows stuck under the Video chip while the list row itself already rendered them
+    // as audio. [MediaFilter.forFile] is the same classifier the rows use. Search and sort stay
+    // in SQL.
     override fun observeLibrary(query: LibraryQuery): Flow<List<VideoTaskItem>> =
         videoTaskItemRepository.queryVideoTaskItem(
-            query.filter == MediaFilter.All,
-            query.filter.typeValue,
+            true,
+            MediaFilter.All.typeValue,
             query.search,
             query.sort.value,
-        ).asFlow()
+        ).asFlow().map { it.matching(query.filter) }
 
     override fun observePrivate(query: LibraryQuery): Flow<List<VideoTaskItem>> =
         videoTaskItemRepository.queryVideoTaskItemSecurity(
-            query.filter == MediaFilter.All,
-            query.filter.typeValue,
+            true,
+            MediaFilter.All.typeValue,
             query.search,
             query.sort.value,
-        ).asFlow()
+        ).asFlow().map { it.matching(query.filter) }
+
+    private fun List<VideoTaskItem>.matching(target: MediaFilter): List<VideoTaskItem> =
+        if (target == MediaFilter.All) {
+            this
+        } else {
+            filter { MediaFilter.forFile(it.mimeType, it.fileName) == target }
+        }
 
     override suspend fun delete(item: VideoTaskItem) =
         videoTaskItemRepository.deleteVideoTaskItem(item)

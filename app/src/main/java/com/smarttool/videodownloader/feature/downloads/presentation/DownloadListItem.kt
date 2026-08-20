@@ -2,11 +2,9 @@ package com.smarttool.videodownloader.feature.downloads.presentation
 
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
+import com.smarttool.videodownloader.core.ui.components.MediaKind
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.feature.library.domain.model.MediaFilter
-
-private val AUDIO_EXTENSIONS = setOf("mp3", "m4a", "aac", "wav", "ogg", "flac", "opus")
-private val IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "webp", "bmp")
 
 /** A single row in the merged Downloads list — either still downloading/failed, or done. */
 sealed class DownloadListItem(open val id: String) {
@@ -22,7 +20,15 @@ sealed class DownloadListItem(open val id: String) {
             get() = progressInfo.downloadStatus == VideoTaskState.WAITING_FOR_WIFI
 
         override val displayTitle: String get() = progressInfo.videoInfo.title
-        override val mediaType: MediaFilter get() = classifyByExtension(progressInfo.videoInfo.ext)
+        // Same signal the in-progress row's thumbnail uses (see DownloadsScreen): an audio-only
+        // pick is served with a video container extension often enough that `ext` alone would
+        // park it under the Video chip while the row already shows a music icon.
+        override val mediaType: MediaFilter
+            get() = if (progressInfo.videoInfo.isAudioOnly) {
+                MediaFilter.Audio
+            } else {
+                classifyByExtension(progressInfo.videoInfo.ext)
+            }
     }
 
     data class Completed(val videoTaskItem: VideoTaskItem) : DownloadListItem(videoTaskItem.mId) {
@@ -30,21 +36,23 @@ sealed class DownloadListItem(open val id: String) {
             get() = videoTaskItem.title.ifBlank { videoTaskItem.fileName }
 
         override val mediaType: MediaFilter
-            get() = when {
-                videoTaskItem.mimeType.startsWith("image") -> MediaFilter.Image
-                videoTaskItem.mimeType.startsWith("audio") -> MediaFilter.Audio
-                else -> MediaFilter.Video
-            }
+            get() = MediaFilter.forFile(videoTaskItem.mimeType, videoTaskItem.fileName)
     }
 }
 
-private fun classifyByExtension(ext: String): MediaFilter = when (ext.lowercase()) {
-    in AUDIO_EXTENSIONS -> MediaFilter.Audio
-    in IMAGE_EXTENSIONS -> MediaFilter.Image
-    else -> MediaFilter.Video
+private fun classifyByExtension(ext: String): MediaFilter = MediaKind.fromExtension(ext).toFilter()
+
+private fun MediaKind.toFilter(): MediaFilter = when (this) {
+    MediaKind.AUDIO -> MediaFilter.Audio
+    MediaKind.IMAGE -> MediaFilter.Image
+    MediaKind.VIDEO -> MediaFilter.Video
 }
 
-/** Client-side filter mirroring the SQL predicate [MediaLibraryRepository] applies to completed items. */
+/**
+ * Filter for rows the Downloads tab holds itself (the active downloads); completed rows arrive
+ * already filtered by [com.smarttool.videodownloader.feature.library.domain.MediaLibraryRepository],
+ * which classifies through the same [MediaFilter.forFile].
+ */
 fun DownloadListItem.matches(filter: MediaFilter, search: String): Boolean {
     val typeMatches = filter == MediaFilter.All || mediaType == filter
     val searchMatches = search.isBlank() || displayTitle.contains(search, ignoreCase = true)

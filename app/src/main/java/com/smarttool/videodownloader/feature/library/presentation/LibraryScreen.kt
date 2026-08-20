@@ -217,7 +217,7 @@ private fun MediaRow(
 
         MediaThumbnail(
             filePath = item.filePath,
-            mediaType = MediaKind.fromMimeType(item.mimeType),
+            mediaType = MediaKind.forFile(item.mimeType, item.fileName),
             modifier = Modifier
                 .size(width = 64.dp, height = 48.dp)
                 .clip(RoundedCornerShape(8.dp)),

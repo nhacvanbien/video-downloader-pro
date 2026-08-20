@@ -61,6 +61,13 @@ Dùng `base/BaseComposeActivity`, không phải `AppCompatActivity` trần — b
 ### 7. Dialog (`core/ui/dialogs/`)
 Nếu tạo `Dialog(context)` rồi set `ComposeView` bên trong: PHẢI chụp lại `context` gốc thành property riêng (`private val hostContext = context`) TRƯỚC khi `Dialog` bọc nó trong `ContextThemeWrapper`, rồi dùng `hostContext` để set `ViewTree*Owner`. Bỏ qua bước này → `IllegalStateException: ViewTreeLifecycleOwner not found`, crash toàn app, không lộ ra lúc build/lint. Dùng helper có sẵn `Dialog.setComposeContent(context, content)`.
 
+### 8. String resources — thêm/sửa string PHẢI đồng bộ tất cả locale
+Repo có ~30 thư mục `values-<locale>/strings.xml` (`app/src/main/res/values-*`) ngoài `values/strings.xml` (mặc định, tiếng Anh). Khi thêm mới, sửa, hoặc xoá bất kỳ `<string>` nào trong `values/strings.xml`:
+- Thêm: phải thêm bản dịch tương ứng vào **tất cả** `values-*/strings.xml` (trừ string có `translatable="false"` như `app_name`, `app_download_channel_id`). Dịch tự nhiên theo đúng ngôn ngữ/vùng của từng qualifier (`pt` khác `pt-rBR`, `zh` khác `zh-rTW`, `in` = Indonesian, `fil` = Filipino, `ms` = Malay...), không để trống hoặc copy nguyên tiếng Anh. Giữ nguyên placeholder (`%s`, `%1$s`...) và escape apostrophe (`\'`) đúng convention đã dùng trong file đó.
+- Sửa nội dung tiếng Anh: cân nhắc cập nhật lại bản dịch liên quan nếu ý nghĩa thay đổi đáng kể.
+- Xoá: xoá luôn ở tất cả locale để tránh string mồ côi.
+Trước khi coi feature xong, chạy kiểm tra nhanh: so `grep -oE 'name="[^"]+"' values/strings.xml` với từng `values-*/strings.xml` bằng `comm` để tìm key thiếu — xem cách làm ở lịch sử sửa `string_queued`/`string_fetching_video_info`/rating block. Đừng để lặp lại tình trạng nhiều locale bị thiếu hàng chục key do quên bước này qua nhiều lần thêm string trước đó.
+
 ## Build
 
 - Gradle **phải chạy bằng JDK 21**, không phải JDK trong `gradle.properties` (đang trỏ JBR 25, AGP 8.13 sẽ reject):

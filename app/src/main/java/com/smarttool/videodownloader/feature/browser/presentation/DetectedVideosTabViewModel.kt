@@ -130,6 +130,11 @@ class DetectedVideosTabViewModel(
 
         if (url.isBlank() || !url.startsWith("http")) return
 
+        if (isYoutubeHost(runCatching { Uri.parse(url).host }.getOrNull())) {
+            _effect.trySend(DetectedVideosContract.Effect.PlatformNotAllowed)
+            return
+        }
+
         val req = getRequestWithHeadersForUrl(url, url, userAgent)?.build()
         if (req != null) verifyLinkStatus(req)
     }
@@ -138,6 +143,10 @@ class DetectedVideosTabViewModel(
         val state = _uiState.value
         Timber.d("showVideoInfo: state=${state.downloadButtonState}")
 
+        // Nothing detected yet: treat the tap as a retry instead of immediately popping
+        // the "no media found" dialog — ShowDetectedVideos fires synchronously below, well
+        // before a re-run startPage could possibly land a result, so sending it here would
+        // always show that dialog rather than give the retry a chance.
         if (state.downloadButtonState is DownloadButtonStateCanNotDownload) {
             val tabUrl = webTabModel?.uiState?.value?.tabUrl.orEmpty()
             if (tabUrl.startsWith("http")) {
@@ -145,6 +154,7 @@ class DetectedVideosTabViewModel(
                     startPage(tabUrl.trim(), webTabModel?.uiState?.value?.userAgent ?: BrowserUserAgent.MOBILE)
                 }
             }
+            return
         }
 
         // Sent even when empty: the host tells the sheet and the "no media found" dialog
@@ -249,6 +259,13 @@ class DetectedVideosTabViewModel(
             return
         }
 
+        // Blocked by platform policy — startPage already notified the user when the tab
+        // navigated here; anything the sniffer still turns up off a CDN host (e.g.
+        // googlevideo.com) must not slip through as a downloadable result.
+        if (isYoutubeHost(runCatching { Uri.parse(currentTabUrl.orEmpty()).host }.getOrNull())) {
+            return
+        }
+
         val detected = _uiState.value.detectedVideos.toList()
 
         // An untrusted title is a snapshot of the tab's *current* document.title, stamped
@@ -341,6 +358,13 @@ class DetectedVideosTabViewModel(
     /** TikTok's own numeric video id out of the URL path, e.g. `7665934019430862100` — stable across the `@user/`, `@/` and `@sec_uid/` page-URL shapes the same video can resolve to. */
     private fun tikTokVideoId(url: String): String? =
         Regex("""tiktok\.[a-z.]+/[^?#]*?/video/(\d+)""").find(url)?.groupValues?.getOrNull(1)
+
+    /** YouTube (and youtu.be short links) is deliberately excluded from download support — see [DetectedVideosContract.Effect.PlatformNotAllowed]. */
+    private fun isYoutubeHost(host: String?): Boolean {
+        if (host == null) return false
+        return host == "youtube.com" || host.endsWith(".youtube.com") ||
+            host == "youtu.be" || host.endsWith(".youtu.be")
+    }
 
     /**
      * A page listing several videos (a feed) fires one manifest request per item, but the

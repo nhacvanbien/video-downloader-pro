@@ -128,6 +128,13 @@
     <string name="string_file_size">Dateigröße</string>
     <string name="string_large_to_small">(groß nach klein)</string>
     <string name="string_small_to_large">(klein nach groß)</string>
+    <string name="string_sort">Sortieren</string>
+    <string name="string_sort_newest_first">Neueste zuerst</string>
+    <string name="string_sort_oldest_first">Älteste zuerst</string>
+    <string name="string_sort_name_az">Name (A–Z)</string>
+    <string name="string_sort_name_za">Name (Z–A)</string>
+    <string name="string_sort_largest_first">Größte zuerst</string>
+    <string name="string_sort_smallest_first">Kleinste zuerst</string>
     <string name="permission_setting">Sie müssen Berechtigungen erteilen, um diese Aufgabe auszuführen. Gehe zu den Einstellungen.</string>
     <string name="string_copied_to_clipboard">In die Zwischenablage kopiert</string>
     <string name="string_private_file">Private Datei</string>
@@ -157,6 +164,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">Verstanden</string>
     <string name="string_login_required_to_download">Bitte melde dich im Browser bei %1$s an, bevor du dieses Video herunterlädst</string>
+    <string name="string_platform_not_allowed">Aufgrund der Plattformrichtlinie ist das Herunterladen von dieser Plattform nicht erlaubt</string>
     <string name="string_no_media_found">Keine Medien gefunden</string>
     <string name="string_no_media_found_desc">Die Seite lädt möglicherweise noch, erfordert eine Anmeldung oder wird noch nicht unterstützt.</string>
     <string name="string_num_selected">%s ausgewählt</string>
@@ -166,9 +174,12 @@
     <string name="string_retry_download">Download wiederholen</string>
     <string name="string_save_to_private_folder">Im privaten Ordner speichern</string>
     <string name="string_search_downloads">Downloads durchsuchen</string>
+    <string name="string_search_language">Sprache suchen</string>
     <string name="string_search_engine">Suchmaschine</string>
     <string name="string_select_items">Elemente auswählen</string>
     <string name="string_waiting_for_wifi">Warten auf WLAN…</string>
+    <string name="string_queued">In Warteschlange</string>
+    <string name="string_fetching_video_info">Videoinformationen werden abgerufen…</string>
     <string name="string_wifi_only">Nur WLAN</string>
     <string name="string_wifi_only_desc">Vor dem Download auf WLAN warten</string>
     <string name="string_yahoo">Yahoo</string>

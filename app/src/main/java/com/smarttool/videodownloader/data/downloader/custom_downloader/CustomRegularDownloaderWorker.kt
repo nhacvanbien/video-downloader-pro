@@ -28,6 +28,9 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
     @Volatile
     private var lastSavedTime = 0L
 
+    @Volatile
+    private var lastSavedBytes = 0L
+
     companion object {
         var isCanceled: Boolean = false
         private const val INTERVAL = 1000
@@ -378,7 +381,12 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
             val currentTime = Date().time
             if ((currentTime - lastSavedTime) > INTERVAL && !getDone()) {
-                lastSavedTime = Date().time
+                val elapsedMs = currentTime - lastSavedTime
+                val bytesDelta = progress.currentBytes - lastSavedBytes
+                val speedBps = if (elapsedMs > 0) bytesDelta * 1000 / elapsedMs else 0L
+
+                lastSavedTime = currentTime
+                lastSavedBytes = progress.currentBytes
 
                 val taskItem = VideoTaskItem(downloadTask.url).also {
                     it.mId = downloadTask.mId.toString()
@@ -393,7 +401,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
                 downloadTask.mId?.let {
                     saveProgress(
-                        it, progress, VideoTaskState.DOWNLOADING
+                        it, progress, VideoTaskState.DOWNLOADING, speedBytesPerSecond = speedBps
                     )
                 }
             }
@@ -431,7 +439,11 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
     }
 
     private fun saveProgress(
-        taskId: String, progress: Progress, downloadStatus: Int, infoLine: String = ""
+        taskId: String,
+        progress: Progress,
+        downloadStatus: Int,
+        infoLine: String = "",
+        speedBytesPerSecond: Long = 0
     ) {
         if (getDone() && downloadStatus == VideoTaskState.DOWNLOADING) {
             Timber.d(
@@ -465,6 +477,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
         }
 
         dbTask?.downloadStatus = downloadStatus
+        dbTask?.speedBytesPerSecond = speedBytesPerSecond
 
         if (dbTask != null) {
             if (getDone() && downloadStatus == VideoTaskState.DOWNLOADING) {

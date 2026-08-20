@@ -12,6 +12,12 @@ interface ProcessingContract {
     sealed interface Event : UiEvent {
         data class UrlChange(val url: String) : Event
         data class Start(val videoInfo: VideoInfo) : Event
+
+        /**
+         * Starts an item parked as waiting-for-Wi-Fi right away, ignoring the
+         * "Wi-Fi Only" gate for this one download.
+         */
+        data class StartNow(val progressInfo: ProgressInfo) : Event
         data class Pause(val progressInfo: ProgressInfo) : Event
         data class Resume(val progressInfo: ProgressInfo) : Event
         data class Cancel(val progressInfo: ProgressInfo, val removeFile: Boolean) : Event

@@ -128,6 +128,13 @@
     <string name="string_file_size">Размер файла</string>
     <string name="string_large_to_small">(От большого к малому)</string>
     <string name="string_small_to_large">(От малого к большому)</string>
+    <string name="string_sort">Сортировка</string>
+    <string name="string_sort_newest_first">Сначала новые</string>
+    <string name="string_sort_oldest_first">Сначала старые</string>
+    <string name="string_sort_name_az">Имя (А - Я)</string>
+    <string name="string_sort_name_za">Имя (Я - А)</string>
+    <string name="string_sort_largest_first">Сначала большие</string>
+    <string name="string_sort_smallest_first">Сначала маленькие</string>
     <string name="permission_setting">Необходимо предоставить разрешение для этого действия. Перейдите в настройки.</string>
     <string name="string_copied_to_clipboard">Скопировано в буфер обмена</string>
     <string name="string_private_file">Приватный файл</string>
@@ -156,6 +163,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">Понятно</string>
     <string name="string_login_required_to_download">Войдите в %1$s в браузере перед загрузкой этого видео</string>
+    <string name="string_platform_not_allowed">Согласно политике платформы, загрузка с этой платформы запрещена</string>
     <string name="string_no_media_found">Медиафайлы не найдены</string>
     <string name="string_no_media_found_desc">Страница может ещё загружаться, требовать входа в аккаунт или пока не поддерживается.</string>
     <string name="string_num_selected">Выбрано: %s</string>
@@ -165,9 +173,12 @@
     <string name="string_retry_download">Повторить загрузку</string>
     <string name="string_save_to_private_folder">Сохранить в приватную папку</string>
     <string name="string_search_downloads">Поиск по загрузкам</string>
+    <string name="string_search_language">Поиск языка</string>
     <string name="string_search_engine">Поисковая система</string>
     <string name="string_select_items">Выбрать элементы</string>
     <string name="string_waiting_for_wifi">Ожидание Wi-Fi…</string>
+    <string name="string_queued">В очереди</string>
+    <string name="string_fetching_video_info">Получение информации о видео…</string>
     <string name="string_wifi_only">Только Wi-Fi</string>
     <string name="string_wifi_only_desc">Ждать Wi-Fi перед загрузкой</string>
     <string name="string_yahoo">Yahoo</string>

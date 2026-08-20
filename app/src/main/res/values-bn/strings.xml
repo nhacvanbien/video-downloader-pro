@@ -127,6 +127,13 @@
     <string name="string_file_size">ফাইল সাইজ</string>
     <string name="string_large_to_small">(বড় থেকে ছোট)</string>
     <string name="string_small_to_large">(ছোট থেকে বড়)</string>
+    <string name="string_sort">সাজান</string>
+    <string name="string_sort_newest_first">সবচেয়ে নতুন প্রথমে</string>
+    <string name="string_sort_oldest_first">সবচেয়ে পুরনো প্রথমে</string>
+    <string name="string_sort_name_az">নাম (A–Z)</string>
+    <string name="string_sort_name_za">নাম (Z–A)</string>
+    <string name="string_sort_largest_first">সবচেয়ে বড় প্রথমে</string>
+    <string name="string_sort_smallest_first">সবচেয়ে ছোট প্রথমে</string>
     <string name="permission_setting">এই কাজটি করতে আপনাকে অ্যাক্সেস প্রদান করতে হবে। সেটিংসে যান।</string>
     <string name="string_copied_to_clipboard">ক্লিপবোর্ডে কপি করা হয়েছে</string>
     <string name="string_private_file">প্রাইভেট ফাইল</string>
@@ -157,6 +164,7 @@
     <string name="string_duckduckgo">DuckDuckGo</string>
     <string name="string_got_it">বুঝেছি</string>
     <string name="string_login_required_to_download">এই ভিডিওটি ডাউনলোড করার আগে ব্রাউজারে %1$s এ লগ ইন করুন</string>
+    <string name="string_platform_not_allowed">প্ল্যাটফর্মের নীতির কারণে, এই প্ল্যাটফর্ম থেকে ডাউনলোড করার অনুমতি নেই</string>
     <string name="string_no_media_found">কোনো মিডিয়া পাওয়া যায়নি</string>
     <string name="string_no_media_found_desc">পৃষ্ঠাটি হয়তো এখনও লোড হচ্ছে, লগ ইন প্রয়োজন হতে পারে, অথবা এখনও সমর্থিত নয়।</string>
     <string name="string_num_selected">%s নির্বাচিত</string>
@@ -166,9 +174,12 @@
     <string name="string_retry_download">পুনরায় ডাউনলোড করুন</string>
     <string name="string_save_to_private_folder">ব্যক্তিগত ফোল্ডারে সংরক্ষণ করুন</string>
     <string name="string_search_downloads">ডাউনলোড অনুসন্ধান করুন</string>
+    <string name="string_search_language">ভাষা খুঁজুন</string>
     <string name="string_search_engine">সার্চ ইঞ্জিন</string>
     <string name="string_select_items">আইটেম নির্বাচন করুন</string>
     <string name="string_waiting_for_wifi">Wi-Fi-এর জন্য অপেক্ষা করা হচ্ছে…</string>
+    <string name="string_queued">সারিবদ্ধ</string>
+    <string name="string_fetching_video_info">ভিডিও তথ্য সংগ্রহ করা হচ্ছে…</string>
     <string name="string_wifi_only">শুধুমাত্র Wi-Fi</string>
     <string name="string_wifi_only_desc">ডাউনলোড করার আগে Wi-Fi-এর জন্য অপেক্ষা করুন</string>
     <string name="string_yahoo">Yahoo</string>

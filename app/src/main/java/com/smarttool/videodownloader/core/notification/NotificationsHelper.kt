@@ -47,28 +47,28 @@ class NotificationsHelper  constructor(
             context, NOTIFICATION_CHANNEL_ID
         ).setOnlyAlertOnce(true)
 
-        builder.setContentTitle(task.fileName).setContentText(task.lineInfo)
+        builder.setContentTitle(task.fileName)
             .setSmallIcon(android.R.drawable.stat_sys_download).setOngoing(false)
             .setProgress(100, taskPercent.toInt(), false).addAction(notificationActionOpen(false))
 
         when (task.taskState) {
             VideoTaskState.PREPARE -> {
-                builder.setSubText("prepare").setProgress(0, 0, true)
+                builder.setContentText("prepare").setProgress(0, 0, true)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download_done)
             }
 
             VideoTaskState.PENDING -> {
-                builder.setSubText("pending").setProgress(0, 0, true)
+                builder.setContentText("pending").setProgress(0, 0, true)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download_done)
             }
 
             VideoTaskState.DOWNLOADING -> {
-                builder.setSubText("downloading...").setProgress(100, taskPercent.toInt(), false)
+                builder.setContentText("downloading...").setProgress(100, taskPercent.toInt(), false)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download)
             }
 
             VideoTaskState.PAUSE -> {
-                builder.setSubText("pause")
+                builder.setContentText("pause")
                 builder.setProgress(100, taskPercent.toInt(), false)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download)
             }
@@ -86,7 +86,12 @@ class NotificationsHelper  constructor(
                     val fileSize = file.length()
                     val lastModified = file.lastModified()
 
-                    task.mimeType = mimeTypeForFile(task.fileName)
+                    // Only a guess from the extension — a downloader that knows what it
+                    // actually fetched (see YoutubeDlDownloaderWorker, whose audio lands
+                    // as .mp4) sets this itself, and must not be overwritten here.
+                    if (task.mimeType.isBlank()) {
+                        task.mimeType = mimeTypeForFile(task.fileName)
+                    }
                     task.fileDuration = getVideoDuration(context, task.filePath)
 
                     task.fileSize = fileSize
@@ -106,7 +111,8 @@ class NotificationsHelper  constructor(
                 }
 
                 builder.setContentIntent(actionWatchIntent)
-                builder.setSubText("success!!!").setProgress(0, 0, false)
+                builder.setContentText(context.getString(R.string.string_download_successful))
+                    .setProgress(0, 0, false)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download_done)
                 builder.addAction(actionOpenInApp).addAction(actionWatch)
             }
@@ -115,15 +121,14 @@ class NotificationsHelper  constructor(
                 builder.clearActions()
                 val action = notificationActionOpen(true, isError = true)
 
-                builder.setSubText("Error")
-                builder.setContentText("Failed " + task.errorMessage)
+                builder.setContentText(context.getString(R.string.string_error))
                     .setProgress(100, taskPercent.toInt(), false)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download_done)
                 builder.addAction(notificationActionRetry()).addAction(action)
             }
 
             VideoTaskState.CANCELED -> {
-                builder.setSubText("Canceled")
+                builder.setContentText("Canceled")
                 builder.setProgress(0, 0, false)
                 builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download)
             }
