@@ -54,6 +54,19 @@ fun sortStateIconRes(sort: SortState): Int = when (sort) {
     SortState.SIZE_DESC, SortState.SIZE -> R.drawable.ic_sort_size
 }
 
+/**
+ * Trimmed variant of [sortStateLabelRes] for the inline "Sort by: X" control, where the full
+ * "Newest first"/"Largest first" phrasing would wrap.
+ */
+fun sortStateShortLabelRes(sort: SortState): Int = when (sort) {
+    SortState.DATE_DESC -> R.string.string_sort_short_newest
+    SortState.DATE -> R.string.string_sort_short_oldest
+    SortState.NAME -> R.string.string_sort_short_name_az
+    SortState.NAME_DESC -> R.string.string_sort_short_name_za
+    SortState.SIZE_DESC -> R.string.string_sort_short_largest
+    SortState.SIZE -> R.string.string_sort_short_smallest
+}
+
 private fun sortStateLabelRes(sort: SortState): Int = when (sort) {
     SortState.DATE_DESC -> R.string.string_sort_newest_first
     SortState.DATE -> R.string.string_sort_oldest_first

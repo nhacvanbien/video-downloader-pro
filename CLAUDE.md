@@ -91,6 +91,11 @@ Trước khi coi feature xong, chạy kiểm tra nhanh: so `grep -oE 'name="[^"]
 - `NotificationsHelper.createNotificationBuilder()` nhánh `VideoTaskState.SUCCESS` chỉ insert vào Room (`videoTaskItemRepository.insertVideoTaskItem`) nếu `File(task.filePath).exists()` đúng. Nếu `filePath` sai (xem trên) thì insert bị skip **âm thầm** — không log, không exception, không crash. Video tải xong (file có trên sdcard) nhưng không hiện ở tab Downloaded / không có row trong DB → kiểm tra chỗ này đầu tiên.
 - Title video lấy từ `WebTabViewModel.currentTitle`, chỉ nên set qua event `TitleReceived` (bắn từ `WebChromeClient.onReceivedTitle`, wired ở cả `WebTabViewHost` và `ProcessingWebViewHost`). ĐỪNG đọc `view.title` trong `onPageStarted`/`shouldOverrideUrlLoading` rồi coi là title thật — tại thời điểm đó WebView trả về chính URL vì trang chưa parse xong `<title>`.
 
+### 9. Comment trong code — viết ít, đúng chỗ
+KHÔNG thêm comment chỉ để kể lại việc mình vừa sửa gì ("đổi X thành Y vì trước đó bị lỗi Z", "bare glyph vì icon cũ có sẵn vòng tròn"). Loại comment này mô tả *lịch sử chỉnh sửa*, chỗ của nó là commit message, không phải trong code — đọc lại sau vài tháng chỉ thấy nhiễu.
+
+Chỉ comment khi giải thích một ràng buộc **không đọc ra được từ code** và người sửa sau dễ vô tình phá (ví dụ các bẫy đã liệt kê ở file này: thứ tự `moveMedia`, `surface_type` của PlayerView, `hostContext` của Dialog). Mặc định: không comment. Giữ đúng mật độ comment của code xung quanh.
+
 ## Ghi chú khác
 
 - Package ads `com.ads.admob` là **STUB** trong repo này (không có SDK thật) — không thể verify hành vi ads trên máy, chỉ verify được đường dây gọi (`InterAdsManager`, `setDisableAppResumeOnScreen`/`setEnableAppResumeOnScreen`).

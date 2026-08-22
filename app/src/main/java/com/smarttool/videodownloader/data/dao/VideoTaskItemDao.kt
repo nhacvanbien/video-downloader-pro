@@ -82,4 +82,10 @@ interface VideoTaskItemDao {
 
     @Query("UPDATE VideoTaskItem SET is_security = 0")
     suspend fun resetSecurityFlag()
+
+    @Query("SELECT COUNT(*) FROM VideoTaskItem WHERE is_security = 0")
+    suspend fun getDownloadedCount(): Int
+
+    @Query("SELECT COALESCE(SUM(file_size), 0) FROM VideoTaskItem WHERE is_security = 0")
+    suspend fun getDownloadedTotalSize(): Long
 }

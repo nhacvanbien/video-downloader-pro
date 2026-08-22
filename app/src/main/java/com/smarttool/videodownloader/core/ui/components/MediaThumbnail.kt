@@ -64,10 +64,16 @@ fun MediaThumbnail(
     var bitmap by remember(filePath, mediaType) {
         mutableStateOf(if (showsArtwork) MediaThumbnailCache.get(filePath) else null)
     }
-    var resolvedKind by remember(filePath, mediaType) { mutableStateOf(mediaType) }
+    var resolvedKind by remember(filePath, mediaType) {
+        mutableStateOf(MediaThumbnailCache.resolvedKind(filePath) ?: mediaType)
+    }
 
     LaunchedEffect(filePath, mediaType) {
         if (!showsArtwork || bitmap != null) return@LaunchedEffect
+
+        // Already tried and failed this file — re-running the decode on every scroll pass is
+        // what makes the list stutter, and the answer would not change.
+        if (MediaThumbnailCache.isUndecodable(filePath)) return@LaunchedEffect
 
         val decoded = withContext(Dispatchers.IO) {
             runCatching {
@@ -96,11 +102,14 @@ fun MediaThumbnail(
         if (decoded == null && mediaType == MediaKind.VIDEO) {
             if (withContext(Dispatchers.IO) { lacksVideoTrack(filePath) }) {
                 resolvedKind = MediaKind.AUDIO
+                MediaThumbnailCache.putResolvedKind(filePath, MediaKind.AUDIO)
             }
         }
 
         if (decoded != null) {
             MediaThumbnailCache.put(filePath, decoded)
+        } else {
+            MediaThumbnailCache.markUndecodable(filePath)
         }
         bitmap = decoded
     }

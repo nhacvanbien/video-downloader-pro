@@ -6,6 +6,7 @@ import com.smarttool.videodownloader.core.presentation.UiEvent
 import com.smarttool.videodownloader.core.presentation.UiState
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.feature.library.domain.model.LibraryQuery
+import com.smarttool.videodownloader.feature.library.domain.model.LibraryViewMode
 import com.smarttool.videodownloader.feature.library.domain.model.MediaFilter
 import com.smarttool.videodownloader.feature.library.domain.model.SortState
 
@@ -15,6 +16,7 @@ interface LibraryContract {
         val selectionMode: Boolean = false,
         val selectedIds: Set<String> = emptySet(),
         val sortSheetVisible: Boolean = false,
+        val viewMode: LibraryViewMode = LibraryViewMode.List,
         /** Non-null only while a move to/out of the private area is running. */
         val privateMoveProgress: PrivateMoveProgress? = null,
     ) : UiState
@@ -24,6 +26,7 @@ interface LibraryContract {
         data class SearchChange(val search: String) : Event
         data class SortChange(val sort: SortState) : Event
         data class SetSortSheetVisible(val visible: Boolean) : Event
+        data class SetViewMode(val mode: LibraryViewMode) : Event
         data class SetSelectionMode(val enabled: Boolean) : Event
         data class ToggleSelection(val id: String) : Event
         data object SelectAll : Event

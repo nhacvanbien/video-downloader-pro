@@ -67,12 +67,27 @@ class LibraryViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    /**
+     * The same slice as [items] with the type filter dropped, so the filter chips can each show
+     * how many files they would reveal. Reading it off [items] instead would collapse every
+     * chip's count onto the one currently selected. Search still applies — the counts describe
+     * what the current search would yield, not the whole library.
+     */
+    val itemsIgnoringTypeFilter: StateFlow<List<VideoTaskItem>> = _uiState
+        .map { it.query.copy(filter = MediaFilter.All) }
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (isPrivate) observePrivateLibrary(query) else observeLibrary(query)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     fun onEvent(event: LibraryContract.Event) {
         when (event) {
             is LibraryContract.Event.FilterChange -> onFilterChange(event.filter)
             is LibraryContract.Event.SearchChange -> onSearchChange(event.search)
             is LibraryContract.Event.SortChange -> onSortChange(event.sort)
             is LibraryContract.Event.SetSortSheetVisible -> setSortSheetVisible(event.visible)
+            is LibraryContract.Event.SetViewMode -> _uiState.update { it.copy(viewMode = event.mode) }
             is LibraryContract.Event.SetSelectionMode -> setSelectionMode(event.enabled)
             is LibraryContract.Event.ToggleSelection -> toggleSelection(event.id)
             is LibraryContract.Event.SelectAll -> selectAll()

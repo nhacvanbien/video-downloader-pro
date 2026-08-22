@@ -14,6 +14,7 @@ import com.smarttool.videodownloader.core.ui.components.ScreenBg
 fun MainScreen(
     selectedTab: MainTab,
     onSelectTab: (MainTab) -> Unit,
+    badgeCounts: Map<MainTab, Int> = emptyMap(),
     tabContent: @Composable (MainTab) -> Unit,
 ) {
     Column(modifier = Modifier
@@ -25,6 +26,10 @@ fun MainScreen(
             .fillMaxWidth()) {
             tabContent(selectedTab)
         }
-        MainBottomBar(selected = selectedTab, onSelect = onSelectTab)
+        MainBottomBar(
+            selected = selectedTab,
+            onSelect = onSelectTab,
+            badgeCounts = badgeCounts,
+        )
     }
 }

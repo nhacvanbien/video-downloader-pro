@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smarttool.videodownloader.android.R
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.feature.browser.presentation.BrowserHomeRoute
@@ -55,9 +56,14 @@ fun MainRoute(
         }
     }
 
+    // The Downloads tab advertises how many downloads are still running, so the count is
+    // visible from the other two tabs.
+    val activeDownloads by processingHost.processingViewModel.downloads.collectAsStateWithLifecycle()
+
     MainScreen(
         selectedTab = selectedTab,
         onSelectTab = onSelectTab,
+        badgeCounts = mapOf(MainTab.Downloads to activeDownloads.size),
     ) { tab ->
         when (tab) {
             MainTab.Browser -> if (webTabHost.started) {

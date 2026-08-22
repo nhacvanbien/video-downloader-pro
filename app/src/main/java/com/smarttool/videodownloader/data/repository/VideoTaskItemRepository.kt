@@ -80,4 +80,12 @@ class VideoTaskItemRepository  constructor(
     suspend fun resetSecurityFlag() {
         videoTaskItemDao.resetSecurityFlag()
     }
+
+    suspend fun getDownloadedCount(): Int {
+        return videoTaskItemDao.getDownloadedCount()
+    }
+
+    suspend fun getDownloadedTotalSize(): Long {
+        return videoTaskItemDao.getDownloadedTotalSize()
+    }
 }

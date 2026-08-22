@@ -22,6 +22,7 @@ import com.smarttool.videodownloader.data.downloader.generic_downloader.models.V
 import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskState
 import com.smarttool.videodownloader.data.network.entity.ProgressInfo
 import com.smarttool.videodownloader.feature.browser.presentation.DetectedVideosContract
+import com.smarttool.videodownloader.feature.library.domain.model.MediaFilter
 import com.smarttool.videodownloader.feature.library.presentation.LibraryContract
 import com.smarttool.videodownloader.feature.library.presentation.LibraryViewModel
 import com.smarttool.videodownloader.feature.library.presentation.MediaActionSheet
@@ -66,10 +67,32 @@ fun DownloadsRoute(
         downloadButtonState = detectorState.downloadButtonState.toUiState(),
     )
 
-    val activeAsItems = activeDownloads.map { DownloadListItem.Active(it) }
-        .filter { it.matches(libraryState.query.filter, libraryState.query.search) }
-    val completedAsItems = completedItems.map { DownloadListItem.Completed(it) }
-    val mergedItems = activeAsItems + completedAsItems
+    val mergedItems = remember(
+        activeDownloads,
+        completedItems,
+        libraryState.query.filter,
+        libraryState.query.search,
+    ) {
+        activeDownloads.map { DownloadListItem.Active(it) }
+            .filter { it.matches(libraryState.query.filter, libraryState.query.search) } +
+            completedItems.map { DownloadListItem.Completed(it) }
+    }
+
+    val completedIgnoringType by libraryViewModel.itemsIgnoringTypeFilter.collectAsStateWithLifecycle()
+
+    val filterCounts = remember(activeDownloads, completedIgnoringType, libraryState.query.search) {
+        val countedTypes = activeDownloads.map { DownloadListItem.Active(it) }
+            .filter { it.matches(MediaFilter.All, libraryState.query.search) }
+            .map { it.mediaType } +
+            completedIgnoringType.map { MediaFilter.forFile(it.mimeType, it.fileName) }
+
+        mapOf(
+            MediaFilter.All to countedTypes.size,
+            MediaFilter.Video to countedTypes.count { it == MediaFilter.Video },
+            MediaFilter.Audio to countedTypes.count { it == MediaFilter.Audio },
+            MediaFilter.Image to countedTypes.count { it == MediaFilter.Image },
+        )
+    }
 
     var menuTarget by remember { mutableStateOf<VideoTaskItem?>(null) }
     var failedMenuTarget by remember { mutableStateOf<ProgressInfo?>(null) }
@@ -90,9 +113,11 @@ fun DownloadsRoute(
         pasteState = pasteState,
         items = mergedItems,
         filesCount = mergedItems.size,
+        filterCounts = filterCounts,
         activeFilter = libraryState.query.filter,
         search = libraryState.query.search,
         sortState = libraryState.query.sort,
+        viewMode = libraryState.viewMode,
         selectionMode = libraryState.selectionMode,
         selectedIds = libraryState.selectedIds,
         selectedStorageLabel = selectedStorageLabel,
@@ -104,6 +129,7 @@ fun DownloadsRoute(
         onFilterChange = { libraryViewModel.onEvent(LibraryContract.Event.FilterChange(it)) },
         onSearchChange = { libraryViewModel.onEvent(LibraryContract.Event.SearchChange(it)) },
         onOpenSort = { libraryViewModel.onEvent(LibraryContract.Event.SetSortSheetVisible(true)) },
+        onViewModeChange = { libraryViewModel.onEvent(LibraryContract.Event.SetViewMode(it)) },
         onToggleSelectionMode = {
             libraryViewModel.onEvent(LibraryContract.Event.SetSelectionMode(!libraryState.selectionMode))
         },

@@ -13,6 +13,12 @@ interface SettingsContract {
         val searchEngine: SearchEngine = SearchEngine.GOOGLE,
         val searchEngineSheetVisible: Boolean = false,
         val downloadLocationEditorVisible: Boolean = false,
+        val versionName: String = "",
+        val lastUpdateTimeMillis: Long = 0L,
+        val videoCount: Int = 0,
+        val usedBytes: Long = 0L,
+        val freeBytes: Long = 0L,
+        val activeDownloadCount: Int = 0,
     ) : UiState
 
     sealed interface Event : UiEvent {
