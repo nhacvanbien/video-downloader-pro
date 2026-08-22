@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">ใหญ่สุด</string>
     <string name="string_sort_short_smallest">เล็กสุด</string>
     <string name="string_status_completed">เสร็จสิ้น</string>
+    <string name="string_status_downloaded">ดาวน์โหลดแล้ว</string>
     <string name="string_downloading_percent">กำลังดาวน์โหลด %1$s%%</string>
-    <string name="string_download_paused_percent">หยุดชั่วคราวที่ %1$s%%</string>
+    <string name="string_download_paused_percent">หยุดชั่วคราว %1$s%%</string>
     <string name="string_no_text_in_clipboard">ไม่มีข้อความในคลิปบอร์ด</string>
     <string name="string_clipboard_is_empty">คลิปบอร์ดว่างเปล่า</string>
     <string name="string_re_enter_your_pin">ป้อนรหัส PIN ของคุณอีกครั้ง</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">เลือกแล้ว %s รายการ</string>
     <string name="string_select_items">เลือกรายการ</string>
     <string name="string_retry_download">ลองดาวน์โหลดอีกครั้ง</string>
+    <string name="string_retry_action">ลองอีกครั้ง</string>
+    <string name="string_resume_action">ดำเนินการต่อ</string>
+    <string name="string_pause_action">หยุดชั่วคราว</string>
+    <string name="string_cancel_download">ยกเลิกการดาวน์โหลด</string>
     <string name="string_download_now">ดาวน์โหลดตอนนี้</string>
     <string name="string_download_cta">ดาวน์โหลด</string>
     <string name="string_retry">ลองอีกครั้ง</string>
-    <string name="string_download_failed_short">ดาวน์โหลดล้มเหลว</string>
+    <string name="string_download_failed_short">ล้มเหลว</string>
     <string name="string_no_media_found">ไม่พบสื่อ</string>
     <string name="string_no_media_found_desc">หน้านี้อาจกำลังโหลด ต้องเข้าสู่ระบบ หรือยังไม่รองรับ</string>
     <string name="string_report_issue">รายงานปัญหา</string>

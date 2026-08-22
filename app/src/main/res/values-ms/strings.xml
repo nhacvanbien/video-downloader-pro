@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Terbesar</string>
     <string name="string_sort_short_smallest">Terkecil</string>
     <string name="string_status_completed">Selesai</string>
+    <string name="string_status_downloaded">Dimuat turun</string>
     <string name="string_downloading_percent">Memuat turun %1$s%%</string>
-    <string name="string_download_paused_percent">Dijeda pada %1$s%%</string>
+    <string name="string_download_paused_percent">Dijeda %1$s%%</string>
     <string name="string_no_text_in_clipboard">Tiada teks dalam papan keratan</string>
     <string name="string_clipboard_is_empty">Papan keratan kosong</string>
     <string name="string_re_enter_your_pin">Masukkan semula PIN anda</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s dipilih</string>
     <string name="string_select_items">Pilih item</string>
     <string name="string_retry_download">Cuba muat turun semula</string>
+    <string name="string_retry_action">Cuba lagi</string>
+    <string name="string_resume_action">Sambung</string>
+    <string name="string_pause_action">Jeda</string>
+    <string name="string_cancel_download">Batalkan muat turun</string>
     <string name="string_download_now">Muat turun sekarang</string>
     <string name="string_download_cta">Muat turun</string>
     <string name="string_retry">CUBA LAGI</string>
-    <string name="string_download_failed_short">Muat turun gagal</string>
+    <string name="string_download_failed_short">Gagal</string>
     <string name="string_no_media_found">Tiada media dijumpai</string>
     <string name="string_no_media_found_desc">Halaman mungkin masih dimuatkan, memerlukan log masuk, atau belum disokong.</string>
     <string name="string_report_issue">Laporkan masalah</string>

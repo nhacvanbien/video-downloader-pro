@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">सबसे बड़ा</string>
     <string name="string_sort_short_smallest">सबसे छोटा</string>
     <string name="string_status_completed">पूर्ण</string>
+    <string name="string_status_downloaded">डाउनलोड हो गया</string>
     <string name="string_downloading_percent">डाउनलोड हो रहा है %1$s%%</string>
-    <string name="string_download_paused_percent">%1$s%% पर रुका हुआ</string>
+    <string name="string_download_paused_percent">%1$s%% पर रुका</string>
     <string name="string_no_text_in_clipboard">क्लिपबोर्ड में कोई पाठ नहीं है</string>
     <string name="string_clipboard_is_empty">क्लिपबोर्ड खाली है</string>
     <string name="string_re_enter_your_pin">अपना पिन फिर से दर्ज करें</string>
@@ -194,7 +195,7 @@
     <string name="string_select_languages">भाषा चुनें</string>
     <string name="string_audio">ऑडियो</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">डाउनलोड विफल</string>
+    <string name="string_download_failed_short">विफल</string>
     <string name="string_download_size">डाउनलोड आकार: %s</string>
     <string name="string_downloads">डाउनलोड</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -208,6 +209,10 @@
     <string name="string_report_issue">समस्या की रिपोर्ट करें</string>
     <string name="string_retry">पुनः प्रयास करें</string>
     <string name="string_retry_download">डाउनलोड पुनः प्रयास करें</string>
+    <string name="string_retry_action">पुनः प्रयास</string>
+    <string name="string_resume_action">जारी रखें</string>
+    <string name="string_pause_action">रोकें</string>
+    <string name="string_cancel_download">डाउनलोड रद्द करें</string>
     <string name="string_download_now">अभी डाउनलोड करें</string>
     <string name="string_download_cta">डाउनलोड करें</string>
     <string name="string_save_to_private_folder">प्राइवेट फ़ोल्डर में सहेजें</string>

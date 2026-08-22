@@ -196,14 +196,17 @@ fun DownloadsScreen(
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                             ) {
                                 items(items, key = { it.uiKey }) { item ->
-                                    DownloadGridTile(
+                                    DownloadItem(
                                         item = item,
+                                        grid = true,
                                         selectionMode = selectionMode,
                                         selected = item.id in selectedIds,
                                         onClick = {
                                             if (selectionMode) onToggleSelection(item.id) else onItemClick(item)
                                         },
                                         onMenu = { onItemMenu(item) },
+                                        onPauseResume = onPauseResume,
+                                        onRetry = onRetry,
                                         modifier = Modifier.morphBetweenViewModes(
                                             sharedScope = this@SharedTransitionLayout,
                                             visibilityScope = this@AnimatedContent,
@@ -220,8 +223,9 @@ fun DownloadsScreen(
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                             ) {
                                 items(items, key = { it.uiKey }) { item ->
-                                    DownloadListRow(
+                                    DownloadItem(
                                         item = item,
+                                        grid = false,
                                         selectionMode = selectionMode,
                                         selected = item.id in selectedIds,
                                         onClick = {
@@ -229,7 +233,6 @@ fun DownloadsScreen(
                                         },
                                         onMenu = { onItemMenu(item) },
                                         onPauseResume = onPauseResume,
-                                        onCancel = onCancel,
                                         onRetry = onRetry,
                                         modifier = Modifier.morphBetweenViewModes(
                                             sharedScope = this@SharedTransitionLayout,
@@ -256,6 +259,9 @@ fun DownloadsScreen(
 }
 
 private const val ItemMorphMs = 420
+
+private val PausedAccent = Color(0xFFF5821F)
+private val PausedTrack = Color(0xFFF3DFC2)
 
 /**
  * Identity for both the lazy-layout key and the shared-element match.
@@ -608,84 +614,97 @@ private fun ViewModeButton(iconRes: Int, active: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun DownloadListRow(
+private fun DownloadItem(
     item: DownloadListItem,
+    grid: Boolean,
     selectionMode: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
     onMenu: () -> Unit,
     onPauseResume: (ProgressInfo) -> Unit,
-    onCancel: (ProgressInfo) -> Unit,
     onRetry: (ProgressInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    when (item) {
-        is DownloadListItem.Active -> when {
-            item.isFailed -> DownloadCard(
-                item = item,
-                selectionMode = selectionMode,
-                selected = selected,
-                onClick = onClick,
-                onMenu = onMenu,
-                containerColor = ErrorSoft,
-                modifier = modifier,
-            ) {
-                FailedStatus(onRetry = { onRetry(item.progressInfo) })
+    val active = item as? DownloadListItem.Active
+
+    val containerColor = when {
+        active == null -> Surface
+        active.isFailed -> ErrorSoft
+        else -> WarnSoft
+    }
+
+    val status: @Composable () -> Unit = when {
+        active == null -> { { CompletedStatus() } }
+        active.isFailed -> { { FailedStatus() } }
+        active.isWaitingForWifi -> { { WaitingForWifiStatus() } }
+        else -> { { DownloadingStatus(active.progressInfo) } }
+    }
+
+    val action: (@Composable () -> Unit)? = when {
+        active == null || active.isWaitingForWifi -> null
+
+        active.isFailed -> {
+            {
+                OutlinedActionPill(
+                    iconRes = R.drawable.ic_reload,
+                    labelRes = R.string.string_retry_action,
+                    contentColor = Error,
+                    borderColor = Error,
+                    fillWidth = grid,
+                    onClick = { onRetry(active.progressInfo) },
+                )
             }
-
-            item.isWaitingForWifi -> DownloadCard(
-                item = item,
-                selectionMode = selectionMode,
-                selected = selected,
-                onClick = onClick,
-                onMenu = onMenu,
-                containerColor = WarnSoft,
-                modifier = modifier,
-            ) {
-                WaitingForWifiStatus()
-            }
-
-            else -> DownloadCard(
-                item = item,
-                selectionMode = selectionMode,
-                selected = selected,
-                onClick = onClick,
-                onMenu = onMenu,
-                containerColor = WarnSoft,
-                modifier = modifier,
-                status = { DownloadingStatus(item.progressInfo) },
-                trailing = {
-                    val isPaused = item.progressInfo.downloadStatus == VideoTaskState.PAUSE
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RowActionButton(
-                            iconRes = if (isPaused) {
-                                R.drawable.ic_play_glyph
-                            } else {
-                                R.drawable.ic_pause_glyph
-                            },
-                            onClick = { onPauseResume(item.progressInfo) },
-                        )
-
-                        RowActionButton(
-                            iconRes = R.drawable.ic_close,
-                            onClick = { onCancel(item.progressInfo) },
-                            modifier = Modifier.padding(start = 4.dp),
-                        )
-                    }
-                },
-            )
         }
 
-        is DownloadListItem.Completed -> DownloadCard(
+        else -> {
+            {
+                val isPaused = active.progressInfo.downloadStatus == VideoTaskState.PAUSE
+                OutlinedActionPill(
+                    iconRes = if (isPaused) R.drawable.ic_play_glyph else R.drawable.ic_pause_glyph,
+                    labelRes = if (isPaused) {
+                        R.string.string_resume_action
+                    } else {
+                        R.string.string_pause_action
+                    },
+                    contentColor = TextColor,
+                    borderColor = Border,
+                    fillWidth = grid,
+                    onClick = { onPauseResume(active.progressInfo) },
+                )
+            }
+        }
+    }
+
+    val footer: (@Composable () -> Unit)? = active
+        ?.takeIf { !it.isFailed && !it.isWaitingForWifi }
+        ?.let { { DownloadProgressBar(it.progressInfo) } }
+
+    if (grid) {
+        DownloadGridTile(
             item = item,
             selectionMode = selectionMode,
             selected = selected,
             onClick = onClick,
             onMenu = onMenu,
+            containerColor = containerColor,
             modifier = modifier,
-        ) {
-            CompletedStatus()
-        }
+            status = status,
+            action = action,
+            footer = footer,
+        )
+    } else {
+        DownloadCard(
+            item = item,
+            selectionMode = selectionMode,
+            selected = selected,
+            onClick = onClick,
+            onMenu = onMenu,
+            containerColor = containerColor,
+            modifier = modifier,
+            status = status,
+            action = action,
+            footer = footer,
+        )
     }
 }
 
@@ -699,8 +718,9 @@ private fun DownloadCard(
     onMenu: () -> Unit,
     containerColor: Color = Surface,
     modifier: Modifier = Modifier,
-    trailing: (@Composable () -> Unit)? = null,
     status: (@Composable () -> Unit)? = null,
+    action: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
@@ -714,44 +734,51 @@ private fun DownloadCard(
     ) {
         if (selectionMode) SelectionDot(selected)
 
-        DownloadThumbnail(item, modifier = Modifier.width(104.dp).height(66.dp))
+        DownloadThumbnail(item, modifier = Modifier.width(92.dp).height(58.dp))
 
-        // Everything right of the thumbnail shares one column, so the status line and the
-        // progress bar run all the way to the card's right edge rather than stopping short
-        // of the pause and cancel buttons.
         Column(modifier = Modifier.weight(1f).padding(start = 11.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = item.displayTitle,
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 14.sp,
+                            lineHeight = 18.sp,
+                        ),
                         fontWeight = FontWeight.Bold,
                         color = TextColor,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
 
                     DownloadMetaLine(item)
                 }
 
-                if (trailing != null) {
-                    Box(modifier = Modifier.padding(start = 6.dp)) { trailing() }
-                } else {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_more),
-                        contentDescription = null,
-                        tint = Muted,
-                        modifier = Modifier
-                            .padding(start = 4.dp)
-                            .size(width = 24.dp, height = 34.dp)
-                            .clickable(onClick = onMenu),
-                    )
+                Icon(
+                    painter = painterResource(R.drawable.ic_more),
+                    contentDescription = null,
+                    tint = Muted,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .size(width = 24.dp, height = 26.dp)
+                        .clickable(onClick = onMenu),
+                )
+            }
+
+            if (status != null || action != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(modifier = Modifier.weight(1f)) { status?.invoke() }
+
+                    if (action != null) {
+                        Box(modifier = Modifier.padding(start = 8.dp)) { action() }
+                    }
                 }
             }
 
-            if (status != null) {
-                Box(modifier = Modifier.padding(top = 6.dp)) { status() }
-            }
+            footer?.invoke()
         }
     }
 }
@@ -839,28 +866,28 @@ private fun CompletedStatus() {
 
 @Composable
 private fun DownloadingStatus(info: ProgressInfo) {
+    if (info.isFetchingInfo) {
+        // No byte count exists yet (queued, or yt-dlp still extracting metadata) — a "0%"
+        // bar here would read as stalled instead of as work in progress.
+        Text(
+            text = stringResource(
+                if (info.videoInfo.isAudioOnly) {
+                    R.string.string_fetching_audio_info
+                } else {
+                    R.string.string_fetching_video_info
+                },
+            ),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.5.sp),
+            color = Muted,
+            maxLines = 1,
+        )
+        return
+    }
+
     val isPaused = info.downloadStatus == VideoTaskState.PAUSE
-    val accent = if (isPaused) Muted else Info
+    val accent = if (isPaused) PausedAccent else Info
 
     Column {
-        if (info.isFetchingInfo) {
-            // No byte count exists yet (queued, or yt-dlp still extracting metadata) — a "0%"
-            // bar here would read as stalled instead of as work in progress.
-            Text(
-                text = stringResource(
-                    if (info.videoInfo.isAudioOnly) {
-                        R.string.string_fetching_audio_info
-                    } else {
-                        R.string.string_fetching_video_info
-                    },
-                ),
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.5.sp),
-                color = Muted,
-                maxLines = 1,
-            )
-            return@Column
-        }
-
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(
@@ -877,68 +904,108 @@ private fun DownloadingStatus(info: ProgressInfo) {
                 } else {
                     stringResource(R.string.string_downloading_percent, info.progress.toString())
                 },
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp),
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.5.sp),
                 fontWeight = FontWeight.Bold,
                 color = accent,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = 5.dp),
             )
-
-            Text(
-                text = FileUtil.getFileSizeReadable(info.progressDownloaded.toDouble()) +
-                    " / " + FileUtil.getFileSizeReadable(info.progressTotal.toDouble()),
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
-                color = Muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = 6.dp).weight(1f, fill = false),
-            )
         }
 
-        val animatedProgress by animateFloatAsState(
-            targetValue = info.progress / 100f,
-            animationSpec = tween(durationMillis = 400),
-            label = "downloadProgress",
-        )
-
-        LinearProgressIndicator(
-            progress = { animatedProgress },
-            color = accent,
-            trackColor = if (isPaused) Border else InfoSoft,
-            gapSize = 0.dp,
-            drawStopIndicator = {},
-            modifier = Modifier
-                .padding(top = 5.dp)
-                .fillMaxWidth()
-                .height(5.dp)
-                .clip(ShapePill),
+        Text(
+            text = FileUtil.getFileSizeReadable(info.progressDownloaded.toDouble()) +
+                " / " + FileUtil.getFileSizeReadable(info.progressTotal.toDouble()),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+            color = Muted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 3.dp),
         )
     }
 }
 
 @Composable
-private fun FailedStatus(onRetry: () -> Unit) {
+private fun DownloadProgressBar(info: ProgressInfo) {
+    if (info.isFetchingInfo) return
+
+    val isPaused = info.downloadStatus == VideoTaskState.PAUSE
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = info.progress / 100f,
+        animationSpec = tween(durationMillis = 400),
+        label = "downloadProgress",
+    )
+
+    LinearProgressIndicator(
+        progress = { animatedProgress },
+        color = if (isPaused) PausedAccent else Info,
+        trackColor = if (isPaused) PausedTrack else InfoSoft,
+        gapSize = 0.dp,
+        drawStopIndicator = {},
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth()
+            .height(6.dp)
+            .clip(ShapePill),
+    )
+}
+
+@Composable
+private fun FailedStatus() {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = stringResource(R.string.string_download_failed_short),
-            style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp),
-            fontWeight = FontWeight.SemiBold,
-            color = Error,
-            maxLines = 1,
+        Image(
+            painter = painterResource(R.drawable.ic_alert_triangle),
+            contentDescription = null,
+            modifier = Modifier.size(15.dp),
         )
 
+        Text(
+            text = stringResource(R.string.string_download_failed_short),
+            style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.5.sp),
+            fontWeight = FontWeight.Bold,
+            color = Error,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(start = 6.dp),
+        )
+    }
+}
+
+@Composable
+private fun OutlinedActionPill(
+    iconRes: Int,
+    labelRes: Int,
+    contentColor: Color,
+    borderColor: Color,
+    onClick: () -> Unit,
+    fillWidth: Boolean = false,
+) {
+    Row(
+        modifier = Modifier
+            .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)
+            .clip(ShapePill)
+            .background(Surface)
+            .border(1.4.dp, borderColor, ShapePill)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = if (fillWidth) Arrangement.Center else Arrangement.Start,
+    ) {
         Icon(
-            painter = painterResource(R.drawable.ic_reload),
+            painter = painterResource(iconRes),
             contentDescription = null,
-            tint = PriInk,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .size(24.dp)
-                .clip(ShapePill)
-                .background(Error)
-                .clickable(onClick = onRetry)
-                .padding(5.dp),
+            tint = contentColor,
+            modifier = Modifier.size(15.dp),
+        )
+
+        Text(
+            text = stringResource(labelRes),
+            style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp),
+            fontWeight = FontWeight.Bold,
+            color = contentColor,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 6.dp),
         )
     }
 }
@@ -1000,14 +1067,18 @@ private fun DownloadGridTile(
     selected: Boolean,
     onClick: () -> Unit,
     onMenu: () -> Unit,
+    containerColor: Color = Surface,
     modifier: Modifier = Modifier,
+    status: (@Composable () -> Unit)? = null,
+    action: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .softShadow(ElevationCard, ShapeLg)
             .clip(ShapeLg)
-            .background(Surface)
+            .background(containerColor)
             .clickable(onClick = onClick)
             .padding(8.dp),
     ) {
@@ -1023,7 +1094,7 @@ private fun DownloadGridTile(
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -1046,6 +1117,19 @@ private fun DownloadGridTile(
                     modifier = Modifier.padding(start = 4.dp).size(18.dp).clickable(onClick = onMenu),
                 )
             }
+        }
+
+        // Stacked rather than placed beside the status the way the list row does it: a grid cell
+        // is about half the width, so a pill sharing that line would squeeze the status to an
+        // ellipsis.
+        if (status != null) {
+            Box(modifier = Modifier.padding(top = 6.dp)) { status() }
+        }
+
+        footer?.invoke()
+
+        if (action != null) {
+            Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) { action() }
         }
     }
 }

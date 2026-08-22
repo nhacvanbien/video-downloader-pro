@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">Größte</string>
     <string name="string_sort_short_smallest">Kleinste</string>
     <string name="string_status_completed">Abgeschlossen</string>
+    <string name="string_status_downloaded">Heruntergeladen</string>
     <string name="string_downloading_percent">Wird heruntergeladen %1$s%%</string>
-    <string name="string_download_paused_percent">Pausiert bei %1$s%%</string>
+    <string name="string_download_paused_percent">Pausiert %1$s%%</string>
     <string name="string_no_text_in_clipboard">Kein Text in der Zwischenablage</string>
     <string name="string_clipboard_is_empty">Zwischenablage ist leer</string>
     <string name="string_re_enter_your_pin">Geben Sie Ihre PIN erneut ein</string>
@@ -195,7 +196,7 @@
 
     <string name="string_audio">Audio</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">Download fehlgeschlagen</string>
+    <string name="string_download_failed_short">Fehlgeschlagen</string>
     <string name="string_download_size">Downloadgröße: %s</string>
     <string name="string_downloads">Downloads</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -209,6 +210,10 @@
     <string name="string_report_issue">Problem melden</string>
     <string name="string_retry">WIEDERHOLEN</string>
     <string name="string_retry_download">Download wiederholen</string>
+    <string name="string_retry_action">Wiederholen</string>
+    <string name="string_resume_action">Fortsetzen</string>
+    <string name="string_pause_action">Pausieren</string>
+    <string name="string_cancel_download">Download abbrechen</string>
     <string name="string_download_now">Jetzt herunterladen</string>
     <string name="string_download_cta">Herunterladen</string>
     <string name="string_save_to_private_folder">Im privaten Ordner speichern</string>

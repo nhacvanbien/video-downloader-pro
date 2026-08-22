@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Найбільші</string>
     <string name="string_sort_short_smallest">Найменші</string>
     <string name="string_status_completed">Завершено</string>
+    <string name="string_status_downloaded">Завантажено</string>
     <string name="string_downloading_percent">Завантаження %1$s%%</string>
-    <string name="string_download_paused_percent">Призупинено на %1$s%%</string>
+    <string name="string_download_paused_percent">Призупинено %1$s%%</string>
     <string name="string_no_text_in_clipboard">У буфері обміну немає тексту</string>
     <string name="string_clipboard_is_empty">Буфер обміну порожній</string>
     <string name="string_re_enter_your_pin">Введіть PIN ще раз</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">Вибрано: %s</string>
     <string name="string_select_items">Вибрати елементи</string>
     <string name="string_retry_download">Повторити завантаження</string>
+    <string name="string_retry_action">Повторити</string>
+    <string name="string_resume_action">Продовжити</string>
+    <string name="string_pause_action">Пауза</string>
+    <string name="string_cancel_download">Скасувати завантаження</string>
     <string name="string_download_now">Завантажити зараз</string>
     <string name="string_download_cta">Завантажити</string>
     <string name="string_retry">ПОВТОРИТИ</string>
-    <string name="string_download_failed_short">Помилка завантаження</string>
+    <string name="string_download_failed_short">Помилка</string>
     <string name="string_no_media_found">Медіа не знайдено</string>
     <string name="string_no_media_found_desc">Сторінка може ще завантажуватися, вимагати входу або поки що не підтримуватися.</string>
     <string name="string_report_issue">Повідомити про проблему</string>

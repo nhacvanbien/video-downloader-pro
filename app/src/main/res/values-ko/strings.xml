@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">큰 순</string>
     <string name="string_sort_short_smallest">작은 순</string>
     <string name="string_status_completed">완료</string>
+    <string name="string_status_downloaded">다운로드됨</string>
     <string name="string_downloading_percent">다운로드 중 %1$s%%</string>
-    <string name="string_download_paused_percent">%1$s%%에서 일시중지됨</string>
+    <string name="string_download_paused_percent">%1$s%% 일시중지</string>
     <string name="string_no_text_in_clipboard">클립보드에 텍스트가 없습니다</string>
     <string name="string_clipboard_is_empty">클립보드가 비어 있습니다</string>
     <string name="string_re_enter_your_pin">PIN을 다시 입력하세요</string>
@@ -194,7 +195,7 @@
     <string name="string_select_languages">언어 선택</string>
     <string name="string_audio">오디오</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">다운로드 실패</string>
+    <string name="string_download_failed_short">실패</string>
     <string name="string_download_size">다운로드 크기: %s</string>
     <string name="string_downloads">다운로드</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -208,6 +209,10 @@
     <string name="string_report_issue">문제 신고</string>
     <string name="string_retry">다시 시도</string>
     <string name="string_retry_download">다운로드 재시도</string>
+    <string name="string_retry_action">다시 시도</string>
+    <string name="string_resume_action">계속</string>
+    <string name="string_pause_action">일시중지</string>
+    <string name="string_cancel_download">다운로드 취소</string>
     <string name="string_download_now">지금 다운로드</string>
     <string name="string_download_cta">다운로드</string>
     <string name="string_save_to_private_folder">비공개 폴더에 저장</string>

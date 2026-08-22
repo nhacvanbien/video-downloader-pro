@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Grootste</string>
     <string name="string_sort_short_smallest">Kleinste</string>
     <string name="string_status_completed">Voltooid</string>
+    <string name="string_status_downloaded">Gedownload</string>
     <string name="string_downloading_percent">Downloaden %1$s%%</string>
-    <string name="string_download_paused_percent">Gepauzeerd op %1$s%%</string>
+    <string name="string_download_paused_percent">Gepauzeerd %1$s%%</string>
     <string name="string_no_text_in_clipboard">Geen tekst op het klembord</string>
     <string name="string_clipboard_is_empty">Het klembord is leeg</string>
     <string name="string_re_enter_your_pin">Voer je pincode opnieuw in</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s geselecteerd</string>
     <string name="string_select_items">Items selecteren</string>
     <string name="string_retry_download">Download opnieuw proberen</string>
+    <string name="string_retry_action">Opnieuw</string>
+    <string name="string_resume_action">Hervatten</string>
+    <string name="string_pause_action">Pauzeren</string>
+    <string name="string_cancel_download">Download annuleren</string>
     <string name="string_download_now">Nu downloaden</string>
     <string name="string_download_cta">Downloaden</string>
     <string name="string_retry">OPNIEUW</string>
-    <string name="string_download_failed_short">Download mislukt</string>
+    <string name="string_download_failed_short">Mislukt</string>
     <string name="string_no_media_found">Geen media gevonden</string>
     <string name="string_no_media_found_desc">De pagina wordt mogelijk nog geladen, vereist een login of wordt nog niet ondersteund.</string>
     <string name="string_report_issue">Probleem melden</string>

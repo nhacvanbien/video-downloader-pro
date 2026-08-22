@@ -151,8 +151,9 @@
     <string name="string_sort_short_largest">Largest</string>
     <string name="string_sort_short_smallest">Smallest</string>
     <string name="string_status_completed">Completed</string>
+    <string name="string_status_downloaded">Downloaded</string>
     <string name="string_downloading_percent">Downloading %1$s%%</string>
-    <string name="string_download_paused_percent">Paused at %1$s%%</string>
+    <string name="string_download_paused_percent">Paused %1$s%%</string>
     <string name="string_no_text_in_clipboard">No text in clipboard</string>
     <string name="string_clipboard_is_empty">Clipboard is empty</string>
     <string name="string_re_enter_your_pin">Re-enter your PIN</string>
@@ -183,10 +184,14 @@
     <string name="string_num_selected">%s selected</string>
     <string name="string_select_items">Select items</string>
     <string name="string_retry_download">Retry download</string>
+    <string name="string_retry_action">Retry</string>
+    <string name="string_resume_action">Resume</string>
+    <string name="string_pause_action">Pause</string>
+    <string name="string_cancel_download">Cancel download</string>
     <string name="string_download_now">Download now</string>
     <string name="string_download_cta">Download</string>
     <string name="string_retry">RETRY</string>
-    <string name="string_download_failed_short">Download failed</string>
+    <string name="string_download_failed_short">Failed</string>
     <string name="string_no_media_found">No media found</string>
     <string name="string_no_media_found_desc">The page may still be loading, require a login, or not be supported yet.</string>
     <string name="string_report_issue">Report an issue</string>

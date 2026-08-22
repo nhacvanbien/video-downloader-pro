@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Più grandi</string>
     <string name="string_sort_short_smallest">Più piccoli</string>
     <string name="string_status_completed">Completato</string>
+    <string name="string_status_downloaded">Scaricato</string>
     <string name="string_downloading_percent">Download %1$s%%</string>
-    <string name="string_download_paused_percent">In pausa al %1$s%%</string>
+    <string name="string_download_paused_percent">In pausa %1$s%%</string>
     <string name="string_no_text_in_clipboard">Nessun testo negli appunti</string>
     <string name="string_clipboard_is_empty">Gli appunti sono vuoti</string>
     <string name="string_re_enter_your_pin">Reinserisci il tuo PIN</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s selezionati</string>
     <string name="string_select_items">Seleziona elementi</string>
     <string name="string_retry_download">Riprova download</string>
+    <string name="string_retry_action">Riprova</string>
+    <string name="string_resume_action">Riprendi</string>
+    <string name="string_pause_action">Pausa</string>
+    <string name="string_cancel_download">Annulla download</string>
     <string name="string_download_now">Scarica ora</string>
     <string name="string_download_cta">Scarica</string>
     <string name="string_retry">RIPROVA</string>
-    <string name="string_download_failed_short">Download non riuscito</string>
+    <string name="string_download_failed_short">Non riuscito</string>
     <string name="string_no_media_found">Nessun contenuto trovato</string>
     <string name="string_no_media_found_desc">La pagina potrebbe essere ancora in caricamento, richiedere l\'accesso o non essere ancora supportata.</string>
     <string name="string_report_issue">Segnala un problema</string>

@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Pinakamalaki</string>
     <string name="string_sort_short_smallest">Pinakamaliit</string>
     <string name="string_status_completed">Tapos na</string>
+    <string name="string_status_downloaded">Na-download</string>
     <string name="string_downloading_percent">Nagda-download %1$s%%</string>
-    <string name="string_download_paused_percent">Naka-pause sa %1$s%%</string>
+    <string name="string_download_paused_percent">Naka-pause %1$s%%</string>
     <string name="string_no_text_in_clipboard">Walang text sa clipboard</string>
     <string name="string_clipboard_is_empty">Walang laman ang clipboard</string>
     <string name="string_re_enter_your_pin">Ilagay ulit ang PIN mo</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s ang napili</string>
     <string name="string_select_items">Pumili ng mga item</string>
     <string name="string_retry_download">Subukan ulit ang download</string>
+    <string name="string_retry_action">Subukan ulit</string>
+    <string name="string_resume_action">Ituloy</string>
+    <string name="string_pause_action">I-pause</string>
+    <string name="string_cancel_download">Kanselahin ang download</string>
     <string name="string_download_now">I-download na ngayon</string>
     <string name="string_download_cta">I-download</string>
     <string name="string_retry">SUBUKAN ULIT</string>
-    <string name="string_download_failed_short">Nabigo ang download</string>
+    <string name="string_download_failed_short">Nabigo</string>
     <string name="string_no_media_found">Walang nakitang media</string>
     <string name="string_no_media_found_desc">Maaaring naglo-load pa ang page, kailangan ng login, o hindi pa ito suportado.</string>
     <string name="string_report_issue">Mag-ulat ng problema</string>

@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Lớn nhất</string>
     <string name="string_sort_short_smallest">Nhỏ nhất</string>
     <string name="string_status_completed">Hoàn tất</string>
+    <string name="string_status_downloaded">Đã tải xong</string>
     <string name="string_downloading_percent">Đang tải %1$s%%</string>
-    <string name="string_download_paused_percent">Đã tạm dừng ở %1$s%%</string>
+    <string name="string_download_paused_percent">Tạm dừng %1$s%%</string>
     <string name="string_no_text_in_clipboard">Không có văn bản trong bộ nhớ tạm</string>
     <string name="string_clipboard_is_empty">Bộ nhớ tạm trống</string>
     <string name="string_re_enter_your_pin">Nhập lại mã PIN của bạn</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">Đã chọn %s</string>
     <string name="string_select_items">Chọn mục</string>
     <string name="string_retry_download">Thử tải lại</string>
+    <string name="string_retry_action">Thử lại</string>
+    <string name="string_resume_action">Tiếp tục</string>
+    <string name="string_pause_action">Tạm dừng</string>
+    <string name="string_cancel_download">Hủy tải xuống</string>
     <string name="string_download_now">Tải xuống ngay</string>
     <string name="string_download_cta">Tải ngay</string>
     <string name="string_retry">THỬ LẠI</string>
-    <string name="string_download_failed_short">Tải xuống thất bại</string>
+    <string name="string_download_failed_short">Thất bại</string>
     <string name="string_no_media_found">Không tìm thấy nội dung</string>
     <string name="string_no_media_found_desc">Trang có thể vẫn đang tải, yêu cầu đăng nhập, hoặc chưa được hỗ trợ.</string>
     <string name="string_report_issue">Báo cáo sự cố</string>

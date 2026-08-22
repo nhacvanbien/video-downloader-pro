@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">سب سے بڑا</string>
     <string name="string_sort_short_smallest">سب سے چھوٹا</string>
     <string name="string_status_completed">مکمل</string>
+    <string name="string_status_downloaded">ڈاؤن لوڈ ہو گیا</string>
     <string name="string_downloading_percent">ڈاؤن لوڈ ہو رہا ہے %1$s%%</string>
-    <string name="string_download_paused_percent">%1$s%% پر روک دیا گیا</string>
+    <string name="string_download_paused_percent">%1$s%% پر روکا گیا</string>
     <string name="string_no_text_in_clipboard">کلپ بورڈ میں کوئی متن نہیں</string>
     <string name="string_clipboard_is_empty">کلپ بورڈ خالی ہے</string>
     <string name="string_re_enter_your_pin">اپنا PIN دوبارہ درج کریں</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s منتخب</string>
     <string name="string_select_items">آئٹمز منتخب کریں</string>
     <string name="string_retry_download">ڈاؤن لوڈ دوبارہ آزمائیں</string>
+    <string name="string_retry_action">دوبارہ کوشش</string>
+    <string name="string_resume_action">جاری رکھیں</string>
+    <string name="string_pause_action">روکیں</string>
+    <string name="string_cancel_download">ڈاؤن لوڈ منسوخ کریں</string>
     <string name="string_download_now">ابھی ڈاؤن لوڈ کریں</string>
     <string name="string_download_cta">ڈاؤن لوڈ</string>
     <string name="string_retry">دوبارہ کوشش</string>
-    <string name="string_download_failed_short">ڈاؤن لوڈ ناکام</string>
+    <string name="string_download_failed_short">ناکام</string>
     <string name="string_no_media_found">کوئی میڈیا نہیں ملا</string>
     <string name="string_no_media_found_desc">ممکن ہے صفحہ ابھی لوڈ ہو رہا ہو، لاگ ان درکار ہو، یا ابھی تک تعاون یافتہ نہ ہو۔</string>
     <string name="string_report_issue">مسئلہ رپورٹ کریں</string>

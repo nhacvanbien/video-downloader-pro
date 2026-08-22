@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Kubwa</string>
     <string name="string_sort_short_smallest">Ndogo</string>
     <string name="string_status_completed">Imekamilika</string>
+    <string name="string_status_downloaded">Imepakuliwa</string>
     <string name="string_downloading_percent">Inapakua %1$s%%</string>
-    <string name="string_download_paused_percent">Imesitishwa kwa %1$s%%</string>
+    <string name="string_download_paused_percent">Imesitishwa %1$s%%</string>
     <string name="string_no_text_in_clipboard">Hakuna maandishi kwenye ubao wa kunakili</string>
     <string name="string_clipboard_is_empty">Ubao wa kunakili ni tupu</string>
     <string name="string_re_enter_your_pin">Weka tena PIN yako</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s zimechaguliwa</string>
     <string name="string_select_items">Chagua vipengee</string>
     <string name="string_retry_download">Jaribu kupakua tena</string>
+    <string name="string_retry_action">Jaribu tena</string>
+    <string name="string_resume_action">Endelea</string>
+    <string name="string_pause_action">Sitisha</string>
+    <string name="string_cancel_download">Ghairi upakuaji</string>
     <string name="string_download_now">Pakua sasa</string>
     <string name="string_download_cta">Pakua</string>
     <string name="string_retry">JARIBU TENA</string>
-    <string name="string_download_failed_short">Upakuaji umeshindwa</string>
+    <string name="string_download_failed_short">Imeshindwa</string>
     <string name="string_no_media_found">Hakuna maudhui yaliyopatikana</string>
     <string name="string_no_media_found_desc">Huenda ukurasa bado unapakia, unahitaji kuingia, au bado hauungwi mkono.</string>
     <string name="string_report_issue">Ripoti tatizo</string>

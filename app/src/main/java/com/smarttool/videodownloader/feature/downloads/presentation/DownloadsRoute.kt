@@ -96,6 +96,7 @@ fun DownloadsRoute(
 
     var menuTarget by remember { mutableStateOf<VideoTaskItem?>(null) }
     var failedMenuTarget by remember { mutableStateOf<ProgressInfo?>(null) }
+    var activeMenuTarget by remember { mutableStateOf<ProgressInfo?>(null) }
 
     val closeSheetThen = { action: () -> Unit ->
         menuTarget = null
@@ -153,7 +154,11 @@ fun DownloadsRoute(
         onItemMenu = { item ->
             when (item) {
                 is DownloadListItem.Completed -> menuTarget = item.videoTaskItem
-                is DownloadListItem.Active -> if (item.isFailed) failedMenuTarget = item.progressInfo
+                is DownloadListItem.Active -> if (item.isFailed) {
+                    failedMenuTarget = item.progressInfo
+                } else {
+                    activeMenuTarget = item.progressInfo
+                }
             }
         },
         onPauseResume = { info ->
@@ -241,6 +246,26 @@ fun DownloadsRoute(
                 }
             },
             onDismiss = { menuTarget = null },
+        )
+    }
+
+    activeMenuTarget?.let { target ->
+        ActiveDownloadActionSheet(
+            isPaused = target.downloadStatus == VideoTaskState.PAUSE,
+            onPauseResume = {
+                activeMenuTarget = null
+                val event = if (target.downloadStatus == VideoTaskState.PAUSE) {
+                    ProcessingContract.Event.Resume(target)
+                } else {
+                    ProcessingContract.Event.Pause(target)
+                }
+                processingViewModel.onEvent(event)
+            },
+            onCancel = {
+                activeMenuTarget = null
+                processingViewModel.onEvent(ProcessingContract.Event.Cancel(target, removeFile = true))
+            },
+            onDismiss = { activeMenuTarget = null },
         )
     }
 

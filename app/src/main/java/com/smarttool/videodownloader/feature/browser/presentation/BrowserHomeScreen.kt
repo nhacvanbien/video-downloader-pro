@@ -86,6 +86,11 @@ private val PasteCardFill = Brush.linearGradient(
 
 private val DownloadButtonFill = Brush.linearGradient(listOf(Color(0xFFFF4A5C), Pri))
 
+private val HistoryCardBg = Color(0xFFFDEBEE)
+private val HistoryIconBg = Color(0xFFEC1B5A)
+private val BookmarkCardBg = Color(0xFFFEF3E6)
+private val BookmarkIconBg = Color(0xFFF5821F)
+
 @Composable
 fun BrowserHomeScreen(
     state: BrowserHomeContract.State,
@@ -126,8 +131,8 @@ fun BrowserHomeScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ShortcutCard(
                     iconRes = R.drawable.ic_clock_history,
-                    iconBg = PriSoft,
-                    iconTint = Pri,
+                    cardBg = HistoryCardBg,
+                    iconBg = HistoryIconBg,
                     titleRes = R.string.string_history,
                     subtitleRes = R.string.string_history_desc,
                     onClick = onOpenHistory,
@@ -135,9 +140,9 @@ fun BrowserHomeScreen(
                 )
 
                 ShortcutCard(
-                    iconRes = R.drawable.ic_bookmark,
-                    iconBg = SettingsOrangeSoft,
-                    iconTint = SettingsOrange,
+                    iconRes = R.drawable.ic_bookmark_glyph,
+                    cardBg = BookmarkCardBg,
+                    iconBg = BookmarkIconBg,
                     titleRes = R.string.string_bookmark,
                     subtitleRes = R.string.string_bookmark_desc,
                     onClick = onOpenBookmarks,
@@ -459,8 +464,8 @@ private fun PasteCardAction(iconRes: Int, labelRes: Int, onClick: () -> Unit) {
 @Composable
 private fun ShortcutCard(
     iconRes: Int,
+    cardBg: Color,
     iconBg: Color,
-    iconTint: Color,
     titleRes: Int,
     subtitleRes: Int,
     onClick: () -> Unit,
@@ -468,22 +473,21 @@ private fun ShortcutCard(
 ) {
     Row(
         modifier = modifier
-            .softShadow(ElevationCard, ShapeLg)
             .clip(ShapeLg)
-            .background(Surface)
+            .background(cardBg)
             .clickable(onClick = onClick)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(38.dp).clip(ShapeMd).background(iconBg),
+            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(iconBg),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(19.dp),
+                tint = PriInk,
+                modifier = Modifier.size(20.dp),
             )
         }
 
@@ -716,7 +720,7 @@ private fun RecentDownloadRow(
                 )
 
                 Text(
-                    text = stringResource(R.string.string_status_completed),
+                    text = stringResource(R.string.string_status_downloaded),
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp),
                     fontWeight = FontWeight.SemiBold,
                     color = Success,

@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">بزرگ‌ترین</string>
     <string name="string_sort_short_smallest">کوچک‌ترین</string>
     <string name="string_status_completed">تکمیل شد</string>
+    <string name="string_status_downloaded">دانلود شد</string>
     <string name="string_downloading_percent">در حال دانلود %1$s%%</string>
-    <string name="string_download_paused_percent">متوقف شده در %1$s%%</string>
+    <string name="string_download_paused_percent">متوقف شده %1$s%%</string>
     <string name="string_no_text_in_clipboard">متنی در کلیپ‌بورد نیست</string>
     <string name="string_clipboard_is_empty">کلیپ‌بورد خالی است</string>
     <string name="string_re_enter_your_pin">PIN خود را دوباره وارد کنید</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s انتخاب شد</string>
     <string name="string_select_items">انتخاب موارد</string>
     <string name="string_retry_download">تلاش دوباره برای دانلود</string>
+    <string name="string_retry_action">تلاش دوباره</string>
+    <string name="string_resume_action">ادامه</string>
+    <string name="string_pause_action">توقف موقت</string>
+    <string name="string_cancel_download">لغو دانلود</string>
     <string name="string_download_now">اکنون دانلود کن</string>
     <string name="string_download_cta">دانلود</string>
     <string name="string_retry">تلاش دوباره</string>
-    <string name="string_download_failed_short">دانلود ناموفق بود</string>
+    <string name="string_download_failed_short">ناموفق</string>
     <string name="string_no_media_found">رسانه‌ای پیدا نشد</string>
     <string name="string_no_media_found_desc">ممکن است صفحه هنوز در حال بارگذاری باشد، به ورود نیاز داشته باشد یا هنوز پشتیبانی نشود.</string>
     <string name="string_report_issue">گزارش مشکل</string>

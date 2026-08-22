@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Μεγαλύτερα</string>
     <string name="string_sort_short_smallest">Μικρότερα</string>
     <string name="string_status_completed">Ολοκληρώθηκε</string>
+    <string name="string_status_downloaded">Λήφθηκε</string>
     <string name="string_downloading_percent">Γίνεται λήψη %1$s%%</string>
-    <string name="string_download_paused_percent">Σε παύση στο %1$s%%</string>
+    <string name="string_download_paused_percent">Σε παύση %1$s%%</string>
     <string name="string_no_text_in_clipboard">Δεν υπάρχει κείμενο στο πρόχειρο</string>
     <string name="string_clipboard_is_empty">Το πρόχειρο είναι κενό</string>
     <string name="string_re_enter_your_pin">Εισαγάγετε ξανά το PIN σας</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s επιλέχθηκαν</string>
     <string name="string_select_items">Επιλογή στοιχείων</string>
     <string name="string_retry_download">Επανάληψη λήψης</string>
+    <string name="string_retry_action">Επανάληψη</string>
+    <string name="string_resume_action">Συνέχιση</string>
+    <string name="string_pause_action">Παύση</string>
+    <string name="string_cancel_download">Ακύρωση λήψης</string>
     <string name="string_download_now">Λήψη τώρα</string>
     <string name="string_download_cta">Λήψη</string>
     <string name="string_retry">ΕΠΑΝΑΛΗΨΗ</string>
-    <string name="string_download_failed_short">Η λήψη απέτυχε</string>
+    <string name="string_download_failed_short">Απέτυχε</string>
     <string name="string_no_media_found">Δεν βρέθηκαν πολυμέσα</string>
     <string name="string_no_media_found_desc">Η σελίδα μπορεί να φορτώνει ακόμη, να απαιτεί σύνδεση ή να μην υποστηρίζεται ακόμη.</string>
     <string name="string_report_issue">Αναφορά προβλήματος</string>

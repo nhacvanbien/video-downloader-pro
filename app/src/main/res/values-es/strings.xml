@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">Más grandes</string>
     <string name="string_sort_short_smallest">Más pequeños</string>
     <string name="string_status_completed">Completado</string>
+    <string name="string_status_downloaded">Descargado</string>
     <string name="string_downloading_percent">Descargando %1$s%%</string>
-    <string name="string_download_paused_percent">Pausado en %1$s%%</string>
+    <string name="string_download_paused_percent">Pausado %1$s%%</string>
     <string name="string_no_text_in_clipboard">No hay texto en el portapapeles</string>
     <string name="string_clipboard_is_empty">El portapapeles está vacío</string>
     <string name="string_re_enter_your_pin">Vuelve a ingresar tu PIN</string>
@@ -195,7 +196,7 @@
 
     <string name="string_audio">Audio</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">Descarga fallida</string>
+    <string name="string_download_failed_short">Fallida</string>
     <string name="string_download_size">Tamaño de descarga: %s</string>
     <string name="string_downloads">Descargas</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -209,6 +210,10 @@
     <string name="string_report_issue">Reportar un problema</string>
     <string name="string_retry">REINTENTAR</string>
     <string name="string_retry_download">Reintentar descarga</string>
+    <string name="string_retry_action">Reintentar</string>
+    <string name="string_resume_action">Reanudar</string>
+    <string name="string_pause_action">Pausar</string>
+    <string name="string_cancel_download">Cancelar descarga</string>
     <string name="string_download_now">Descargar ahora</string>
     <string name="string_download_cta">Descargar</string>
     <string name="string_save_to_private_folder">Guardar en carpeta privada</string>

@@ -119,8 +119,9 @@
     <string name="string_sort_short_largest">الأكبر</string>
     <string name="string_sort_short_smallest">الأصغر</string>
     <string name="string_status_completed">مكتمل</string>
+    <string name="string_status_downloaded">تم التنزيل</string>
     <string name="string_downloading_percent">جارٍ التنزيل %1$s%%</string>
-    <string name="string_download_paused_percent">متوقف مؤقتًا عند %1$s%%</string>
+    <string name="string_download_paused_percent">متوقف مؤقتًا %1$s%%</string>
     <string name="string_no_text_in_clipboard">لا يوجد نص في الحافظة</string>
     <string name="string_clipboard_is_empty">الحافظة فارغة</string>
     <string name="string_re_enter_your_pin">أعد إدخال الرقم السري</string>
@@ -195,7 +196,7 @@
     <string name="string_applied_language">اللغة التطبيقية...</string>
     <string name="string_audio">صوت</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">فشل التنزيل</string>
+    <string name="string_download_failed_short">فشل</string>
     <string name="string_download_size">حجم التنزيل: %s</string>
     <string name="string_downloads">التنزيلات</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -209,6 +210,10 @@
     <string name="string_report_issue">الإبلاغ عن مشكلة</string>
     <string name="string_retry">إعادة المحاولة</string>
     <string name="string_retry_download">إعادة محاولة التنزيل</string>
+    <string name="string_retry_action">إعادة المحاولة</string>
+    <string name="string_resume_action">استئناف</string>
+    <string name="string_pause_action">إيقاف مؤقت</string>
+    <string name="string_cancel_download">إلغاء التنزيل</string>
     <string name="string_download_now">تنزيل الآن</string>
     <string name="string_download_cta">تنزيل</string>
     <string name="string_save_to_private_folder">حفظ في المجلد الخاص</string>

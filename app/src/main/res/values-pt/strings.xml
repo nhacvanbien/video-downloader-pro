@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">Maiores</string>
     <string name="string_sort_short_smallest">Menores</string>
     <string name="string_status_completed">Concluída</string>
+    <string name="string_status_downloaded">Transferido</string>
     <string name="string_downloading_percent">A transferir %1$s%%</string>
-    <string name="string_download_paused_percent">Em pausa nos %1$s%%</string>
+    <string name="string_download_paused_percent">Em pausa %1$s%%</string>
     <string name="string_no_text_in_clipboard">Nenhum texto na área de transferência</string>
     <string name="string_clipboard_is_empty">A área de transferência está vazia</string>
     <string name="string_re_enter_your_pin">Introduza novamente o PIN</string>
@@ -194,7 +195,7 @@
     <string name="string_select_languages">Selecionar idioma</string>
     <string name="string_audio">Áudio</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">Falha na transferência</string>
+    <string name="string_download_failed_short">Falhou</string>
     <string name="string_download_size">Tamanho da transferência: %s</string>
     <string name="string_downloads">Transferências</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -208,6 +209,10 @@
     <string name="string_report_issue">Reportar um problema</string>
     <string name="string_retry">TENTAR NOVAMENTE</string>
     <string name="string_retry_download">Tentar transferir novamente</string>
+    <string name="string_retry_action">Repetir</string>
+    <string name="string_resume_action">Retomar</string>
+    <string name="string_pause_action">Pausa</string>
+    <string name="string_cancel_download">Cancelar transferência</string>
     <string name="string_download_now">Transferir agora</string>
     <string name="string_download_cta">Transferir</string>
     <string name="string_save_to_private_folder">Guardar na pasta privada</string>

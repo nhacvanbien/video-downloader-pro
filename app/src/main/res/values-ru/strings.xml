@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">Большие</string>
     <string name="string_sort_short_smallest">Маленькие</string>
     <string name="string_status_completed">Завершено</string>
+    <string name="string_status_downloaded">Загружено</string>
     <string name="string_downloading_percent">Загрузка %1$s%%</string>
-    <string name="string_download_paused_percent">Приостановлено на %1$s%%</string>
+    <string name="string_download_paused_percent">Приостановлено %1$s%%</string>
     <string name="string_no_text_in_clipboard">В буфере обмена нет текста</string>
     <string name="string_clipboard_is_empty">Буфер обмена пуст</string>
     <string name="string_re_enter_your_pin">Введите PIN-код еще раз</string>
@@ -194,7 +195,7 @@
     <string name="string_select_languages">Выбрать язык</string>
     <string name="string_audio">Аудио</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">Не удалось загрузить</string>
+    <string name="string_download_failed_short">Не удалось</string>
     <string name="string_download_size">Размер загрузки: %s</string>
     <string name="string_downloads">Загрузки</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -208,6 +209,10 @@
     <string name="string_report_issue">Сообщить о проблеме</string>
     <string name="string_retry">ПОВТОРИТЬ</string>
     <string name="string_retry_download">Повторить загрузку</string>
+    <string name="string_retry_action">Повторить</string>
+    <string name="string_resume_action">Продолжить</string>
+    <string name="string_pause_action">Пауза</string>
+    <string name="string_cancel_download">Отменить загрузку</string>
     <string name="string_download_now">Скачать сейчас</string>
     <string name="string_download_cta">Скачать</string>
     <string name="string_save_to_private_folder">Сохранить в приватную папку</string>

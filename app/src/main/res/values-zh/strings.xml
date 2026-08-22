@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">最大</string>
     <string name="string_sort_short_smallest">最小</string>
     <string name="string_status_completed">已完成</string>
+    <string name="string_status_downloaded">已下载</string>
     <string name="string_downloading_percent">正在下载 %1$s%%</string>
-    <string name="string_download_paused_percent">已在 %1$s%% 暂停</string>
+    <string name="string_download_paused_percent">已暂停 %1$s%%</string>
     <string name="string_no_text_in_clipboard">剪贴板中没有文本</string>
     <string name="string_clipboard_is_empty">剪贴板为空</string>
     <string name="string_re_enter_your_pin">重新输入您的 PIN 码</string>
@@ -194,7 +195,7 @@
     <string name="string_select_languages">选择语言</string>
     <string name="string_audio">音频</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">下载失败</string>
+    <string name="string_download_failed_short">失败</string>
     <string name="string_download_size">下载大小：%s</string>
     <string name="string_downloads">下载内容</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -208,6 +209,10 @@
     <string name="string_report_issue">反馈问题</string>
     <string name="string_retry">重试</string>
     <string name="string_retry_download">重新下载</string>
+    <string name="string_retry_action">重试</string>
+    <string name="string_resume_action">继续</string>
+    <string name="string_pause_action">暂停</string>
+    <string name="string_cancel_download">取消下载</string>
     <string name="string_download_now">立即下载</string>
     <string name="string_download_cta">下载</string>
     <string name="string_save_to_private_folder">保存到隐私文件夹</string>

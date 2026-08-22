@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Cele mai mari</string>
     <string name="string_sort_short_smallest">Cele mai mici</string>
     <string name="string_status_completed">Finalizat</string>
+    <string name="string_status_downloaded">Descărcat</string>
     <string name="string_downloading_percent">Se descarcă %1$s%%</string>
-    <string name="string_download_paused_percent">Întrerupt la %1$s%%</string>
+    <string name="string_download_paused_percent">Întrerupt %1$s%%</string>
     <string name="string_no_text_in_clipboard">Niciun text în clipboard</string>
     <string name="string_clipboard_is_empty">Clipboardul este gol</string>
     <string name="string_re_enter_your_pin">Reintrodu PIN-ul</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s selectate</string>
     <string name="string_select_items">Selectează elemente</string>
     <string name="string_retry_download">Reîncearcă descărcarea</string>
+    <string name="string_retry_action">Reîncearcă</string>
+    <string name="string_resume_action">Reia</string>
+    <string name="string_pause_action">Pauză</string>
+    <string name="string_cancel_download">Anulează descărcarea</string>
     <string name="string_download_now">Descarcă acum</string>
     <string name="string_download_cta">Descarcă</string>
     <string name="string_retry">REÎNCEARCĂ</string>
-    <string name="string_download_failed_short">Descărcare eșuată</string>
+    <string name="string_download_failed_short">Eșuată</string>
     <string name="string_no_media_found">Niciun conținut media găsit</string>
     <string name="string_no_media_found_desc">Pagina poate fi încă în curs de încărcare, poate necesita autentificare sau poate să nu fie încă acceptată.</string>
     <string name="string_report_issue">Raportează o problemă</string>

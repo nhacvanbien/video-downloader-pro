@@ -120,8 +120,9 @@
     <string name="string_sort_short_largest">大きい順</string>
     <string name="string_sort_short_smallest">小さい順</string>
     <string name="string_status_completed">完了</string>
+    <string name="string_status_downloaded">ダウンロード済み</string>
     <string name="string_downloading_percent">ダウンロード中 %1$s%%</string>
-    <string name="string_download_paused_percent">%1$s%% で一時停止中</string>
+    <string name="string_download_paused_percent">%1$s%% で一時停止</string>
     <string name="string_no_text_in_clipboard">クリップボードにテキストがありません</string>
     <string name="string_clipboard_is_empty">クリップボードは空です</string>
     <string name="string_re_enter_your_pin">PINを再入力してください</string>
@@ -194,7 +195,7 @@
     <string name="string_select_languages">言語を選択</string>
     <string name="string_audio">音声</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">ダウンロードに失敗しました</string>
+    <string name="string_download_failed_short">失敗</string>
     <string name="string_download_size">ダウンロードサイズ: %s</string>
     <string name="string_downloads">ダウンロード</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -208,6 +209,10 @@
     <string name="string_report_issue">問題を報告</string>
     <string name="string_retry">再試行</string>
     <string name="string_retry_download">ダウンロードを再試行</string>
+    <string name="string_retry_action">再試行</string>
+    <string name="string_resume_action">再開</string>
+    <string name="string_pause_action">一時停止</string>
+    <string name="string_cancel_download">ダウンロードをキャンセル</string>
     <string name="string_download_now">今すぐダウンロード</string>
     <string name="string_download_cta">ダウンロード</string>
     <string name="string_save_to_private_folder">プライベートフォルダに保存</string>

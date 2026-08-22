@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Největší</string>
     <string name="string_sort_short_smallest">Nejmenší</string>
     <string name="string_status_completed">Dokončeno</string>
+    <string name="string_status_downloaded">Staženo</string>
     <string name="string_downloading_percent">Stahování %1$s%%</string>
-    <string name="string_download_paused_percent">Pozastaveno na %1$s%%</string>
+    <string name="string_download_paused_percent">Pozastaveno %1$s%%</string>
     <string name="string_no_text_in_clipboard">Ve schránce není žádný text</string>
     <string name="string_clipboard_is_empty">Schránka je prázdná</string>
     <string name="string_re_enter_your_pin">Zadejte PIN znovu</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">Vybráno: %s</string>
     <string name="string_select_items">Vybrat položky</string>
     <string name="string_retry_download">Zkusit stáhnout znovu</string>
+    <string name="string_retry_action">Zkusit znovu</string>
+    <string name="string_resume_action">Pokračovat</string>
+    <string name="string_pause_action">Pozastavit</string>
+    <string name="string_cancel_download">Zrušit stahování</string>
     <string name="string_download_now">Stáhnout nyní</string>
     <string name="string_download_cta">Stáhnout</string>
     <string name="string_retry">ZNOVU</string>
-    <string name="string_download_failed_short">Stahování selhalo</string>
+    <string name="string_download_failed_short">Selhalo</string>
     <string name="string_no_media_found">Nenalezena žádná média</string>
     <string name="string_no_media_found_desc">Stránka se možná stále načítá, vyžaduje přihlášení nebo zatím není podporována.</string>
     <string name="string_report_issue">Nahlásit problém</string>

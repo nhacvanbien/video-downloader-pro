@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Największe</string>
     <string name="string_sort_short_smallest">Najmniejsze</string>
     <string name="string_status_completed">Ukończono</string>
+    <string name="string_status_downloaded">Pobrano</string>
     <string name="string_downloading_percent">Pobieranie %1$s%%</string>
-    <string name="string_download_paused_percent">Wstrzymano na %1$s%%</string>
+    <string name="string_download_paused_percent">Wstrzymano %1$s%%</string>
     <string name="string_no_text_in_clipboard">Brak tekstu w schowku</string>
     <string name="string_clipboard_is_empty">Schowek jest pusty</string>
     <string name="string_re_enter_your_pin">Wprowadź ponownie swój PIN</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">Wybrano %s</string>
     <string name="string_select_items">Wybierz elementy</string>
     <string name="string_retry_download">Ponów pobieranie</string>
+    <string name="string_retry_action">Ponów</string>
+    <string name="string_resume_action">Wznów</string>
+    <string name="string_pause_action">Wstrzymaj</string>
+    <string name="string_cancel_download">Anuluj pobieranie</string>
     <string name="string_download_now">Pobierz teraz</string>
     <string name="string_download_cta">Pobierz</string>
     <string name="string_retry">PONÓW</string>
-    <string name="string_download_failed_short">Pobieranie nie powiodło się</string>
+    <string name="string_download_failed_short">Niepowodzenie</string>
     <string name="string_no_media_found">Nie znaleziono multimediów</string>
     <string name="string_no_media_found_desc">Strona może się jeszcze ładować, wymagać logowania lub nie być jeszcze obsługiwana.</string>
     <string name="string_report_issue">Zgłoś problem</string>

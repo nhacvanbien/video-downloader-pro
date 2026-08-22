@@ -143,8 +143,9 @@
     <string name="string_sort_short_largest">Legnagyobb</string>
     <string name="string_sort_short_smallest">Legkisebb</string>
     <string name="string_status_completed">Kész</string>
+    <string name="string_status_downloaded">Letöltve</string>
     <string name="string_downloading_percent">Letöltés %1$s%%</string>
-    <string name="string_download_paused_percent">Szüneteltetve %1$s%%-nál</string>
+    <string name="string_download_paused_percent">Szüneteltetve %1$s%%</string>
     <string name="string_no_text_in_clipboard">Nincs szöveg a vágólapon</string>
     <string name="string_clipboard_is_empty">A vágólap üres</string>
     <string name="string_re_enter_your_pin">Add meg újra a PIN-kódod</string>
@@ -175,10 +176,14 @@
     <string name="string_num_selected">%s kiválasztva</string>
     <string name="string_select_items">Elemek kiválasztása</string>
     <string name="string_retry_download">Letöltés újrapróbálása</string>
+    <string name="string_retry_action">Újra</string>
+    <string name="string_resume_action">Folytatás</string>
+    <string name="string_pause_action">Szünet</string>
+    <string name="string_cancel_download">Letöltés megszakítása</string>
     <string name="string_download_now">Letöltés most</string>
     <string name="string_download_cta">Letöltés</string>
     <string name="string_retry">ÚJRA</string>
-    <string name="string_download_failed_short">A letöltés sikertelen</string>
+    <string name="string_download_failed_short">Sikertelen</string>
     <string name="string_no_media_found">Nem található média</string>
     <string name="string_no_media_found_desc">Lehet, hogy az oldal még betöltődik, bejelentkezést igényel, vagy még nem támogatott.</string>
     <string name="string_report_issue">Hiba bejelentése</string>

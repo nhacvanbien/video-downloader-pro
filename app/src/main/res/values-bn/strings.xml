@@ -119,8 +119,9 @@
     <string name="string_sort_short_largest">সবচেয়ে বড়</string>
     <string name="string_sort_short_smallest">সবচেয়ে ছোট</string>
     <string name="string_status_completed">সম্পন্ন</string>
+    <string name="string_status_downloaded">ডাউনলোড সম্পন্ন</string>
     <string name="string_downloading_percent">ডাউনলোড হচ্ছে %1$s%%</string>
-    <string name="string_download_paused_percent">%1$s%%-এ বিরতি দেওয়া হয়েছে</string>
+    <string name="string_download_paused_percent">%1$s%%-এ বিরতি</string>
     <string name="string_no_text_in_clipboard">ক্লিপবোর্ডে কোনো টেক্সট নেই</string>
     <string name="string_clipboard_is_empty">ক্লিপবোর্ড খালি</string>
     <string name="string_re_enter_your_pin">আপনার পিন পুনরায় প্রবেশ করুন</string>
@@ -195,7 +196,7 @@
     <string name="string_applied_language">প্রয়োগকৃত ভাষা...</string>
     <string name="string_audio">অডিও</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">ডাউনলোড ব্যর্থ হয়েছে</string>
+    <string name="string_download_failed_short">ব্যর্থ</string>
     <string name="string_download_size">ডাউনলোড আকার: %s</string>
     <string name="string_downloads">ডাউনলোডসমূহ</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -209,6 +210,10 @@
     <string name="string_report_issue">সমস্যা রিপোর্ট করুন</string>
     <string name="string_retry">পুনরায় চেষ্টা করুন</string>
     <string name="string_retry_download">পুনরায় ডাউনলোড করুন</string>
+    <string name="string_retry_action">পুনরায় চেষ্টা</string>
+    <string name="string_resume_action">চালিয়ে যান</string>
+    <string name="string_pause_action">বিরতি</string>
+    <string name="string_cancel_download">ডাউনলোড বাতিল করুন</string>
     <string name="string_download_now">এখনই ডাউনলোড করুন</string>
     <string name="string_download_cta">ডাউনলোড করুন</string>
     <string name="string_save_to_private_folder">ব্যক্তিগত ফোল্ডারে সংরক্ষণ করুন</string>

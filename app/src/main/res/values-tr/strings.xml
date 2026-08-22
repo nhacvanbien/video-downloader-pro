@@ -120,6 +120,7 @@
     <string name="string_sort_short_largest">En büyük</string>
     <string name="string_sort_short_smallest">En küçük</string>
     <string name="string_status_completed">Tamamlandı</string>
+    <string name="string_status_downloaded">İndirildi</string>
     <string name="string_downloading_percent">İndiriliyor %1$s%%</string>
     <string name="string_download_paused_percent">Duraklatıldı %1$s%%</string>
     <string name="string_no_text_in_clipboard">Panoda metin bulunamadı</string>
@@ -194,7 +195,7 @@
     <string name="string_select_languages">Dili seç</string>
     <string name="string_audio">Ses</string>
     <string name="string_bing">Bing</string>
-    <string name="string_download_failed_short">İndirme başarısız</string>
+    <string name="string_download_failed_short">Başarısız</string>
     <string name="string_download_size">İndirme Boyutu: %s</string>
     <string name="string_downloads">İndirilenler</string>
     <string name="string_duckduckgo">DuckDuckGo</string>
@@ -208,6 +209,10 @@
     <string name="string_report_issue">Sorun bildir</string>
     <string name="string_retry">TEKRAR DENE</string>
     <string name="string_retry_download">İndirmeyi tekrar dene</string>
+    <string name="string_retry_action">Tekrar dene</string>
+    <string name="string_resume_action">Devam et</string>
+    <string name="string_pause_action">Duraklat</string>
+    <string name="string_cancel_download">İndirmeyi iptal et</string>
     <string name="string_download_now">Şimdi indir</string>
     <string name="string_download_cta">İndir</string>
     <string name="string_save_to_private_folder">Gizli klasöre kaydet</string>
