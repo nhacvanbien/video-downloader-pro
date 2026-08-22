@@ -170,6 +170,17 @@
     <string name="string_step_1_process"><![CDATA[<b>ধাপ ১:</b>]]> অ্যাপ খুলুন এবং লিংক কপি করুন।</string>
     <string name="string_step_2_process"><![CDATA[<b>ধাপ ২:</b>]]> অ্যাপে ফিরে যান, \'লিংক পেস্ট করুন\' নির্বাচন করে ডাউনলোড করুন।</string>
     <string name="string_popular_apps">জনপ্রিয় অ্যাপস</string>
+    <string name="string_browser_home_subtitle">যেকোনো প্ল্যাটফর্ম থেকে সহজেই ভিডিও ডাউনলোড করুন</string>
+    <string name="string_paste_video_link">ভিডিও লিঙ্ক পেস্ট করুন</string>
+    <string name="string_paste_link_supported_sites">TikTok, Facebook, Instagram, X (Twitter), Vimeo এবং আরও অনেক কিছু সমর্থন করে</string>
+    <string name="string_paste_video_link_hint">এখানে ভিডিও লিঙ্ক পেস্ট করুন…</string>
+    <string name="string_paste_from_clipboard">ক্লিপবোর্ড থেকে পেস্ট করুন</string>
+    <string name="string_popular_platforms">জনপ্রিয় প্ল্যাটফর্ম</string>
+    <string name="string_see_all">সব দেখুন</string>
+    <string name="string_other">অন্যান্য</string>
+    <string name="string_recent_videos">সাম্প্রতিক ভিডিও</string>
+    <string name="string_history_desc">ডাউনলোড করা ভিডিও দেখুন</string>
+    <string name="string_bookmark_desc">সংরক্ষিত ভিডিও</string>
     <string name="string_x">X (টুইটার)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">ভিডিও ডাউনলোড করুন</string>

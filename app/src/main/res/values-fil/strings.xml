@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Hakbang 1:</b>]]> Buksan ang app at kopyahin ang link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Hakbang 2:</b>]]> Bumalik sa app, piliin ang \'I-paste ang link\' para i-download ang link.</string>
     <string name="string_popular_apps">Mga sikat na app</string>
+    <string name="string_browser_home_subtitle">Madaling mag-download ng video mula sa anumang platform</string>
+    <string name="string_paste_video_link">I-paste ang link ng video</string>
+    <string name="string_paste_link_supported_sites">Sinusuportahan ang TikTok, Facebook, Instagram, X (Twitter), Vimeo at higit pa</string>
+    <string name="string_paste_video_link_hint">I-paste ang link ng video dito…</string>
+    <string name="string_paste_from_clipboard">I-paste mula sa clipboard</string>
+    <string name="string_popular_platforms">Mga sikat na platform</string>
+    <string name="string_see_all">Tingnan lahat</string>
+    <string name="string_other">Iba pa</string>
+    <string name="string_recent_videos">Mga kamakailang video</string>
+    <string name="string_history_desc">Tingnan ang mga na-download na video</string>
+    <string name="string_bookmark_desc">Mga na-save na video</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">I-download ang video</string>

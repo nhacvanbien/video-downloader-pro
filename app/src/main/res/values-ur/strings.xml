@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>مرحلہ 1:</b>]]> ایپ کھولیں اور لنک کاپی کریں۔</string>
     <string name="string_step_2_process"><![CDATA[<b>مرحلہ 2:</b>]]> ایپلیکیشن پر واپس جائیں اور لنک ڈاؤن لوڈ کرنے کے لیے \'لنک پیسٹ کریں\' منتخب کریں۔</string>
     <string name="string_popular_apps">مقبول ایپس</string>
+    <string name="string_browser_home_subtitle">کسی بھی پلیٹ فارم سے آسانی سے ویڈیو ڈاؤن لوڈ کریں</string>
+    <string name="string_paste_video_link">ویڈیو لنک پیسٹ کریں</string>
+    <string name="string_paste_link_supported_sites">TikTok، Facebook، Instagram، X (Twitter)، Vimeo اور مزید کو سپورٹ کرتا ہے</string>
+    <string name="string_paste_video_link_hint">ویڈیو لنک یہاں پیسٹ کریں…</string>
+    <string name="string_paste_from_clipboard">کلپ بورڈ سے پیسٹ کریں</string>
+    <string name="string_popular_platforms">مقبول پلیٹ فارمز</string>
+    <string name="string_see_all">سب دیکھیں</string>
+    <string name="string_other">دیگر</string>
+    <string name="string_recent_videos">حالیہ ویڈیوز</string>
+    <string name="string_history_desc">ڈاؤن لوڈ شدہ ویڈیوز دیکھیں</string>
+    <string name="string_bookmark_desc">محفوظ شدہ ویڈیوز</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">ویڈیو ڈاؤن لوڈ کریں</string>

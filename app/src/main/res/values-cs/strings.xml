@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Krok 1:</b>]]> Otevřete aplikaci a zkopírujte odkaz.</string>
     <string name="string_step_2_process"><![CDATA[<b>Krok 2:</b>]]> Vraťte se do aplikace a zvolte \'Vložit odkaz\' pro stažení.</string>
     <string name="string_popular_apps">Oblíbené aplikace</string>
+    <string name="string_browser_home_subtitle">Snadno stahujte videa z libovolné platformy</string>
+    <string name="string_paste_video_link">Vložit odkaz na video</string>
+    <string name="string_paste_link_supported_sites">Podporuje TikTok, Facebook, Instagram, X (Twitter), Vimeo a další</string>
+    <string name="string_paste_video_link_hint">Sem vložte odkaz na video…</string>
+    <string name="string_paste_from_clipboard">Vložit ze schránky</string>
+    <string name="string_popular_platforms">Oblíbené platformy</string>
+    <string name="string_see_all">Zobrazit vše</string>
+    <string name="string_other">Ostatní</string>
+    <string name="string_recent_videos">Nedávná videa</string>
+    <string name="string_history_desc">Zobrazit stažená videa</string>
+    <string name="string_bookmark_desc">Uložená videa</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Stáhnout video</string>

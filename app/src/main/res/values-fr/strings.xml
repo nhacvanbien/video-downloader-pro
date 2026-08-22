@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Étape 1 :</b>]]> Ouvrez l\'application et copiez le lien.</string>
     <string name="string_step_2_process"><![CDATA[<b>Étape 2 :</b>]]> Retournez à l\'application et sélectionnez "Coller le lien" pour télécharger.</string>
     <string name="string_popular_apps">Applications populaires</string>
+    <string name="string_browser_home_subtitle">Téléchargez facilement des vidéos de toute plateforme</string>
+    <string name="string_paste_video_link">Coller le lien de la vidéo</string>
+    <string name="string_paste_link_supported_sites">Prend en charge TikTok, Facebook, Instagram, X (Twitter), Vimeo et plus</string>
+    <string name="string_paste_video_link_hint">Collez le lien de la vidéo ici…</string>
+    <string name="string_paste_from_clipboard">Coller depuis le presse-papiers</string>
+    <string name="string_popular_platforms">Plateformes populaires</string>
+    <string name="string_see_all">Tout voir</string>
+    <string name="string_other">Autres</string>
+    <string name="string_recent_videos">Vidéos récentes</string>
+    <string name="string_history_desc">Voir les vidéos téléchargées</string>
+    <string name="string_bookmark_desc">Vidéos enregistrées</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Télécharger la vidéo</string>

@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>步骤 1:</b>]]> 打开应用程序并复制链接。</string>
     <string name="string_step_2_process"><![CDATA[<b>步骤 2:</b>]]> 返回应用程序，选择“粘贴链接”进行下载。</string>
     <string name="string_popular_apps">热门应用</string>
+    <string name="string_browser_home_subtitle">轻松下载任意平台的视频</string>
+    <string name="string_paste_video_link">粘贴视频链接</string>
+    <string name="string_paste_link_supported_sites">支持 TikTok、Facebook、Instagram、X (Twitter)、Vimeo 等</string>
+    <string name="string_paste_video_link_hint">在此粘贴视频链接…</string>
+    <string name="string_paste_from_clipboard">从剪贴板粘贴</string>
+    <string name="string_popular_platforms">热门平台</string>
+    <string name="string_see_all">查看全部</string>
+    <string name="string_other">其他</string>
+    <string name="string_recent_videos">最近视频</string>
+    <string name="string_history_desc">查看已下载的视频</string>
+    <string name="string_bookmark_desc">已保存的视频</string>
     <string name="string_x">X（推特）</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">下载视频</string>

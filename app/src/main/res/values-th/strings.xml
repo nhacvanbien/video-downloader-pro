@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>ขั้นตอนที่ 1:</b>]]> เปิดแอปและคัดลอกลิงก์</string>
     <string name="string_step_2_process"><![CDATA[<b>ขั้นตอนที่ 2:</b>]]> กลับไปที่แอปพลิเคชัน เลือก \'วางลิงก์\' เพื่อดาวน์โหลดลิงก์</string>
     <string name="string_popular_apps">แอปยอดนิยม</string>
+    <string name="string_browser_home_subtitle">ดาวน์โหลดวิดีโอจากทุกแพลตฟอร์มได้อย่างง่ายดาย</string>
+    <string name="string_paste_video_link">วางลิงก์วิดีโอ</string>
+    <string name="string_paste_link_supported_sites">รองรับ TikTok, Facebook, Instagram, X (Twitter), Vimeo และอื่น ๆ</string>
+    <string name="string_paste_video_link_hint">วางลิงก์วิดีโอที่นี่…</string>
+    <string name="string_paste_from_clipboard">วางจากคลิปบอร์ด</string>
+    <string name="string_popular_platforms">แพลตฟอร์มยอดนิยม</string>
+    <string name="string_see_all">ดูทั้งหมด</string>
+    <string name="string_other">อื่น ๆ</string>
+    <string name="string_recent_videos">วิดีโอล่าสุด</string>
+    <string name="string_history_desc">ดูวิดีโอที่ดาวน์โหลด</string>
+    <string name="string_bookmark_desc">วิดีโอที่บันทึกไว้</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">ดาวน์โหลดวิดีโอ</string>

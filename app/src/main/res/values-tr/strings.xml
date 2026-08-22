@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Adım 1:</b>]]> Uygulamayı açın ve bağlantıyı kopyalayın.</string>
     <string name="string_step_2_process"><![CDATA[<b>Adım 2:</b>]]> Uygulamaya geri dönün ve "Bağlantıyı yapıştır" seçeneğini seçerek indirin.</string>
     <string name="string_popular_apps">Popüler Uygulamalar</string>
+    <string name="string_browser_home_subtitle">Her platformdan kolayca video indirin</string>
+    <string name="string_paste_video_link">Video bağlantısını yapıştır</string>
+    <string name="string_paste_link_supported_sites">TikTok, Facebook, Instagram, X (Twitter), Vimeo ve daha fazlasını destekler</string>
+    <string name="string_paste_video_link_hint">Video bağlantısını buraya yapıştırın…</string>
+    <string name="string_paste_from_clipboard">Panodan yapıştır</string>
+    <string name="string_popular_platforms">Popüler Platformlar</string>
+    <string name="string_see_all">Tümünü gör</string>
+    <string name="string_other">Diğer</string>
+    <string name="string_recent_videos">Son videolar</string>
+    <string name="string_history_desc">İndirilen videoları görüntüle</string>
+    <string name="string_bookmark_desc">Kaydedilen videolar</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Videoyu indir</string>

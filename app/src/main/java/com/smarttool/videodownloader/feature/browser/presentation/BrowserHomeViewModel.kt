@@ -2,31 +2,46 @@ package com.smarttool.videodownloader.feature.browser.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.smarttool.videodownloader.data.downloader.generic_downloader.models.VideoTaskItem
 import com.smarttool.videodownloader.feature.browser.domain.model.PopularSite
 import com.smarttool.videodownloader.feature.browser.domain.model.SearchEngine
 import com.smarttool.videodownloader.feature.browser.domain.model.WebTabFactory
 import com.smarttool.videodownloader.feature.browser.domain.usecase.GetPopularSitesUseCase
 import com.smarttool.videodownloader.feature.browser.domain.usecase.ObserveSearchEngineUseCase
+import com.smarttool.videodownloader.feature.library.domain.model.LibraryQuery
+import com.smarttool.videodownloader.feature.library.domain.model.SortState
+import com.smarttool.videodownloader.feature.library.domain.usecase.ObserveLibraryUseCase
 import com.smarttool.videodownloader.feature.tab.domain.model.TabModel
 import com.smarttool.videodownloader.feature.tab.domain.usecase.CreateTabUseCase
 import com.smarttool.videodownloader.feature.tab.domain.usecase.ObserveTabsUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val RECENT_DOWNLOAD_COUNT = 3
 
 class BrowserHomeViewModel(
     getPopularSites: GetPopularSitesUseCase,
     observeTabs: ObserveTabsUseCase,
     observeSearchEngine: ObserveSearchEngineUseCase,
+    observeLibrary: ObserveLibraryUseCase,
     private val createTab: CreateTabUseCase,
 ) : ViewModel() {
 
     val sites: List<PopularSite> = getPopularSites()
+
+    val recentDownloads: StateFlow<List<VideoTaskItem>> =
+        observeLibrary(LibraryQuery(sort = SortState.DATE_DESC))
+            .map { it.take(RECENT_DOWNLOAD_COUNT) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val _uiState = MutableStateFlow(BrowserHomeContract.State())
     val uiState: StateFlow<BrowserHomeContract.State> = _uiState.asStateFlow()

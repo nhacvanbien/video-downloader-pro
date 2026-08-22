@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>مرحله ۱:</b>]]> برنامه را باز کنید و پیوند را کپی کنید.</string>
     <string name="string_step_2_process"><![CDATA[<b>مرحله ۲:</b>]]> به برنامه بازگردید و برای دانلود پیوند، «چسباندن پیوند» را انتخاب کنید.</string>
     <string name="string_popular_apps">برنامه‌های محبوب</string>
+    <string name="string_browser_home_subtitle">به‌راحتی از هر پلتفرمی ویدیو دانلود کنید</string>
+    <string name="string_paste_video_link">چسباندن پیوند ویدیو</string>
+    <string name="string_paste_link_supported_sites">پشتیبانی از TikTok، Facebook، Instagram، X (Twitter)، Vimeo و موارد دیگر</string>
+    <string name="string_paste_video_link_hint">پیوند ویدیو را اینجا بچسبانید…</string>
+    <string name="string_paste_from_clipboard">چسباندن از کلیپ‌بورد</string>
+    <string name="string_popular_platforms">پلتفرم‌های محبوب</string>
+    <string name="string_see_all">مشاهده همه</string>
+    <string name="string_other">سایر</string>
+    <string name="string_recent_videos">ویدیوهای اخیر</string>
+    <string name="string_history_desc">مشاهده ویدیوهای دانلودشده</string>
+    <string name="string_bookmark_desc">ویدیوهای ذخیره‌شده</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">دانلود ویدیو</string>

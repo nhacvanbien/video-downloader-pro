@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Passo 1:</b>]]> Abra o app e copie o link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Passo 2:</b>]]> Volte para o app e selecione "Colar link" para baixar.</string>
     <string name="string_popular_apps">Apps populares</string>
+    <string name="string_browser_home_subtitle">Baixe vídeos de qualquer plataforma com facilidade</string>
+    <string name="string_paste_video_link">Colar link do vídeo</string>
+    <string name="string_paste_link_supported_sites">Compatível com TikTok, Facebook, Instagram, X (Twitter), Vimeo e mais</string>
+    <string name="string_paste_video_link_hint">Cole o link do vídeo aqui…</string>
+    <string name="string_paste_from_clipboard">Colar da área de transferência</string>
+    <string name="string_popular_platforms">Plataformas populares</string>
+    <string name="string_see_all">Ver tudo</string>
+    <string name="string_other">Outros</string>
+    <string name="string_recent_videos">Vídeos recentes</string>
+    <string name="string_history_desc">Ver vídeos baixados</string>
+    <string name="string_bookmark_desc">Vídeos salvos</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Baixar vídeo</string>

@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>ステップ 1:</b>]]> アプリを開いてリンクをコピーします。</string>
     <string name="string_step_2_process"><![CDATA[<b>ステップ 2:</b>]]> アプリに戻り、「リンクを貼り付ける」を選択してダウンロードします。</string>
     <string name="string_popular_apps">人気のアプリ</string>
+    <string name="string_browser_home_subtitle">どのプラットフォームからも簡単に動画をダウンロード</string>
+    <string name="string_paste_video_link">動画リンクを貼り付け</string>
+    <string name="string_paste_link_supported_sites">TikTok、Facebook、Instagram、X (Twitter)、Vimeo などに対応</string>
+    <string name="string_paste_video_link_hint">ここに動画リンクを貼り付けてください…</string>
+    <string name="string_paste_from_clipboard">クリップボードから貼り付け</string>
+    <string name="string_popular_platforms">人気のプラットフォーム</string>
+    <string name="string_see_all">すべて表示</string>
+    <string name="string_other">その他</string>
+    <string name="string_recent_videos">最近の動画</string>
+    <string name="string_history_desc">ダウンロードした動画を見る</string>
+    <string name="string_bookmark_desc">保存した動画</string>
     <string name="string_x">X（ツイッター）</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">動画をダウンロード</string>

@@ -184,6 +184,7 @@
     <string name="string_select_items">Select items</string>
     <string name="string_retry_download">Retry download</string>
     <string name="string_download_now">Download now</string>
+    <string name="string_download_cta">Download</string>
     <string name="string_retry">RETRY</string>
     <string name="string_download_failed_short">Download failed</string>
     <string name="string_no_media_found">No media found</string>
@@ -226,6 +227,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Step 1:</b>]]> Open App and copy the link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Step 2:</b>]]> Go back to the application, select \'Paste link\' to download the link.</string>
     <string name="string_popular_apps">Popular Apps</string>
+    <string name="string_browser_home_subtitle">Easily download videos from any platform</string>
+    <string name="string_paste_video_link">Paste video link</string>
+    <string name="string_paste_link_supported_sites">Supports TikTok, Facebook, Instagram, X (Twitter), Vimeo and more</string>
+    <string name="string_paste_video_link_hint">Paste video link here…</string>
+    <string name="string_paste_from_clipboard">Paste from clipboard</string>
+    <string name="string_popular_platforms">Popular platforms</string>
+    <string name="string_see_all">See all</string>
+    <string name="string_other">Other</string>
+    <string name="string_recent_videos">Recent videos</string>
+    <string name="string_history_desc">View downloaded videos</string>
+    <string name="string_bookmark_desc">Saved videos</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Download video</string>

@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Schritt 1:</b>]]> Öffnen Sie die App und kopieren Sie den Link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Schritt 2:</b>]]> Kehren Sie zur Anwendung zurück und wählen Sie „Link einfügen“, um den Link herunterzuladen.</string>
     <string name="string_popular_apps">Beliebte Apps</string>
+    <string name="string_browser_home_subtitle">Videos von jeder Plattform einfach herunterladen</string>
+    <string name="string_paste_video_link">Videolink einfügen</string>
+    <string name="string_paste_link_supported_sites">Unterstützt TikTok, Facebook, Instagram, X (Twitter), Vimeo und mehr</string>
+    <string name="string_paste_video_link_hint">Videolink hier einfügen…</string>
+    <string name="string_paste_from_clipboard">Aus Zwischenablage einfügen</string>
+    <string name="string_popular_platforms">Beliebte Plattformen</string>
+    <string name="string_see_all">Alle ansehen</string>
+    <string name="string_other">Andere</string>
+    <string name="string_recent_videos">Neueste Videos</string>
+    <string name="string_history_desc">Heruntergeladene Videos ansehen</string>
+    <string name="string_bookmark_desc">Gespeicherte Videos</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Video herunterladen</string>

@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Hatua ya 1:</b>]]> Fungua programu na unakili kiungo.</string>
     <string name="string_step_2_process"><![CDATA[<b>Hatua ya 2:</b>]]> Rudi kwenye programu, chagua \'Bandika kiungo\' ili kupakua kiungo.</string>
     <string name="string_popular_apps">Programu maarufu</string>
+    <string name="string_browser_home_subtitle">Pakua video kwa urahisi kutoka jukwaa lolote</string>
+    <string name="string_paste_video_link">Bandika kiungo cha video</string>
+    <string name="string_paste_link_supported_sites">Inasaidia TikTok, Facebook, Instagram, X (Twitter), Vimeo na zaidi</string>
+    <string name="string_paste_video_link_hint">Bandika kiungo cha video hapa…</string>
+    <string name="string_paste_from_clipboard">Bandika kutoka ubao wa kunakili</string>
+    <string name="string_popular_platforms">Majukwaa maarufu</string>
+    <string name="string_see_all">Angalia zote</string>
+    <string name="string_other">Nyingine</string>
+    <string name="string_recent_videos">Video za hivi karibuni</string>
+    <string name="string_history_desc">Angalia video zilizopakuliwa</string>
+    <string name="string_bookmark_desc">Video zilizohifadhiwa</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Pakua video</string>

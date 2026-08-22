@@ -80,6 +80,8 @@ fun MainRoute(
                     onOpenTabs = onOpenTabs,
                     onOpenBookmarks = onOpenBookmarks,
                     onOpenHistory = onOpenHistory,
+                    onOpenMedia = onOpenMedia,
+                    onSeeAllDownloads = { onSelectTab(MainTab.Downloads) },
                 )
             }
 

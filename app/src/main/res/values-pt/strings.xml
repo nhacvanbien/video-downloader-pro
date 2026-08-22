@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Passo 1:</b>]]> Abra a aplicação e copie o link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Passo 2:</b>]]> Volte à aplicação e selecione "Colar link" para transferir.</string>
     <string name="string_popular_apps">Aplicações populares</string>
+    <string name="string_browser_home_subtitle">Transfira vídeos de qualquer plataforma facilmente</string>
+    <string name="string_paste_video_link">Colar link do vídeo</string>
+    <string name="string_paste_link_supported_sites">Suporta TikTok, Facebook, Instagram, X (Twitter), Vimeo e mais</string>
+    <string name="string_paste_video_link_hint">Cole aqui o link do vídeo…</string>
+    <string name="string_paste_from_clipboard">Colar da área de transferência</string>
+    <string name="string_popular_platforms">Plataformas populares</string>
+    <string name="string_see_all">Ver tudo</string>
+    <string name="string_other">Outros</string>
+    <string name="string_recent_videos">Vídeos recentes</string>
+    <string name="string_history_desc">Ver vídeos transferidos</string>
+    <string name="string_bookmark_desc">Vídeos guardados</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Transferir vídeo</string>

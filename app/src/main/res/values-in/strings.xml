@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Langkah 1:</b>]]> Buka aplikasi dan salin tautan.</string>
     <string name="string_step_2_process"><![CDATA[<b>Langkah 2:</b>]]> Kembali ke aplikasi dan pilih "Tempel tautan" untuk mengunduh.</string>
     <string name="string_popular_apps">Aplikasi Populer</string>
+    <string name="string_browser_home_subtitle">Unduh video dengan mudah dari platform apa pun</string>
+    <string name="string_paste_video_link">Tempel tautan video</string>
+    <string name="string_paste_link_supported_sites">Mendukung TikTok, Facebook, Instagram, X (Twitter), Vimeo, dan lainnya</string>
+    <string name="string_paste_video_link_hint">Tempelkan tautan video di sini…</string>
+    <string name="string_paste_from_clipboard">Tempel dari papan klip</string>
+    <string name="string_popular_platforms">Platform Populer</string>
+    <string name="string_see_all">Lihat semua</string>
+    <string name="string_other">Lainnya</string>
+    <string name="string_recent_videos">Video terbaru</string>
+    <string name="string_history_desc">Lihat video yang diunduh</string>
+    <string name="string_bookmark_desc">Video tersimpan</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Unduh video</string>

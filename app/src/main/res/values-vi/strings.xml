@@ -176,6 +176,7 @@
     <string name="string_select_items">Chọn mục</string>
     <string name="string_retry_download">Thử tải lại</string>
     <string name="string_download_now">Tải xuống ngay</string>
+    <string name="string_download_cta">Tải ngay</string>
     <string name="string_retry">THỬ LẠI</string>
     <string name="string_download_failed_short">Tải xuống thất bại</string>
     <string name="string_no_media_found">Không tìm thấy nội dung</string>
@@ -218,6 +219,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Bước 1:</b>]]> Mở ứng dụng và sao chép liên kết.</string>
     <string name="string_step_2_process"><![CDATA[<b>Bước 2:</b>]]> Quay lại ứng dụng, chọn \'Dán liên kết\' để tải liên kết xuống.</string>
     <string name="string_popular_apps">Ứng dụng phổ biến</string>
+    <string name="string_browser_home_subtitle">Dễ dàng tải video từ mọi nền tảng</string>
+    <string name="string_paste_video_link">Dán liên kết video</string>
+    <string name="string_paste_link_supported_sites">Hỗ trợ TikTok, Facebook, Instagram, X (Twitter), Vimeo và nhiều hơn nữa</string>
+    <string name="string_paste_video_link_hint">Dán liên kết video tại đây…</string>
+    <string name="string_paste_from_clipboard">Dán từ Clipboard</string>
+    <string name="string_popular_platforms">Nền tảng phổ biến</string>
+    <string name="string_see_all">Xem tất cả</string>
+    <string name="string_other">Khác</string>
+    <string name="string_recent_videos">Video gần đây</string>
+    <string name="string_history_desc">Xem video đã tải</string>
+    <string name="string_bookmark_desc">Video đã lưu</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Tải video xuống</string>

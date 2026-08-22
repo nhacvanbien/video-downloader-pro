@@ -29,5 +29,5 @@ val browserModule = module {
     factory { SetSearchEngineUseCase(get()) }
 
     factory { GetPopularSitesUseCase() }
-    viewModel { BrowserHomeViewModel(get(), get(), get(), get()) }
+    viewModel { BrowserHomeViewModel(get(), get(), get(), get(), get()) }
 }

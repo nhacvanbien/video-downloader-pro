@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Шаг 1:</b>]]> Откройте приложение и скопируйте ссылку.</string>
     <string name="string_step_2_process"><![CDATA[<b>Шаг 2:</b>]]> Вернитесь в приложение и выберите «Вставить ссылку», чтобы загрузить.</string>
     <string name="string_popular_apps">Популярные приложения</string>
+    <string name="string_browser_home_subtitle">Легко скачивайте видео с любой платформы</string>
+    <string name="string_paste_video_link">Вставить ссылку на видео</string>
+    <string name="string_paste_link_supported_sites">Поддерживает TikTok, Facebook, Instagram, X (Twitter), Vimeo и другие</string>
+    <string name="string_paste_video_link_hint">Вставьте ссылку на видео сюда…</string>
+    <string name="string_paste_from_clipboard">Вставить из буфера обмена</string>
+    <string name="string_popular_platforms">Популярные платформы</string>
+    <string name="string_see_all">Показать все</string>
+    <string name="string_other">Другое</string>
+    <string name="string_recent_videos">Недавние видео</string>
+    <string name="string_history_desc">Просмотр скачанных видео</string>
+    <string name="string_bookmark_desc">Сохранённые видео</string>
     <string name="string_x">X (Твиттер)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Скачать видео</string>

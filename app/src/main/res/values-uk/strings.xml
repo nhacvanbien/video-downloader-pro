@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Крок 1:</b>]]> Відкрийте застосунок і скопіюйте посилання.</string>
     <string name="string_step_2_process"><![CDATA[<b>Крок 2:</b>]]> Поверніться до застосунку та виберіть «Вставити посилання», щоб завантажити його.</string>
     <string name="string_popular_apps">Популярні застосунки</string>
+    <string name="string_browser_home_subtitle">Легко завантажуйте відео з будь-якої платформи</string>
+    <string name="string_paste_video_link">Вставити посилання на відео</string>
+    <string name="string_paste_link_supported_sites">Підтримує TikTok, Facebook, Instagram, X (Twitter), Vimeo та інші</string>
+    <string name="string_paste_video_link_hint">Вставте посилання на відео сюди…</string>
+    <string name="string_paste_from_clipboard">Вставити з буфера обміну</string>
+    <string name="string_popular_platforms">Популярні платформи</string>
+    <string name="string_see_all">Показати всі</string>
+    <string name="string_other">Інше</string>
+    <string name="string_recent_videos">Останні відео</string>
+    <string name="string_history_desc">Переглянути завантажені відео</string>
+    <string name="string_bookmark_desc">Збережені відео</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Завантажити відео</string>

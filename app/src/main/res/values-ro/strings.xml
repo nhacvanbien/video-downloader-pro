@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Pasul 1:</b>]]> Deschide aplicația și copiază linkul.</string>
     <string name="string_step_2_process"><![CDATA[<b>Pasul 2:</b>]]> Revino în aplicație și selectează \'Lipește linkul\' pentru a descărca linkul.</string>
     <string name="string_popular_apps">Aplicații populare</string>
+    <string name="string_browser_home_subtitle">Descarcă ușor videoclipuri de pe orice platformă</string>
+    <string name="string_paste_video_link">Lipește linkul videoclipului</string>
+    <string name="string_paste_link_supported_sites">Acceptă TikTok, Facebook, Instagram, X (Twitter), Vimeo și altele</string>
+    <string name="string_paste_video_link_hint">Lipește aici linkul videoclipului…</string>
+    <string name="string_paste_from_clipboard">Lipește din clipboard</string>
+    <string name="string_popular_platforms">Platforme populare</string>
+    <string name="string_see_all">Vezi tot</string>
+    <string name="string_other">Altele</string>
+    <string name="string_recent_videos">Videoclipuri recente</string>
+    <string name="string_history_desc">Vezi videoclipurile descărcate</string>
+    <string name="string_bookmark_desc">Videoclipuri salvate</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Descarcă videoclipul</string>

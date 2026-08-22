@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Βήμα 1:</b>]]> Ανοίξτε την εφαρμογή και αντιγράψτε τον σύνδεσμο.</string>
     <string name="string_step_2_process"><![CDATA[<b>Βήμα 2:</b>]]> Επιστρέψτε στην εφαρμογή και επιλέξτε \'Επικόλληση συνδέσμου\' για να κατεβάσετε τον σύνδεσμο.</string>
     <string name="string_popular_apps">Δημοφιλείς εφαρμογές</string>
+    <string name="string_browser_home_subtitle">Κατεβάστε εύκολα βίντεο από κάθε πλατφόρμα</string>
+    <string name="string_paste_video_link">Επικόλληση συνδέσμου βίντεο</string>
+    <string name="string_paste_link_supported_sites">Υποστηρίζει TikTok, Facebook, Instagram, X (Twitter), Vimeo και άλλα</string>
+    <string name="string_paste_video_link_hint">Επικολλήστε τον σύνδεσμο βίντεο εδώ…</string>
+    <string name="string_paste_from_clipboard">Επικόλληση από πρόχειρο</string>
+    <string name="string_popular_platforms">Δημοφιλείς πλατφόρμες</string>
+    <string name="string_see_all">Προβολή όλων</string>
+    <string name="string_other">Άλλα</string>
+    <string name="string_recent_videos">Πρόσφατα βίντεο</string>
+    <string name="string_history_desc">Δείτε τα ληφθέντα βίντεο</string>
+    <string name="string_bookmark_desc">Αποθηκευμένα βίντεο</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Λήψη βίντεο</string>

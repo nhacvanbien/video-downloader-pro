@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>1. lépés:</b>]]> Nyisd meg az alkalmazást és másold ki a hivatkozást.</string>
     <string name="string_step_2_process"><![CDATA[<b>2. lépés:</b>]]> Térj vissza az alkalmazásba, és válaszd a \'Hivatkozás beillesztése\' lehetőséget a letöltéshez.</string>
     <string name="string_popular_apps">Népszerű alkalmazások</string>
+    <string name="string_browser_home_subtitle">Tölts le videókat egyszerűen bármely platformról</string>
+    <string name="string_paste_video_link">Videó hivatkozás beillesztése</string>
+    <string name="string_paste_link_supported_sites">Támogatja a TikTok, Facebook, Instagram, X (Twitter), Vimeo és további oldalakat</string>
+    <string name="string_paste_video_link_hint">Illeszd be ide a videó hivatkozását…</string>
+    <string name="string_paste_from_clipboard">Beillesztés a vágólapról</string>
+    <string name="string_popular_platforms">Népszerű platformok</string>
+    <string name="string_see_all">Összes megtekintése</string>
+    <string name="string_other">Egyéb</string>
+    <string name="string_recent_videos">Legutóbbi videók</string>
+    <string name="string_history_desc">Letöltött videók megtekintése</string>
+    <string name="string_bookmark_desc">Mentett videók</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Videó letöltése</string>

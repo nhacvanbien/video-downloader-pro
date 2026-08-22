@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Langkah 1:</b>]]> Buka aplikasi dan salin pautan.</string>
     <string name="string_step_2_process"><![CDATA[<b>Langkah 2:</b>]]> Kembali ke aplikasi, pilih \'Tampal pautan\' untuk memuat turun pautan tersebut.</string>
     <string name="string_popular_apps">Aplikasi popular</string>
+    <string name="string_browser_home_subtitle">Muat turun video daripada mana-mana platform dengan mudah</string>
+    <string name="string_paste_video_link">Tampal pautan video</string>
+    <string name="string_paste_link_supported_sites">Menyokong TikTok, Facebook, Instagram, X (Twitter), Vimeo dan banyak lagi</string>
+    <string name="string_paste_video_link_hint">Tampal pautan video di sini…</string>
+    <string name="string_paste_from_clipboard">Tampal dari papan keratan</string>
+    <string name="string_popular_platforms">Platform popular</string>
+    <string name="string_see_all">Lihat semua</string>
+    <string name="string_other">Lain-lain</string>
+    <string name="string_recent_videos">Video terkini</string>
+    <string name="string_history_desc">Lihat video yang dimuat turun</string>
+    <string name="string_bookmark_desc">Video disimpan</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Muat turun video</string>

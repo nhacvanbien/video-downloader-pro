@@ -171,6 +171,17 @@
     <string name="string_step_1_process"><![CDATA[<b>步驟 1:</b>]]> 打開應用程式並複製連結。</string>
     <string name="string_step_2_process"><![CDATA[<b>步驟 2:</b>]]> 返回應用程式，選擇「貼上連結」來下載。</string>
     <string name="string_popular_apps">熱門應用程式</string>
+    <string name="string_browser_home_subtitle">輕鬆下載任何平台的影片</string>
+    <string name="string_paste_video_link">貼上影片連結</string>
+    <string name="string_paste_link_supported_sites">支援 TikTok、Facebook、Instagram、X (Twitter)、Vimeo 等</string>
+    <string name="string_paste_video_link_hint">在此貼上影片連結…</string>
+    <string name="string_paste_from_clipboard">從剪貼簿貼上</string>
+    <string name="string_popular_platforms">熱門平台</string>
+    <string name="string_see_all">查看全部</string>
+    <string name="string_other">其他</string>
+    <string name="string_recent_videos">最近的影片</string>
+    <string name="string_history_desc">查看已下載的影片</string>
+    <string name="string_bookmark_desc">已儲存的影片</string>
     <string name="string_x">X（推特）</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">下載影片</string>

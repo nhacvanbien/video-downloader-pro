@@ -170,6 +170,17 @@
     <string name="string_step_1_process"><![CDATA[<b>الخطوة 1:</b>]]> افتح التطبيق وانسخ الرابط.</string>
     <string name="string_step_2_process"><![CDATA[<b>الخطوة 2:</b>]]> ارجع إلى التطبيق، وحدد "لصق الرابط" لتنزيل الرابط.</string>
     <string name="string_popular_apps">التطبيقات الشائعة</string>
+    <string name="string_browser_home_subtitle">تنزيل الفيديوهات من أي منصة بسهولة</string>
+    <string name="string_paste_video_link">الصق رابط الفيديو</string>
+    <string name="string_paste_link_supported_sites">يدعم TikTok وFacebook وInstagram وX (Twitter) وVimeo والمزيد</string>
+    <string name="string_paste_video_link_hint">الصق رابط الفيديو هنا…</string>
+    <string name="string_paste_from_clipboard">لصق من الحافظة</string>
+    <string name="string_popular_platforms">المنصات الشائعة</string>
+    <string name="string_see_all">عرض الكل</string>
+    <string name="string_other">أخرى</string>
+    <string name="string_recent_videos">الفيديوهات الأخيرة</string>
+    <string name="string_history_desc">عرض الفيديوهات المنزلة</string>
+    <string name="string_bookmark_desc">الفيديوهات المحفوظة</string>
     <string name="string_x">X (تويتر)</string>
     <string name="string_pinterest">بينتيريست</string>
     <string name="string_download_video">تنزيل الفيديو</string>

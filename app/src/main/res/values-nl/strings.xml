@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Stap 1:</b>]]> Open de app en kopieer de link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Stap 2:</b>]]> Ga terug naar de app en selecteer \'Link plakken\' om de link te downloaden.</string>
     <string name="string_popular_apps">Populaire apps</string>
+    <string name="string_browser_home_subtitle">Download eenvoudig video\'s van elk platform</string>
+    <string name="string_paste_video_link">Videolink plakken</string>
+    <string name="string_paste_link_supported_sites">Ondersteunt TikTok, Facebook, Instagram, X (Twitter), Vimeo en meer</string>
+    <string name="string_paste_video_link_hint">Plak hier de videolink…</string>
+    <string name="string_paste_from_clipboard">Plakken vanaf klembord</string>
+    <string name="string_popular_platforms">Populaire platforms</string>
+    <string name="string_see_all">Alles bekijken</string>
+    <string name="string_other">Overig</string>
+    <string name="string_recent_videos">Recente video\'s</string>
+    <string name="string_history_desc">Gedownloade video\'s bekijken</string>
+    <string name="string_bookmark_desc">Opgeslagen video\'s</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Video downloaden</string>

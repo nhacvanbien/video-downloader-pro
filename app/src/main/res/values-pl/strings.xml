@@ -218,6 +218,17 @@
     <string name="string_step_1_process"><![CDATA[<b>Krok 1:</b>]]> Otwórz aplikację i skopiuj link.</string>
     <string name="string_step_2_process"><![CDATA[<b>Krok 2:</b>]]> Wróć do aplikacji, wybierz \'Wklej link\', aby pobrać link.</string>
     <string name="string_popular_apps">Popularne aplikacje</string>
+    <string name="string_browser_home_subtitle">Łatwo pobieraj filmy z dowolnej platformy</string>
+    <string name="string_paste_video_link">Wklej link do wideo</string>
+    <string name="string_paste_link_supported_sites">Obsługuje TikTok, Facebook, Instagram, X (Twitter), Vimeo i więcej</string>
+    <string name="string_paste_video_link_hint">Wklej tutaj link do wideo…</string>
+    <string name="string_paste_from_clipboard">Wklej ze schowka</string>
+    <string name="string_popular_platforms">Popularne platformy</string>
+    <string name="string_see_all">Zobacz wszystko</string>
+    <string name="string_other">Inne</string>
+    <string name="string_recent_videos">Ostatnie filmy</string>
+    <string name="string_history_desc">Zobacz pobrane filmy</string>
+    <string name="string_bookmark_desc">Zapisane filmy</string>
     <string name="string_x">X (Twitter)</string>
     <string name="string_pinterest">Pinterest</string>
     <string name="string_download_video">Pobierz wideo</string>
