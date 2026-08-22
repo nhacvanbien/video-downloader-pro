@@ -176,6 +176,7 @@
     <string name="string_select_items">Items selecteren</string>
     <string name="string_retry_download">Download opnieuw proberen</string>
     <string name="string_download_now">Nu downloaden</string>
+    <string name="string_download_cta">Downloaden</string>
     <string name="string_retry">OPNIEUW</string>
     <string name="string_download_failed_short">Download mislukt</string>
     <string name="string_no_media_found">Geen media gevonden</string>

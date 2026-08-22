@@ -176,6 +176,7 @@
     <string name="string_select_items">انتخاب موارد</string>
     <string name="string_retry_download">تلاش دوباره برای دانلود</string>
     <string name="string_download_now">اکنون دانلود کن</string>
+    <string name="string_download_cta">دانلود</string>
     <string name="string_retry">تلاش دوباره</string>
     <string name="string_download_failed_short">دانلود ناموفق بود</string>
     <string name="string_no_media_found">رسانه‌ای پیدا نشد</string>

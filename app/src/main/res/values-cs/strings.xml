@@ -176,6 +176,7 @@
     <string name="string_select_items">Vybrat položky</string>
     <string name="string_retry_download">Zkusit stáhnout znovu</string>
     <string name="string_download_now">Stáhnout nyní</string>
+    <string name="string_download_cta">Stáhnout</string>
     <string name="string_retry">ZNOVU</string>
     <string name="string_download_failed_short">Stahování selhalo</string>
     <string name="string_no_media_found">Nenalezena žádná média</string>

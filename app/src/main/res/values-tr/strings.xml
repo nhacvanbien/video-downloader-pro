@@ -209,6 +209,7 @@
     <string name="string_retry">TEKRAR DENE</string>
     <string name="string_retry_download">İndirmeyi tekrar dene</string>
     <string name="string_download_now">Şimdi indir</string>
+    <string name="string_download_cta">İndir</string>
     <string name="string_save_to_private_folder">Gizli klasöre kaydet</string>
     <string name="string_search_downloads">İndirilenlerde ara</string>
     <string name="string_search_language">Dil ara</string>

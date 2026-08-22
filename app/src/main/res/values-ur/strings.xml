@@ -176,6 +176,7 @@
     <string name="string_select_items">آئٹمز منتخب کریں</string>
     <string name="string_retry_download">ڈاؤن لوڈ دوبارہ آزمائیں</string>
     <string name="string_download_now">ابھی ڈاؤن لوڈ کریں</string>
+    <string name="string_download_cta">ڈاؤن لوڈ</string>
     <string name="string_retry">دوبارہ کوشش</string>
     <string name="string_download_failed_short">ڈاؤن لوڈ ناکام</string>
     <string name="string_no_media_found">کوئی میڈیا نہیں ملا</string>

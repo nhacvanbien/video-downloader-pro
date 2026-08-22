@@ -210,6 +210,7 @@
     <string name="string_retry">পুনরায় চেষ্টা করুন</string>
     <string name="string_retry_download">পুনরায় ডাউনলোড করুন</string>
     <string name="string_download_now">এখনই ডাউনলোড করুন</string>
+    <string name="string_download_cta">ডাউনলোড করুন</string>
     <string name="string_save_to_private_folder">ব্যক্তিগত ফোল্ডারে সংরক্ষণ করুন</string>
     <string name="string_search_downloads">ডাউনলোড অনুসন্ধান করুন</string>
     <string name="string_search_language">ভাষা খুঁজুন</string>

@@ -176,6 +176,7 @@
     <string name="string_select_items">Seleziona elementi</string>
     <string name="string_retry_download">Riprova download</string>
     <string name="string_download_now">Scarica ora</string>
+    <string name="string_download_cta">Scarica</string>
     <string name="string_retry">RIPROVA</string>
     <string name="string_download_failed_short">Download non riuscito</string>
     <string name="string_no_media_found">Nessun contenuto trovato</string>

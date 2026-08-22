@@ -176,6 +176,7 @@
     <string name="string_select_items">Pilih item</string>
     <string name="string_retry_download">Cuba muat turun semula</string>
     <string name="string_download_now">Muat turun sekarang</string>
+    <string name="string_download_cta">Muat turun</string>
     <string name="string_retry">CUBA LAGI</string>
     <string name="string_download_failed_short">Muat turun gagal</string>
     <string name="string_no_media_found">Tiada media dijumpai</string>

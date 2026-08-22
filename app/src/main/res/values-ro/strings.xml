@@ -176,6 +176,7 @@
     <string name="string_select_items">Selectează elemente</string>
     <string name="string_retry_download">Reîncearcă descărcarea</string>
     <string name="string_download_now">Descarcă acum</string>
+    <string name="string_download_cta">Descarcă</string>
     <string name="string_retry">REÎNCEARCĂ</string>
     <string name="string_download_failed_short">Descărcare eșuată</string>
     <string name="string_no_media_found">Niciun conținut media găsit</string>

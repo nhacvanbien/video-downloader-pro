@@ -210,6 +210,7 @@
     <string name="string_retry">RÉESSAYER</string>
     <string name="string_retry_download">Réessayer le téléchargement</string>
     <string name="string_download_now">Télécharger maintenant</string>
+    <string name="string_download_cta">Télécharger</string>
     <string name="string_save_to_private_folder">Enregistrer dans le dossier privé</string>
     <string name="string_search_downloads">Rechercher des téléchargements</string>
     <string name="string_search_language">Rechercher une langue</string>

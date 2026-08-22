@@ -176,6 +176,7 @@
     <string name="string_select_items">Επιλογή στοιχείων</string>
     <string name="string_retry_download">Επανάληψη λήψης</string>
     <string name="string_download_now">Λήψη τώρα</string>
+    <string name="string_download_cta">Λήψη</string>
     <string name="string_retry">ΕΠΑΝΑΛΗΨΗ</string>
     <string name="string_download_failed_short">Η λήψη απέτυχε</string>
     <string name="string_no_media_found">Δεν βρέθηκαν πολυμέσα</string>

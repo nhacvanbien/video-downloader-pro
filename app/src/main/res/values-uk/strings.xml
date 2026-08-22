@@ -176,6 +176,7 @@
     <string name="string_select_items">Вибрати елементи</string>
     <string name="string_retry_download">Повторити завантаження</string>
     <string name="string_download_now">Завантажити зараз</string>
+    <string name="string_download_cta">Завантажити</string>
     <string name="string_retry">ПОВТОРИТИ</string>
     <string name="string_download_failed_short">Помилка завантаження</string>
     <string name="string_no_media_found">Медіа не знайдено</string>
